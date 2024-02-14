@@ -30,13 +30,13 @@ class _IcBlcState extends State<IcBlc> {
   bool? _enableValueReq;
   bool? _enableValueEff;
 
-  int _powerDecimal = 3;
+  int _powerDecimals = 3;
   double _powerMin = 0;
   double _powerMax = 0.1;
   double? _powerValueReq;
   double? _powerValueEff;
 
-  int _currentDecimal = 3;
+  int _currentDecimals = 3;
   double _currentMin = 0;
   double _currentMax = 0.1;
   double? _currentValueReq;
@@ -103,8 +103,8 @@ class _IcBlcState extends State<IcBlc> {
                   if (field.key == "max") {
                     _powerMax = value_to_double(field.value);
                   }
-                  if (field.key == "decimal") {
-                    _powerDecimal = field.value;
+                  if (field.key == "decimals") {
+                    _powerDecimals = field.value;
                   }
 
                   break;
@@ -127,8 +127,8 @@ class _IcBlcState extends State<IcBlc> {
                   if (field.key == "max") {
                     _currentMax = value_to_double(field.value);
                   }
-                  if (field.key == "decimal") {
-                    _currentDecimal = field.value;
+                  if (field.key == "decimals") {
+                    _currentDecimals = field.value;
                   }
 
                   break;
@@ -289,6 +289,8 @@ class _IcBlcState extends State<IcBlc> {
 
   @override
   Widget build(BuildContext context) {
+    print("decimals $_currentDecimals");
+
     if (_enableValueEff != null &&
         _powerValueReq != null &&
         _currentValueReq != null &&
@@ -315,26 +317,26 @@ class _IcBlcState extends State<IcBlc> {
                 });
               }),
           Text(
-              'Power : ${double.parse(_powerValueReq!.toStringAsFixed(_powerDecimal))}W'),
+              'Power : ${double.parse(_powerValueReq!.toStringAsFixed(_powerDecimals))}W'),
           Slider(
             value: _powerValueReq!,
             onChanged: (value) {
               setState(() {
                 _powerValueReq =
-                    double.parse((value).toStringAsFixed(_powerDecimal));
+                    double.parse((value).toStringAsFixed(_powerDecimals));
               });
             },
             min: _powerMin,
             max: _powerMax,
           ),
           Text(
-              'Current : ${double.parse(_currentValueReq!.toStringAsFixed(_currentDecimal))}A'),
+              'Current : ${double.parse(_currentValueReq!.toStringAsFixed(_currentDecimals))}A'),
           Slider(
             value: _currentValueReq!,
             onChanged: (value) {
               setState(() {
                 _currentValueReq =
-                    double.parse((value).toStringAsFixed(_currentDecimal));
+                    double.parse((value).toStringAsFixed(_currentDecimals));
               });
             },
             min: _currentMin,
