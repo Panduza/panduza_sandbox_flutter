@@ -73,28 +73,53 @@ class _IcBlcState extends State<IcBlc> {
               switch (atts.key) {
                 case "mode":
                   if (field.key == "value") {
+                    bool sync = false;
+                    if (_modeValueEff == _modeValueReq ||
+                        _modeValueReq == null) {
+                      sync = true;
+                    }
+
                     _modeValueEff = field.value;
-                    _modeValueReq ??= _modeValueEff;
+                    if (sync) {
+                      _modeValueReq = _modeValueEff;
+                    }
                   }
                   break;
 
                 case "enable":
                   if (field.key == "value") {
+                    bool sync = false;
+                    if (_enableValueEff == _enableValueReq ||
+                        _enableValueReq == null) {
+                      sync = true;
+                    }
+
                     _enableValueEff = field.value;
-                    _enableValueReq ??= _enableValueEff;
+                    if (sync) {
+                      _enableValueReq = _enableValueEff;
+                    }
                   }
                   break;
 
                 case "power":
                   if (field.key == "value") {
                     // print("pokkk !! ${field.value.runtimeType}");
+
+                    bool sync = false;
+                    if (_powerValueEff == _powerValueReq ||
+                        _powerValueReq == null) {
+                      sync = true;
+                    }
+
                     switch (field.value.runtimeType) {
                       case int:
                         _powerValueEff = field.value.toDouble();
                       case double:
                         _powerValueEff = field.value;
                     }
-                    _powerValueReq ??= _powerValueEff;
+                    if (sync) {
+                      _powerValueReq = _powerValueEff;
+                    }
                   }
 
                   if (field.key == "min") {
@@ -111,14 +136,22 @@ class _IcBlcState extends State<IcBlc> {
 
                 case "current":
                   if (field.key == "value") {
-                    // print("pokkk !! ${field.value.runtimeType}");
+                    bool sync = false;
+                    if (_currentValueEff == _currentValueReq ||
+                        _currentValueReq == null) {
+                      sync = true;
+                    }
+
                     switch (field.value.runtimeType) {
                       case int:
                         _currentValueEff = field.value.toDouble();
                       case double:
                         _currentValueEff = field.value;
                     }
-                    _currentValueReq ??= _currentValueEff;
+
+                    if (sync) {
+                      _currentValueReq = _currentValueEff;
+                    }
                   }
 
                   if (field.key == "min") {
