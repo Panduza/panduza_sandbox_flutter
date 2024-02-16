@@ -19,8 +19,8 @@ class MqttConnectionForm extends StatefulWidget {
 class _MqttConnectionFormState extends State<MqttConnectionForm> {
   // final _ctrlHost = TextEditingController(text: "localhost");
   // final _ctrlHost = TextEditingController(text: "192.168.1.39");
-  // final _ctrlHost = TextEditingController(text: "192.168.1.33");
-  final _ctrlHost = TextEditingController(text: "10.3.141.1");
+  final _ctrlHost = TextEditingController(text: "192.168.1.33");
+  // final _ctrlHost = TextEditingController(text: "10.3.141.1");
   final _ctrlPort = TextEditingController(text: "1883");
   late MqttServerClient _client;
   bool _isConnecting = false;

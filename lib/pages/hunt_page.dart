@@ -135,8 +135,8 @@ class _HuntPageState extends State<HuntPage> {
   ///
   List<Widget> instancesCardList() {
     List<Widget> widgets = [];
-    var i;
-    for (i in _instances) {
+
+    for (var i in _instances) {
       widgets.add(Card(
           child: Column(children: [
         Text(i.toString()),
@@ -144,7 +144,7 @@ class _HuntPageState extends State<HuntPage> {
           onPressed: () {
             widget._platformConfig.devices
                 .insert(0, DeviceConfig.FromInstanceMap(i));
-            // print(widget._platformConfig.devices.length);
+
             Navigator.pop(context, true);
           },
           // style: ElevatedButton.styleFrom(
