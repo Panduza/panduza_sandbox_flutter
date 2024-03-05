@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:panduza_sandbox_flutter/data/const.dart';
+
 import 'pages/home_page.dart';
+import 'data/const.dart';
 
 // ============================================================================
 // Main enter point
@@ -18,7 +21,7 @@ class PanduzaSandboxApp extends StatelessWidget {
     return MaterialApp(
       title: 'Panduza Sandbox',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(seedColor: black),
         useMaterial3: true,
       ),
       // routes: {
