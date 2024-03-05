@@ -1,0 +1,11 @@
+Basic application :
+
+- Home page : List broker with their identifications
+- If a broker is selected then show the list of the lab equipments
+- If a equipments is choosen, you have different parameters to choose for your test
+- Get the result of the test (different for each equipment)
+
+
+
+
+Think about the futur cloud application :
