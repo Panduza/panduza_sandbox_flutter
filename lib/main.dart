@@ -1,12 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:panduza_sandbox_flutter/data/const.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'pages/home_page.dart';
 import 'data/const.dart';
 
+
+// Think about init SharedPreferences only to the start of the application
+
+// late SharedPreferences prefs;
+
 // ============================================================================
 // Main enter point
-void main() {
+void main() async {
+  // prefs = await SharedPreferences.getInstance();
   runApp(const PanduzaSandboxApp());
 }
 
