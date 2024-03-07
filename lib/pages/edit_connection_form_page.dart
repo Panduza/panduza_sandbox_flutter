@@ -5,33 +5,38 @@ import '../data/const.dart';
 import '../data/utils.dart';
 
 
-// Form to add a new manual connection 
-// The user can add on his disk a new setup of connection mqtt
+// Form to edit a existing connection
 
-class AddConnectionForm extends StatefulWidget {
+class EditConnectionForm extends StatefulWidget {
 
-  const AddConnectionForm({
+  const EditConnectionForm({
     super.key,
-    /*
+    required this.platformName,
     required this.hostIp,
     required this.port
-    */
   });
-  
-  /*
-  String hostIp;
-  String port;
-  */
+
+  final String platformName;
+  final String hostIp;
+  final String port;
 
   @override
-  _AddConnectionForm createState() => _AddConnectionForm();
+  _EditConnectionForm createState() => _EditConnectionForm();
 }
 
-class _AddConnectionForm extends State<AddConnectionForm> {
+class _EditConnectionForm extends State<EditConnectionForm> {
 
   final _ctrlName = TextEditingController();
   final _ctrlHostIp = TextEditingController();
   final _ctrlPort = TextEditingController();
+
+  @override
+  void initState() {
+    _ctrlName.text = widget.platformName;
+    _ctrlHostIp.text = widget.hostIp;
+    _ctrlPort.text = widget.port;
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -50,6 +55,7 @@ class _AddConnectionForm extends State<AddConnectionForm> {
                 decoration: const InputDecoration(
                   labelText: 'Platform name',
                 ),
+                
               ),
               TextField(
                 controller: _ctrlHostIp,
@@ -94,16 +100,14 @@ class _AddConnectionForm extends State<AddConnectionForm> {
             // add the connection to the home page
             ElevatedButton(
               onPressed: () async {
-                await addConnection(_ctrlName.text, _ctrlHostIp.text, _ctrlPort.text);
-                // getConnections();
-                int count = 0;
-                Navigator.of(context).popUntil((_) => count++ >= 2);
+                await editConnection(widget.platformName, _ctrlName.text, _ctrlHostIp.text, _ctrlPort.text);
+                Navigator.pop(context);
               }, 
               style: ButtonStyle(
                 backgroundColor: MaterialStateProperty.all<Color>(blue)
               ),
               child: Text(
-                'ADD',
+                'EDIT',
                 style: TextStyle(
                   color: black
                 ),

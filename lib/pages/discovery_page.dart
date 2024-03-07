@@ -84,12 +84,6 @@ class _DiscoveryPageState extends State<DiscoveryPage> {
                   child: Column (
                     children: <Widget>[
                       Text(
-                        '${brokers[index]}',
-                        style: TextStyle(
-                          color: blue
-                        ),
-                      ),
-                      Text(
                         '${ips[index]}',
                         style: TextStyle(
                           color: white
