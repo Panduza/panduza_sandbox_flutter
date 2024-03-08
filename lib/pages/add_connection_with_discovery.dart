@@ -1,27 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:panduza_sandbox_flutter/pages/add_connection_form.dart';
 
-import '../data/const.dart';
-import 'home/mqtt_connection_form.dart';
+import 'package:panduza_sandbox_flutter/data/const.dart';
 
 // Page with the 3 choices of adding connection :
 // with manual input, with discovery or with the cloud
-class ManualConnectionPage extends StatefulWidget {
+
+class ManualConnectionPage extends StatelessWidget {
   
-  ManualConnectionPage({
+  const ManualConnectionPage({
     super.key,
     required this.ip,
     required this.port,
   });
 
-  String ip = "";
-  String port = "";
+  final String ip;
+  final String port;
 
-  @override
-  _ManualConnectionPageState createState() => _ManualConnectionPageState();
-}
-
-class _ManualConnectionPageState extends State<ManualConnectionPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(

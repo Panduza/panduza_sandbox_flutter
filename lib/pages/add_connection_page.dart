@@ -3,21 +3,16 @@ import 'package:panduza_sandbox_flutter/pages/discovery_page.dart';
 import 'package:panduza_sandbox_flutter/pages/manual_connection_page.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 
-import '../data/const.dart';
-import 'home/mqtt_connection_form.dart';
+import 'package:panduza_sandbox_flutter/data/const.dart';
 
 // Page with the 3 choices of adding connection :
 // with manual input, with discovery or with the cloud
-class AddConnectionPage extends StatefulWidget {
+
+class AddConnectionPage extends StatelessWidget {
   const AddConnectionPage({
     super.key,
   });
 
-  @override
-  _AddConnectionPageState createState() => _AddConnectionPageState();
-}
-
-class _AddConnectionPageState extends State<AddConnectionPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -54,7 +49,7 @@ class _AddConnectionPageState extends State<AddConnectionPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               SizedBox(
-                width: MediaQuery.sizeOf(context).width / 1.5,
+                width: MediaQuery.sizeOf(context).width / 1.1,
                 height: MediaQuery.sizeOf(context).height / 5,
                 child: TextButton(
                   style: ButtonStyle (
@@ -83,7 +78,7 @@ class _AddConnectionPageState extends State<AddConnectionPage> {
                 height: MediaQuery.sizeOf(context).height / 13
               ),
               SizedBox(
-                width: MediaQuery.sizeOf(context).width / 1.5,
+                width: MediaQuery.sizeOf(context).width / 1.1,
                 height: MediaQuery.sizeOf(context).height / 5,
                 child: TextButton(
                   style: ButtonStyle (
@@ -112,7 +107,7 @@ class _AddConnectionPageState extends State<AddConnectionPage> {
                 height: MediaQuery.sizeOf(context).height / 13
               ),
               SizedBox(
-                width: MediaQuery.sizeOf(context).width / 1.5,
+                width: MediaQuery.sizeOf(context).width / 1.1,
                 height: MediaQuery.sizeOf(context).height / 5,
                 child: TextButton(
                   style: ButtonStyle (
@@ -134,58 +129,6 @@ class _AddConnectionPageState extends State<AddConnectionPage> {
             ],
         ),
       ),
-      /*      
-      body: ListView.separated(
-        padding: const EdgeInsets.all(40),
-        itemCount: 3,
-        itemBuilder: (BuildContext context, int index) {
-          return MouseRegion(
-            cursor: SystemMouseCursors.click,
-            child: GestureDetector(
-              /*
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const SecondRoute()),
-                );
-              },*/
-              child: Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  color: grey,
-                ),
-                child: Center(
-                  child: Column (
-                    children: <Widget>[
-                      Text(
-                        '${brokers[index]}',
-                        style: TextStyle(
-                          color: blue
-                        ),
-                      ),
-                      Text(
-                        '${ips[index]}',
-                        style: TextStyle(
-                          color: white
-                        ),
-                      ),
-                      Text(
-                        '${ports[index]}',
-                        style: TextStyle(
-                          color: white
-                        ),
-                      )
-                    ],
-                  )
-                ),
-              )
-            ),
-          );
-        },
-        separatorBuilder: (context, index) => const Divider(),
-      ),
-      */
     );
   }
 }
