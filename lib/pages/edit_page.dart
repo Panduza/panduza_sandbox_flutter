@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:panduza_sandbox_flutter/pages/add_connection_form.dart';
 import 'package:panduza_sandbox_flutter/pages/edit_connection_form_page.dart';
-import 'package:panduza_sandbox_flutter/pages/home_page.dart';
 
-import '../data/const.dart';
-import 'home/mqtt_connection_form.dart';
+import 'package:panduza_sandbox_flutter/data/const.dart';
 
 // Page with the 3 choices of adding connection :
 // with manual input, with discovery or with the cloud
-class EditPage extends StatefulWidget {
+
+class EditPage extends StatelessWidget {
   const EditPage({
     super.key,
     required this.platformName,
@@ -19,26 +17,6 @@ class EditPage extends StatefulWidget {
   final String platformName;
   final String hostIp;
   final String port;
-
-  @override
-  _EditPageState createState() => _EditPageState();
-}
-
-class _EditPageState extends State<EditPage> {
-
-  /*
-  String name = "";
-  String hostIp = "";
-  String port = "";
-
-  @override
-  void initState() {
-    name = widget.platformName;
-    hostIp = widget.hostIp;
-    port = widget.port;
-    super.initState();
-  }
-  */
 
   @override
   Widget build(BuildContext context) {
@@ -76,9 +54,9 @@ class _EditPageState extends State<EditPage> {
         child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[EditConnectionForm(
-              platformName: widget.platformName,
-              hostIp: widget.hostIp,
-              port: widget.port,
+              platformName: platformName,
+              hostIp: hostIp,
+              port: port,
             )],
         ),
       ),

@@ -1,40 +1,24 @@
 import 'package:flutter/material.dart';
-import 'package:panduza_sandbox_flutter/pages/home_page.dart';
 
-import '../data/const.dart';
-import '../data/utils.dart';
-
+import 'package:panduza_sandbox_flutter/data/const.dart';
+import 'package:panduza_sandbox_flutter/data/utils.dart';
 
 // Form to add a new manual connection 
 // The user can add on his disk a new setup of connection mqtt
 
-class AddConnectionForm extends StatefulWidget {
+class AddConnectionForm extends StatelessWidget {
 
   const AddConnectionForm({
     super.key,
-    /*
-    required this.hostIp,
-    required this.port
-    */
   });
-  
-  /*
-  String hostIp;
-  String port;
-  */
-
-  @override
-  _AddConnectionForm createState() => _AddConnectionForm();
-}
-
-class _AddConnectionForm extends State<AddConnectionForm> {
-
-  final _ctrlName = TextEditingController();
-  final _ctrlHostIp = TextEditingController();
-  final _ctrlPort = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
+
+    final ctrlName = TextEditingController();
+    final ctrlHostIp = TextEditingController();
+    final ctrlPort = TextEditingController();
+
     return Column(
       children: [
         Padding(
@@ -45,21 +29,21 @@ class _AddConnectionForm extends State<AddConnectionForm> {
           child: Column(
             children: <Widget>[
               TextField(
-                controller: _ctrlName,
+                controller: ctrlName,
                 // textAlign: TextAlign.center,
                 decoration: const InputDecoration(
                   labelText: 'Platform name',
                 ),
               ),
               TextField(
-                controller: _ctrlHostIp,
+                controller: ctrlHostIp,
                 // textAlign: TextAlign.center,
                 decoration: const InputDecoration(
                   labelText: 'Broker Hostname'
                 ),
               ),
               TextField(
-                controller: _ctrlPort,
+                controller: ctrlPort,
                 // textAlign: TextAlign.center,
                 decoration: const InputDecoration(
                   labelText: 'Broker Port',
@@ -94,9 +78,10 @@ class _AddConnectionForm extends State<AddConnectionForm> {
             // add the connection to the home page
             ElevatedButton(
               onPressed: () async {
-                await addConnection(_ctrlName.text, _ctrlHostIp.text, _ctrlPort.text);
+                await addConnection(ctrlName.text, ctrlHostIp.text, ctrlPort.text);
                 // getConnections();
                 int count = 0;
+                if (!context.mounted) return;
                 Navigator.of(context).popUntil((_) => count++ >= 2);
               }, 
               style: ButtonStyle(
@@ -114,7 +99,4 @@ class _AddConnectionForm extends State<AddConnectionForm> {
       ],
     );
   }
-  
 }
-
-  

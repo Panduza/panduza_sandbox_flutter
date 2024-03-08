@@ -13,7 +13,7 @@ class DiscoveryPage extends StatefulWidget {
   const DiscoveryPage({super.key});
 
   @override
-  _DiscoveryPageState createState() => _DiscoveryPageState();
+  State<DiscoveryPage> createState() => _DiscoveryPageState();
 }
 
 class _DiscoveryPageState extends State<DiscoveryPage> {
@@ -67,13 +67,6 @@ class _DiscoveryPageState extends State<DiscoveryPage> {
           return MouseRegion(
             cursor: SystemMouseCursors.click,
             child: GestureDetector(
-              /*
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const SecondRoute()),
-                );
-              },*/
               child: Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
