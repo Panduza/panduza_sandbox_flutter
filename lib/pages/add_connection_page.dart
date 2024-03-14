@@ -4,6 +4,8 @@ import 'package:panduza_sandbox_flutter/pages/manual_connection_page.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 
 import 'package:panduza_sandbox_flutter/data/const.dart';
+import 'package:panduza_sandbox_flutter/pages/userspace/ic_powermeter.dart';
+import 'package:panduza_sandbox_flutter/utils_widgets/appBar.dart';
 
 // Page with the 3 choices of adding connection :
 // with manual input, with discovery or with the cloud
@@ -17,33 +19,7 @@ class AddConnectionPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       // bar at the top of the application
-      appBar: AppBar(
-        iconTheme: IconThemeData(color: white),
-        backgroundColor: black,
-        title: Text(
-          // widget.title,
-          "Add connection",
-          style: TextStyle(
-            color: blue,
-          ),
-        ),
-        // Panduza logo
-        // TO DO : Change to logo2 
-        actions: <Widget>[
-          IconButton(
-            icon: Image.asset('../../assets/icons/logo_1024.png'),
-            /*            
-            icon: SvgPicture.asset(
-              '../../assets/icons/logo2.svg'
-            ),
-            */
-            iconSize: 50,
-            onPressed: () {
-              return;
-            }, 
-          )
-        ],
-      ),
+      appBar: getAppBar("Add connection"),
       body: Center(
         child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -60,7 +36,10 @@ class AddConnectionPage extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const ManualConnectionPage(),
+                        builder: (context) => const ManualConnectionPage(
+                          ip: "",
+                          port: ""
+                        ),
                       ),
                     );
                   },
@@ -85,7 +64,7 @@ class AddConnectionPage extends StatelessWidget {
                     backgroundColor: MaterialStateProperty.all<Color>(grey)
                   ),
                   onPressed: () {
-                    // go to manual connection
+                    // go to discovery page 
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -114,7 +93,15 @@ class AddConnectionPage extends StatelessWidget {
                     backgroundColor: MaterialStateProperty.all<Color>(grey)
                   ),
                   onPressed: () {
-                    // go to manual connection
+                    // test on userspace
+                    /*
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => IcPowermeter(InterfaceConnection),
+                      ),
+                    );
+                    */
                   },
                   child: AutoSizeText(
                     "Cloud",

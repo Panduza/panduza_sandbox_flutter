@@ -16,14 +16,6 @@ import '../data/interface_connection.dart';
 
 import '../data/platform_config.dart';
 
-// class BrokerConnectionInfo {
-//   String host;
-//   int port;
-
-//   MqttServerClient client;
-
-//   BrokerConnectionInfo(this.host, this.port, this.client);
-// }
 
 class DevicePage extends StatefulWidget {
   DevicePage(this._deviceStore, this._platformConfig, this._deviceConfig,

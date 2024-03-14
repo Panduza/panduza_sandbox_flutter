@@ -1,11 +1,18 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:mqtt_client/mqtt_client.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:udp/udp.dart';
+import 'package:win_toast/win_toast.dart' as win_toast;
+import 'package:auto_size_text/auto_size_text.dart';
 
-import 'const.dart';
+import 'package:panduza_sandbox_flutter/data/const.dart';
+import 'package:panduza_sandbox_flutter/pages/manual_connection_page.dart';
 
 late MqttServerClient _client;
 bool _isConnecting = false;
@@ -66,8 +73,7 @@ Future<void> editConnection(String oldName, String newName, String hostIp,
   // editing exist (so there at least this connection inside of directory
   // value of connectionKey)
 }
-
-
+ 
 
 // get every connections existing on the disk
 /*
@@ -103,33 +109,93 @@ Future<MqttServerClient?> tryConnecting(String host, String portStr) async {
       int port = int.parse(portStr);
 
       _client = MqttServerClient.withPort(
-          host, generateRandomMqttIdentifier(), port);
+           host, generateRandomMqttIdentifier(), port);
+
+      _client.keepAlivePeriod = 20;
 
       await _client.connect();
+
+      _client.onConnected = () {
+        print("MQTT connected");
+      };
 
       _isConnecting = false;
       return _client;
     } catch (error) {
+      print(error);
+
       _isConnecting = false;
-      Fluttertoast.showToast(
-        msg: "Connection failed",
-        textColor: Colors.black,
-        gravity: ToastGravity.BOTTOM,
-        backgroundColor: Colors.red,
-        toastLength: Toast.LENGTH_LONG
-      );
+      if (Platform.isAndroid || Platform.isIOS) {
+        Fluttertoast.showToast(
+          msg: "Connection failed",
+          textColor: Colors.black,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.red,
+          toastLength: Toast.LENGTH_LONG
+        );
+      } else if (Platform.isWindows) {
+        win_toast.WinToast.instance().initialize(
+          aumId: 'one.mixin.WinToastExample',
+          displayName: 'Connection failed',
+          iconPath: '',
+          clsid: 'your-notification-activator-guid-2EB1AE5198B7'
+        );
+      }
+      
       // never return because _client not init
       return null;
     }
   }
 
-  Fluttertoast.showToast(
-    msg: "A connection is already in process",
-    textColor: Colors.black,
-    gravity: ToastGravity.BOTTOM,
-    backgroundColor: Colors.red,
-    toastLength: Toast.LENGTH_LONG
-  );
+  if (Platform.isAndroid || Platform.isIOS) {
+     Fluttertoast.showToast(
+      msg: "A connection is already in process",
+      textColor: Colors.black,
+      gravity: ToastGravity.BOTTOM,
+      backgroundColor: Colors.red,
+      toastLength: Toast.LENGTH_LONG
+    );
+  } else if (Platform.isWindows) {
+    win_toast.WinToast.instance().initialize(
+      aumId: 'one.mixin.WinToastExample',
+      displayName: 'A connection is already in process',
+      iconPath: '',
+      clsid: 'your-notification-activator-guid-2EB1AE5198B7',
+    );
+  }
+ 
   
   return null;
 }
+
+/*
+  This class will go looking for different platform on the network sending 
+  broadcast and getting an answer for each platform
+*/
+
+Future<List<(InternetAddress, int)>> platformDiscovery() async {
+
+  List<(InternetAddress, int)> ipPort = []; 
+  String waitedAnswer = '{"name": "panduza_platform","version": 1.0}';
+  
+  var udpSocket = await UDP.bind(Endpoint.any(port: const Port(65008)));
+  await udpSocket.send(jsonEncode('{"search": true}').codeUnits, Endpoint.broadcast(port: const Port(portLocalDiscovery)));
+  
+  udpSocket.asStream().listen((datagram) {
+    if (datagram != null) {
+      String answer = String.fromCharCodes(datagram.data);
+      if(answer == waitedAnswer) {
+        // add the host name if there is one (or maybe even if he didn't)
+        // print(datagram.address.host);
+        ipPort.add((datagram.address, datagram.port));
+      }
+    }
+  });
+
+  await Future.delayed(Duration(milliseconds: 10));
+  udpSocket.close();
+
+  return ipPort;
+}
+
+

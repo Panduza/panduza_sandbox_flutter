@@ -30,8 +30,8 @@
      inkscape:zoom="0.71485971"
      inkscape:cx="279.77517"
      inkscape:cy="449.03915"
-     inkscape:window-width="1920"
-     inkscape:window-height="1009"
+     inkscape:window-width="200"
+     inkscape:window-height="200"
      inkscape:window-x="-8"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
@@ -39,7 +39,8 @@
      id="defs2" /><g
      inkscape:label="Calque 1"
      inkscape:groupmode="layer"
-     id="layer1"><circle
+     id="layer1">
+     <circle
        style="fill:#000000;fill-opacity:1;stroke:#39b0ff;stroke-width:3.427;stroke-dasharray:none;stroke-dashoffset:15.1184;stroke-opacity:1;paint-order:markers fill stroke"
        id="path350-1-6-4-7-8"
        cx="30.393318"
@@ -52,5 +53,13 @@
        sodipodi:nodetypes="cscccccccscccscssscscccsscscsccssscsccssssscccsscscccscccssssscsscssssccssscsssscscssscscsscc"
        inkscape:export-filename="path933.png"
        inkscape:export-xdpi="96"
-       inkscape:export-ydpi="96" />
+       inkscape:export-ydpi="96" /><rect
+       style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:2.24132;stroke-dashoffset:15.1184;stroke-opacity:1;paint-order:markers fill stroke"
+       id="rect8889-8-7"
+       width="5.3564677"
+       height="4.7304173"
+       x="31.052391"
+       y="22.193876"
+       rx="2.8853517"
+       ry="2.5481191" />
     </g></svg>

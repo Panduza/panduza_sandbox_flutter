@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:panduza_sandbox_flutter/pages/utils_widgets/drawer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:mqtt_client/mqtt_server_client.dart';
-
-import 'package:panduza_sandbox_flutter/pages/utils_widgets/home_page_utils.dart';
 
 import 'package:panduza_sandbox_flutter/data/const.dart';
 import 'package:panduza_sandbox_flutter/pages/add_connection_page.dart';
+import 'package:panduza_sandbox_flutter/utils_widgets/drawer.dart';
+import 'package:panduza_sandbox_flutter/utils_widgets/appBar.dart';
+import 'package:panduza_sandbox_flutter/utils_widgets/utils_widgets.dart';
 
 // final List<String> equipments = ["LASER", "ROBOT O", "Quantique"];
 // final List<String> brokers = ["Broker 1", "Broker 2", "Broker 3"];
@@ -46,37 +45,11 @@ class _HomePageState extends State<HomePage> {
     // than having to individually change instances of widgets.
     return Scaffold(
       // bar at the top of the application
-      appBar: AppBar(
-        // color of hamburger button
-        iconTheme: IconThemeData(color: white),
-        backgroundColor: black,
-        title: Text(
-          "Connections",
-          style: TextStyle(
-            color: blue,
-          ),
-        ),
-        // Panduza logo
-        // TO DO : Change to logo2 
-        actions: <Widget>[
-          IconButton(
-            icon: Image.asset('../../assets/icons/logo_1024.png'),
-            /*            
-            icon: SvgPicture.asset(
-              '../../assets/icons/logo2.svg'
-            ),
-            */
-            iconSize: 50,
-            onPressed: () {
-              return;
-            }, 
-          )
-        ],
-      ),
+      appBar: getAppBar("Connections"),
       // Sliding menu 
-      drawer: getDrawer(),
+      drawer: getDrawer(context),
 
-      // The connection buttons save on the disk
+      // The connection buttons who show connections save on the disk
       body: FutureBuilder(
         future: _prefsFuture,
         builder: (context, snapshot) {
@@ -93,7 +66,7 @@ class _HomePageState extends State<HomePage> {
         },
       ),
       
-      // Button to add connection
+      // Button to add a connection
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           await Navigator.push(

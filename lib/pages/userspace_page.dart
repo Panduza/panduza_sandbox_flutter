@@ -1,28 +1,19 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:mqtt_client/mqtt_client.dart';
+
+import 'package:panduza_sandbox_flutter/userspace_widgets/ic_blc.dart';
+import 'package:panduza_sandbox_flutter/userspace_widgets/ic_bpc.dart';
+import 'package:panduza_sandbox_flutter/userspace_widgets/ic_platform.dart';
+import 'package:panduza_sandbox_flutter/userspace_widgets/ic_powermeter.dart';
+import 'package:panduza_sandbox_flutter/userspace_widgets/ic_not_managed.dart';
 
 // import '../widgets/interface_control/icw_bpc.dart';
-import 'package:mqtt_client/mqtt_client.dart';
-import 'package:mqtt_client/mqtt_server_client.dart';
 
-import 'userspace/ic_blc.dart';
-import 'userspace/ic_bpc.dart';
-import 'userspace/ic_not_managed.dart';
-import 'userspace/ic_platform.dart';
-import 'userspace/ic_powermeter.dart';
-
-import '../data/interface_connection.dart';
-
-import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
-
-class BrokerConnectionInfo {
-  String host;
-  int port;
-
-  MqttServerClient client;
-
-  BrokerConnectionInfo(this.host, this.port, this.client);
-}
+import 'package:panduza_sandbox_flutter/data/interface_connection.dart';
+import 'package:panduza_sandbox_flutter/utils_widgets/appBar.dart';
+import 'package:panduza_sandbox_flutter/data/broker_connection_info.dart';
 
 class UserspacePage extends StatefulWidget {
   const UserspacePage({super.key, required this.broker_connection_info});
@@ -35,6 +26,8 @@ class UserspacePage extends StatefulWidget {
 
 class _UserspacePageState extends State<UserspacePage> {
   List<InterfaceConnection> interfaces = [];
+  Map<int, InterfaceConnection> channel = {}; 
+
 
   bool interfaceAlreadyRegistered(InterfaceConnection ic) {
     for (var interface in interfaces) {
@@ -42,12 +35,33 @@ class _UserspacePageState extends State<UserspacePage> {
         return true;
       }
     }
+    // print(ic.topic);
     return false;
+  }
+
+  InterfaceConnection? findPlatform() {
+
+    for (var interface in interfaces) {
+      if (interface.info["type"] == "platform") {
+        return interface;
+      }
+    }
+
+    return null;
   }
 
   @override
   void initState() {
     super.initState();
+
+    widget.broker_connection_info.client
+          .subscribe('pza/+/+/+/atts/info', MqttQos.atLeastOnce);
+
+    MqttClientPayloadBuilder builder = MqttClientPayloadBuilder();
+    builder.addString('*');
+    final payload = builder.payload;
+    widget.broker_connection_info.client
+        .publishMessage('pza', MqttQos.atLeastOnce, payload!);
 
     Future.delayed(Duration(milliseconds: 1), () async {
       // Run your async function here
@@ -90,17 +104,27 @@ class _UserspacePageState extends State<UserspacePage> {
         // MqttPublishPayload.bytesToStringAsString(message.);
 
         // print('Received message:$payload from topic: ${c[0].topic}>');
+
+        // sort and put in my map
+        
       });
-
-      widget.broker_connection_info.client
-          .subscribe('pza/+/+/+/atts/info', MqttQos.atLeastOnce);
-
-      MqttClientPayloadBuilder builder = MqttClientPayloadBuilder();
-      builder.addString('*');
-      final payload = builder.payload;
-      widget.broker_connection_info.client
-          .publishMessage('pza', MqttQos.atLeastOnce, payload!);
     });
+
+    /*
+    Future.delayed(Duration(seconds: 2), () async {
+      List<InterfaceConnection> newInterfaces = [];
+
+      newInterfaces.add(findPlatform() as InterfaceConnection);
+
+      for (var interface in interfaces) {
+        if (interface.info["type"] != "platform") {
+          newInterfaces.add(interface);
+        }
+      }
+
+      interfaces = newInterfaces;
+    });
+    */
   }
 
   // Build item of the grid that control the interfaces
@@ -134,27 +158,48 @@ class _UserspacePageState extends State<UserspacePage> {
     // Get width of the widget
     final double width = MediaQuery.of(context).size.width;
 
-    //
     final int columns = (width / 300.0).round();
 
     return Scaffold(
-        appBar: AppBar(
-          title: Text('UserSpace'),
-        ),
-        body: MasonryGridView.count(
-            crossAxisCount: columns,
-            mainAxisSpacing: 4,
-            crossAxisSpacing: 4,
-            itemBuilder: interfaceControlItemBuiler)
+      appBar: getAppBar("UserSpace"),
+      body: 
+      /*
+      ListView.separated(
+        padding: const EdgeInsets.all(20),
+        itemCount: interfaces.length,
 
-        // body: GridView.builder(
-        //   itemCount: interfaces.length,
-        //   itemBuilder: interfaceControlItemBuiler,
-        //   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        //     crossAxisCount: columns,
-        //   ),
-        // ),
+        itemBuilder: (BuildContext context, int index) {
+          return interfaceControlItemBuiler(context, index);
+        },
+        separatorBuilder: (context, index) => const Divider(),
+      )
+      */
+      /*
+      Column(
+        // Start with the platform then display every device
+        children: <Widget>[
+          Center(
+            child: Container(
+              height: MediaQuery.sizeOf(context).height / 3,
+              width: MediaQuery.sizeOf(context).width / 3,
+              child: IcPlatform(findPlatform() as InterfaceConnection),
+            )
+          ),
+        ]
+      )
+      */
+      
+      
+      
+      
+      MasonryGridView.count(
+        crossAxisCount: columns,
+        mainAxisSpacing: 4,
+        crossAxisSpacing: 4,
+        itemBuilder: interfaceControlItemBuiler
+      )
+      
 
-        );
+    );
   }
 }

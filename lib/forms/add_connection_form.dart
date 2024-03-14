@@ -10,14 +10,23 @@ class AddConnectionForm extends StatelessWidget {
 
   const AddConnectionForm({
     super.key,
+    required this.ip,
+    required this.port,
   });
+
+  final String ip;
+  final String port;
 
   @override
   Widget build(BuildContext context) {
 
     final ctrlName = TextEditingController();
-    final ctrlHostIp = TextEditingController();
-    final ctrlPort = TextEditingController();
+    final ctrlHostIp = TextEditingController(
+      text: ip
+    );
+    final ctrlPort = TextEditingController(
+      text: port
+    );
 
     return Column(
       children: [
@@ -79,10 +88,7 @@ class AddConnectionForm extends StatelessWidget {
             ElevatedButton(
               onPressed: () async {
                 await addConnection(ctrlName.text, ctrlHostIp.text, ctrlPort.text);
-                // getConnections();
-                int count = 0;
-                if (!context.mounted) return;
-                Navigator.of(context).popUntil((_) => count++ >= 2);
+                Navigator.of(context).popUntil((route) => route.isFirst);
               }, 
               style: ButtonStyle(
                 backgroundColor: MaterialStateProperty.all<Color>(blue)

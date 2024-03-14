@@ -1,13 +1,15 @@
+import 'dart:io';
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 
-import '../data/const.dart';
+import 'package:panduza_sandbox_flutter/data/utils.dart';
+import 'package:panduza_sandbox_flutter/utils_widgets/appBar.dart';
+import 'package:panduza_sandbox_flutter/utils_widgets/utils_widgets.dart';
+
 
 // Page who will discover the differents platforms on 
 // the network
-
-final List<String> brokers = ["Broker 1", "Broker 2", "Broker 3"];
-final List<String> ips = ["192.168.1.33", "192.168.1.32", "192.168.1.31"];
-final List<String> ports = ["1885", "1884", "1883"];
 
 class DiscoveryPage extends StatefulWidget {
   const DiscoveryPage({super.key});
@@ -18,85 +20,44 @@ class DiscoveryPage extends StatefulWidget {
 
 class _DiscoveryPageState extends State<DiscoveryPage> {
 
+  List<(InternetAddress, int)> platformsIpsPorts = [];
+  bool isLoading = false;
+  Timer? timer;
+
+  @override
+  void initState() {
+    super.initState();
+    platformDiscovery().then(
+      (value) {
+        platformsIpsPorts = value;
+        platformsIpsPorts.sort((a, b) => a.$1.host.compareTo(b.$1.host));
+        setState(() {});
+      }
+    );
+    
+    // check if 
+    timer = Timer.periodic(
+      Duration(seconds: 5), (Timer t) {
+        platformDiscovery().then(
+          (value) {
+            value.sort((a, b) => a.$1.host.compareTo(b.$1.host));
+            if (!listEquals(value, platformsIpsPorts)) {
+              platformsIpsPorts = value;
+              setState(() {});
+            }
+          }
+        );
+      }
+    );
+    
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       // bar at the top of the application
-      appBar: AppBar(
-        // color of hamburger button
-        iconTheme: IconThemeData(color: white),
-        backgroundColor: black,
-        title: Text(
-          // widget.title,
-          "Connections",
-          style: TextStyle(
-            color: blue,
-          ),
-        ),
-        // Panduza logo
-        // TO DO : Change to logo2 
-        actions: <Widget>[
-          IconButton(
-            icon: Image.asset('../../assets/icons/logo_1024.png'),
-            /*            
-            icon: SvgPicture.asset(
-              '../../assets/icons/logo2.svg'
-            ),
-            */
-            iconSize: 50,
-            onPressed: () {
-              return;
-            }, 
-          )
-        ],
-      ),
-
-      // mqtt form
-      /*
-      body: const Center(
-        child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[MqttConnectionForm()],
-        ),
-      ),      
-      */
-      body: ListView.separated(
-        padding: const EdgeInsets.all(40),
-        itemCount: 3,
-        itemBuilder: (BuildContext context, int index) {
-          return MouseRegion(
-            cursor: SystemMouseCursors.click,
-            child: GestureDetector(
-              child: Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  color: grey,
-                ),
-                child: Center(
-                  child: Column (
-                    children: <Widget>[
-                      Text(
-                        '${ips[index]}',
-                        style: TextStyle(
-                          color: white
-                        ),
-                      ),
-                      Text(
-                        '${ports[index]}',
-                        style: TextStyle(
-                          color: white
-                        ),
-                      )
-                    ],
-                  )
-                ),
-              )
-            ),
-          );
-        },
-        separatorBuilder: (context, index) => const Divider(),
-      ),
+      appBar: getAppBar("Local Discovery"),
+      body: localDiscoveryConnections(platformsIpsPorts, isLoading)
     );
   }
 }

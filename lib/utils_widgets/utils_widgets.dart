@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -7,6 +8,8 @@ import 'package:panduza_sandbox_flutter/pages/edit_page.dart';
 import 'package:panduza_sandbox_flutter/pages/home_page.dart';
 import 'package:panduza_sandbox_flutter/data/utils.dart';
 import 'package:panduza_sandbox_flutter/pages/userspace_page.dart';
+import 'package:panduza_sandbox_flutter/data/broker_connection_info.dart';
+import 'package:panduza_sandbox_flutter/pages/manual_connection_page.dart';
 
 // on the home page content of each connection button 
 // displaying the name, the host ip and the port 
@@ -179,13 +182,16 @@ Widget getConnectionsButtonsList(SharedPreferences prefs, List<String> platformN
                   context,
                   MaterialPageRoute(
                     builder: (context) => UserspacePage(
-                          broker_connection_info: BrokerConnectionInfo(
-                              host, 
-                              int.parse(port), 
-                              client),
+                      broker_connection_info: BrokerConnectionInfo(
+                        host, 
+                        int.parse(port), 
+                        client
+                      ),
                     )
                   ),
-                );
+                ).then((value) {
+                  client.disconnect();
+                });
               }
             });
           },
@@ -196,3 +202,72 @@ Widget getConnectionsButtonsList(SharedPreferences prefs, List<String> platformN
   );
 }
 
+
+// Button list of connection in the local discovery page
+
+Widget localDiscoveryConnections(List<(InternetAddress, int)> platformsIpsPorts, bool isLoading) {
+
+  if (isLoading) {
+    return Center(
+      child: CircularProgressIndicator(
+        color: blue,
+      )
+    );
+  } 
+
+  return ListView.separated(
+    padding: const EdgeInsets.all(40),
+    itemCount: platformsIpsPorts.length,
+    itemBuilder: (BuildContext context, int index) {
+      return MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: GestureDetector(
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              color: grey,
+            ),
+            child: Center(
+              
+              child: Column (
+                children: <Widget>[
+                  AutoSizeText(
+                    '${platformsIpsPorts[index].$1.host}',
+                    style: TextStyle(
+                      color: blue
+                    ),
+                  ),
+                  AutoSizeText(
+                    '${platformsIpsPorts[index].$1.address}',
+                    style: TextStyle(
+                      color: white
+                    ),
+                  ),
+                  AutoSizeText(
+                    '1883',
+                    style: TextStyle(
+                      color: white
+                    ),
+                  )
+                ],
+              )
+            ),
+          ),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ManualConnectionPage(
+                  ip: platformsIpsPorts[index].$1.address,
+                  port: "1883"
+                ),
+              ),
+            );
+          },
+        ),
+      );
+    },
+    separatorBuilder: (context, index) => const Divider(),
+  );
+}
