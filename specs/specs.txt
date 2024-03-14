@@ -1,11 +1,30 @@
-Basic application :
+Basic application Home page :
 
 - Home page : List broker with their identifications
 - If a broker is selected then show the list of the lab equipments
 - If a equipments is choosen, you have different parameters to choose for your test
 - Get the result of the test (different for each equipment)
 
+problems :
 
+-
 
+------------------------------------------------------------------------------------
+
+Userspace page :
+
+- Show each bench at the start of the mqtt connection
+- In each bench show the different device relate to this
+
+problems :
+
+1 - Not overload the device page (the only page really used by the user)
+
+solutions 
+
+1 - make even more group, group where the user want to see at the same moment the 
+different interfaces
+
+------------------------------------------------------------------------------------
 
 Think about the futur cloud application :
