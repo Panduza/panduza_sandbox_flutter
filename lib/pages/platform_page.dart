@@ -9,15 +9,16 @@ import 'package:mqtt_client/mqtt_client.dart';
 // import 'userspace/ic_not_managed.dart';
 // import 'userspace/ic_platform.dart';
 
-import 'hunt_page.dart';
+import 'package:panduza_sandbox_flutter/pages/hunt_page.dart';
 
-import 'device_page.dart';
+import 'package:panduza_sandbox_flutter/pages/device_page.dart';
 
-import '../data/interface_connection.dart';
+import 'package:panduza_sandbox_flutter/data/interface_connection.dart';
 
 // import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
-import '../data/platform_config.dart';
+import 'package:panduza_sandbox_flutter/data/platform_config.dart';
+import 'package:panduza_sandbox_flutter/utils_widgets/appBar.dart';
 
 // class BrokerConnectionInfo {
 //   String host;
@@ -166,9 +167,7 @@ class _PlatformPageState extends State<PlatformPage> {
     print("!!!!!!!!!!! ${_platformConfig.devices.length}");
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Platform'),
-      ),
+      appBar: getAppBar("Platform"),
       body: Center(
         child: Column(
           // mainAxisAlignment: MainAxisAlignment.center,

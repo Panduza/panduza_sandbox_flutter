@@ -1,10 +1,11 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:mqtt_client/mqtt_client.dart';
-import '../../data/interface_connection.dart';
-import 'dart:convert';
-import 'templates.dart';
 
-import '../../pages/platform_page.dart';
+import 'package:panduza_sandbox_flutter/pages/platform_page.dart';
+import 'package:panduza_sandbox_flutter/data/const.dart';
+import 'package:panduza_sandbox_flutter/data/interface_connection.dart';
+import 'package:panduza_sandbox_flutter/userspace_widgets/templates.dart';
 
 class IcPlatform extends StatefulWidget {
   IcPlatform(this._interfaceConnection);
@@ -57,48 +58,94 @@ class _IcPlatformState extends State<IcPlatform> {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
+    return basicCard(
+      Padding(
+        padding: const EdgeInsets.only(
+          left: 10,
+          right: 10,
+          bottom: 10
+        ),
         child: Column(
-      children: [
-        cardHeadLine(widget._interfaceConnection),
-        Text(widget._interfaceConnection.info["type"],
-            style: const TextStyle(color: Colors.red)),
-        DropdownButton<String>(
-          value: _value,
-          items: const [
-            DropdownMenuItem(
-              value: 'fake psu',
-              child: Text('fake psu'),
+          children: [
+            cardHeadLine(widget._interfaceConnection),
+            const SizedBox(
+              height: 5,
             ),
-            DropdownMenuItem(
-              value: 'fake laser',
-              child: Text('fake laser'),
+            Container (
+              width: 120,
+              decoration: BoxDecoration(
+                color: white,
+                borderRadius: BorderRadius.all(Radius.circular(10))
+              ),
+              child: Center (
+                child: DropdownButton<String>(
+                  value: _value,
+                  dropdownColor: white,
+                  underline: SizedBox.shrink(),
+                  items: const [
+                    DropdownMenuItem(
+                      value: 'fake psu',
+                      child: Text('fake psu'),
+                    ),
+                    DropdownMenuItem(
+                      value: 'fake laser',
+                      child: Text('fake laser'),
+                    ),
+                    DropdownMenuItem(
+                      value: 'real laser',
+                      child: Text('real laser'),
+                    ),
+                  ],
+                  onChanged: (newValue) {
+                    _handleDropdownValueChanged(newValue!);
+                  },
+                ),
+              )
             ),
-            DropdownMenuItem(
-              value: 'real laser',
-              child: Text('real laser'),
+            const SizedBox(
+              height: 20,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: <Widget>[
+                ElevatedButton(
+                  onPressed: _handleButtonPress,
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStateColor.resolveWith((states) => white)
+                  ),
+                  child: Text(
+                    'Send Request',
+                    style: TextStyle(
+                      color: black
+                    ),
+                  ),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                          PlatformPage(widget._interfaceConnection)
+                      ),
+                    );
+                  },
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStateColor.resolveWith((states) => white)
+                  ),
+                  child: Text(
+                    'Configuration',
+                    style: TextStyle(
+                      color: black
+                    ),
+                  ),
+                ),
+              ],
             ),
           ],
-          onChanged: (newValue) {
-            _handleDropdownValueChanged(newValue!);
-          },
-        ),
-        ElevatedButton(
-          onPressed: _handleButtonPress,
-          child: const Text('Send Request'),
-        ),
-        ElevatedButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) =>
-                      PlatformPage(widget._interfaceConnection)),
-            );
-          },
-          child: const Text('Configuration'),
-        ),
-      ],
-    ));
+        )
+      )
+      
+    );
   }
 }

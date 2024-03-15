@@ -30,6 +30,12 @@ class InterfaceConnection {
     final index = elements.length - 1;
     return elements[index];
   }
+
+  String getBenchName() {
+    final elements = topic.split("/");
+    final index = elements.length - 3;
+    return elements[index]; 
+  }
 }
 
 // pza/server/alien/test

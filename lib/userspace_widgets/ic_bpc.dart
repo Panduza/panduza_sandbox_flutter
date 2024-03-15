@@ -1,11 +1,11 @@
-import 'package:flutter/material.dart';
-import 'templates.dart';
-import '../../data/interface_connection.dart';
-
 import 'dart:convert';
+import 'package:flutter/material.dart';
 
 // import '../widgets/interface_control/icw_bpc.dart';
 import 'package:mqtt_client/mqtt_client.dart';
+import 'package:panduza_sandbox_flutter/data/const.dart';
+import 'package:panduza_sandbox_flutter/userspace_widgets/templates.dart';
+import 'package:panduza_sandbox_flutter/data/interface_connection.dart';
 
 class IcBpc extends StatefulWidget {
   const IcBpc(this._interfaceConnection, {super.key});
@@ -223,83 +223,104 @@ class _IcBpcState extends State<IcBpc> {
   @override
   Widget build(BuildContext context) {
     if (_enableValueEff != null &&
-        _voltageValueReq != null &&
-        _currentValueReq != null) {
-      return Card(
-          child: Column(
-        children: [
-          cardHeadLine(widget._interfaceConnection),
-          // Column(
-          //   children: [
-          //     TextFormField(
-          //       decoration: InputDecoration(
-          //         border: OutlineInputBorder(),
-          //       ),
-          //       // controller: sliderController,
-          //     ),
-          //     TextFormField(
-          //       decoration: InputDecoration(
-          //         border: OutlineInputBorder(),
-          //       ),
-          //       // controller: sliderController,
-          //     ),
-          //   ],
-          // ),
-          Text(
-              'Voltage : ${double.parse(_voltageValueReq!.toStringAsFixed(2))}V'),
-          Slider(
-            value: _voltageValueReq!,
-            onChanged: (value) {
-              setState(() {
-                _voltageValueReq = value;
-              });
-            },
-            // min: _attsEffective["voltage"]["min"],
-            // max: _attsEffective["voltage"]["max"],
-          ),
-          Text(
-              'Current : ${double.parse(_currentValueReq!.toStringAsFixed(2))}V'),
-          Slider(
-            value: _currentValueReq!,
-            onChanged: (value) {
-              setState(() {
-                _currentValueReq = value;
-              });
-            },
-            // min: 0.0,
-            // max: 100.0,
-          ),
-          Row(
-            children: [
-              OutlinedButton(
-                onPressed: applyVoltageCurrentRequest(),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: Colors.red,
-                  side: BorderSide(
-                    color: (applyVoltageCurrentRequest() != null)
-                        ? Colors.red
-                        : Colors.grey,
+      _voltageValueReq != null &&
+      _currentValueReq != null) {
+      return basicCard(
+        Column(
+          children: [
+            cardHeadLine(widget._interfaceConnection),
+            // Column(
+            //   children: [
+            //     TextFormField(
+            //       decoration: InputDecoration(
+            //         border: OutlineInputBorder(),
+            //       ),
+            //       // controller: sliderController,
+            //     ),
+            //     TextFormField(
+            //       decoration: InputDecoration(
+            //         border: OutlineInputBorder(),
+            //       ),
+            //       // controller: sliderController,
+            //     ),
+            //   ],
+            // ),
+            Text(
+              'Voltage : ${double.parse(_voltageValueReq!.toStringAsFixed(2))}V',
+              style: TextStyle(
+                color: white
+              )
+            ),
+            Slider(
+              value: _voltageValueReq!,
+              activeColor: blue,
+              onChanged: (value) {
+                setState(() {
+                  _voltageValueReq = value;
+                });
+              },
+              // min: _attsEffective["voltage"]["min"],
+              // max: _attsEffective["voltage"]["max"],
+            ),
+            Text(
+              'Current : ${double.parse(_currentValueReq!.toStringAsFixed(2))}V',
+              style: TextStyle(
+                color: white
+              )
+            ),
+            Slider(
+              value: _currentValueReq!,
+              activeColor: blue,
+              onChanged: (value) {
+                setState(() {
+                  _currentValueReq = value;
+                });
+              },
+              // min: 0.0,
+              // max: 100.0,
+            ),
+            Row(
+              children: [
+                const SizedBox(
+                  width: 10,
+                ),
+                OutlinedButton(
+                  onPressed: applyVoltageCurrentRequest(),
+                  style: OutlinedButton.styleFrom(
+                    disabledBackgroundColor: white,
+                    foregroundColor: Colors.red,
+                    side: BorderSide(
+                      color: (applyVoltageCurrentRequest() != null)
+                          ? Colors.red
+                          : Colors.grey,
+                    ),
                   ),
+                  child: const Text("Cancel"),
                 ),
-                child: const Text("Cancel"),
-              ),
-              ElevatedButton(
-                onPressed: applyVoltageCurrentRequest(),
-                style: ElevatedButton.styleFrom(
-                  elevation: 0,
-                  backgroundColor: Colors.green, // Green background
-                  foregroundColor: Colors.white, // White foreground
+                const SizedBox(
+                  width: 10,
                 ),
-                child: const Text("Apply"),
-              ),
-              Spacer(),
-              Switch(
+                ElevatedButton(
+                  onPressed: applyVoltageCurrentRequest(),
+                  style: ElevatedButton.styleFrom(
+                    elevation: 0,
+                    disabledBackgroundColor: white,
+                    backgroundColor: Colors.green, // Green background
+                    foregroundColor: Colors.white, // White foreground
+                  ),
+                  child: const Text("Apply"),
+                ),
+                Spacer(),
+                Switch(
                   value: _enableValueEff!,
-                  onChanged: enableValueSwitchOnChanged()),
-            ],
-          )
-        ],
-      ));
+                  onChanged: enableValueSwitchOnChanged(),
+                  activeColor: blue,
+                ),
+              ],
+            )
+          ],
+        )
+      );
     } else {
       return Card();
     }

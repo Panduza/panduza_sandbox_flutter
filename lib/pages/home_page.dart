@@ -77,8 +77,7 @@ class _HomePageState extends State<HomePage> {
           );
           setState(() {});
         },
-        // foregroundColor: grey,
-        backgroundColor: grey,
+        backgroundColor: black,
         shape: const CircleBorder(
           eccentricity: 1.0,
         ),

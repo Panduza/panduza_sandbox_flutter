@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:panduza_sandbox_flutter/pages/add_connection_form.dart';
+import 'package:panduza_sandbox_flutter/forms/add_connection_form.dart';
 
 import 'package:panduza_sandbox_flutter/data/const.dart';
 import 'package:panduza_sandbox_flutter/utils_widgets/appBar.dart';
@@ -27,10 +27,12 @@ class ManualConnectionPage extends StatelessWidget {
       body: Center(
         child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[AddConnectionForm(
-              ip: ip,
-              port: port,
-            )],
+            children: <Widget>[
+              AddConnectionForm(
+                ip: ip,
+                port: port,
+              )
+            ],
         ),
       ),
     );

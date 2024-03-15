@@ -1,0 +1,3 @@
+- Check if equality in discovery_page in the time works
+- Change the logo
+- In add connection form change the color of the description label

@@ -1,12 +1,12 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'templates.dart';
-import '../../data/interface_connection.dart';
+import 'package:mqtt_client/mqtt_client.dart';
 
-import 'dart:convert';
 
 // import '../widgets/interface_control/icw_bpc.dart';
-import 'package:mqtt_client/mqtt_client.dart';
+import 'package:panduza_sandbox_flutter/data/interface_connection.dart';
+import 'package:panduza_sandbox_flutter/userspace_widgets/templates.dart';
 
 class IcPowermeter extends StatefulWidget {
   const IcPowermeter(this._interfaceConnection, {super.key});
@@ -239,27 +239,28 @@ class _IcPowermeterState extends State<IcPowermeter> {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-        child: Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        cardHeadLine(widget._interfaceConnection),
-        Text("${_value.toString()}W"),
-        Row(
-          children: [
-            SizedBox(
-                width: 100,
-                child: TextField(
-                  controller: _freqController,
-                  keyboardType: TextInputType.number,
-                  inputFormatters: <TextInputFormatter>[
-                    FilteringTextInputFormatter.digitsOnly
-                  ],
-                )),
-            const Text("read per sec"),
-          ],
-        )
-      ],
-    ));
+    return basicCard(
+      Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          cardHeadLine(widget._interfaceConnection),
+          Text("${_value.toString()}W"),
+          Row(
+            children: [
+              SizedBox(
+                  width: 100,
+                  child: TextField(
+                    controller: _freqController,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: <TextInputFormatter>[
+                      FilteringTextInputFormatter.digitsOnly
+                    ],
+                  )),
+              const Text("read per sec"),
+            ],
+          )
+        ],
+      )
+    );
   }
 }

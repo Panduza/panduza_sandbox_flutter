@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'templates.dart';
-import '../../data/interface_connection.dart';
+
+import 'package:panduza_sandbox_flutter/data/interface_connection.dart';
+import 'package:panduza_sandbox_flutter/userspace_widgets/templates.dart';
 
 class IcNotManaged extends StatefulWidget {
   IcNotManaged(this._interfaceConnection);
@@ -14,8 +15,8 @@ class IcNotManaged extends StatefulWidget {
 class _IcNotManagedState extends State<IcNotManaged> {
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: cardHeadLine(widget._interfaceConnection),
+    return basicCard(
+      cardHeadLine(widget._interfaceConnection),
     );
   }
 }

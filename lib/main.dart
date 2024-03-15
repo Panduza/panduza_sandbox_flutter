@@ -28,13 +28,21 @@ class PanduzaSandboxApp extends StatelessWidget {
     return MaterialApp(
       title: 'Panduza Sandbox',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: black),
+        scaffoldBackgroundColor: grey,
         useMaterial3: true,
+        textTheme: const TextTheme(
+          bodyLarge: TextStyle(),
+          bodyMedium: TextStyle(),
+          bodySmall: TextStyle(),
+        ).apply(
+          bodyColor: white, 
+        ),
       ),
       // routes: {
       //   // '/second': (BuildContext context) => SecondPage(),
       //   // '/userspace': (BuildContext context) => UserspacePage(),
       // },
+      
       home: const HomePage(title: 'Panduza Sandbox'),
     );
   }

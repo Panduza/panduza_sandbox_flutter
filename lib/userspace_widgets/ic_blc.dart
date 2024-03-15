@@ -1,11 +1,11 @@
-import 'package:flutter/material.dart';
-import 'templates.dart';
-import '../../data/interface_connection.dart';
-
 import 'dart:convert';
+import 'package:flutter/material.dart';
+import 'package:mqtt_client/mqtt_client.dart';
 
 // import '../widgets/interface_control/icw_bpc.dart';
-import 'package:mqtt_client/mqtt_client.dart';
+import 'package:panduza_sandbox_flutter/userspace_widgets/templates.dart';
+import 'package:panduza_sandbox_flutter/data/interface_connection.dart';
+
 
 class IcBlc extends StatefulWidget {
   const IcBlc(this._interfaceConnection, {super.key});
@@ -384,7 +384,7 @@ class _IcBlcState extends State<IcBlc> {
                   side: BorderSide(
                     color: (applyPowerCurrentRequest() != null)
                         ? Colors.red
-                        : Colors.grey,
+                        : Colors.white,
                   ),
                 ),
                 child: const Text("Cancel"),
@@ -407,11 +407,14 @@ class _IcBlcState extends State<IcBlc> {
         ],
       ));
     } else {
-      return Card(
-          child: Column(children: [
-        cardHeadLine(widget._interfaceConnection),
-        const Text("Wait for data...")
-      ]));
+      return basicCard(
+        Column(
+          children: [
+            cardHeadLine(widget._interfaceConnection),
+            const Text("Wait for data...")
+          ]
+        )
+      );
     }
   }
 }

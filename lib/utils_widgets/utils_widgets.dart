@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:panduza_sandbox_flutter/pages/userspace_bench_pages.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:panduza_sandbox_flutter/data/const.dart';
@@ -156,7 +157,10 @@ Widget getConnectionsButtonsList(SharedPreferences prefs, List<String> platformN
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10),
-              color: grey,
+              border: Border.all(
+                color: blue
+              ),
+              color: black,
             ),
             child: Row (
               children: <Widget>[
@@ -181,8 +185,8 @@ Widget getConnectionsButtonsList(SharedPreferences prefs, List<String> platformN
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => UserspacePage(
-                      broker_connection_info: BrokerConnectionInfo(
+                    builder: (context) => UserspaceBenchPage(
+                      brokerConnectionInfo: BrokerConnectionInfo(
                         host, 
                         int.parse(port), 
                         client
@@ -226,10 +230,12 @@ Widget localDiscoveryConnections(List<(InternetAddress, int)> platformsIpsPorts,
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10),
-              color: grey,
+              border: Border.all(
+                color: blue
+              ),
+              color: black,
             ),
             child: Center(
-              
               child: Column (
                 children: <Widget>[
                   AutoSizeText(

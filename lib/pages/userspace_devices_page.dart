@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:mqtt_client/mqtt_client.dart';
+import 'package:panduza_sandbox_flutter/pages/add_device_page.dart';
 
 import 'package:panduza_sandbox_flutter/userspace_widgets/ic_blc.dart';
 import 'package:panduza_sandbox_flutter/userspace_widgets/ic_bpc.dart';
@@ -15,25 +16,41 @@ import 'package:panduza_sandbox_flutter/data/interface_connection.dart';
 import 'package:panduza_sandbox_flutter/utils_widgets/appBar.dart';
 import 'package:panduza_sandbox_flutter/data/broker_connection_info.dart';
 import 'package:panduza_sandbox_flutter/data/const.dart';
-import 'package:panduza_sandbox_flutter/pages/add_device_page.dart';
 
-class UserspacePage extends StatefulWidget {
-  const UserspacePage({super.key, required this.broker_connection_info});
+class UserspaceDevicesPage extends StatefulWidget {
+  const UserspaceDevicesPage({
+    super.key, 
+    required this.brokerConnectionInfo, 
+    required this.listInterfaceConnection,
+    required this.benchName
+  });
 
-  final BrokerConnectionInfo broker_connection_info;
+  final BrokerConnectionInfo brokerConnectionInfo;
+  final List<InterfaceConnection> listInterfaceConnection;
+  final String benchName;
 
   @override
-  _UserspacePageState createState() => _UserspacePageState();
+  State<UserspaceDevicesPage> createState() => _UserspaceDevicesPageState();
 }
 
-class _UserspacePageState extends State<UserspacePage> {
-  List<InterfaceConnection> interfaces = [];
+class _UserspaceDevicesPageState extends State<UserspaceDevicesPage> {
+  List<InterfaceConnection> interfacesBench = [];
 
   // Map who associate a device to different interfaces
   final Map<String, List<InterfaceConnection>> deviceToInterfaces = {}; 
 
+  @override 
+  void initState() {
+    super.initState();
+    for (var interface in widget.listInterfaceConnection) {
+      if (interface.getBenchName() == widget.benchName) {
+        interfacesBench.add(interface);
+      }
+    }
+  }
+
   bool interfaceAlreadyRegistered(InterfaceConnection ic) {
-    for (var interface in interfaces) {
+    for (var interface in interfacesBench) {
       if (interface.topic == ic.topic) {
         return true;
       }
@@ -41,94 +58,6 @@ class _UserspacePageState extends State<UserspacePage> {
     // print(ic.topic);
     return false;
   }
-
-  InterfaceConnection? findPlatform() {
-
-    for (var interface in interfaces) {
-      if (interface.info["type"] == "platform") {
-        return interface;
-      }
-    }
-
-    return null;
-  }
-
-  @override
-  void initState() {
-    super.initState();
-
-    widget.broker_connection_info.client
-          .subscribe('pza/+/+/+/atts/info', MqttQos.atLeastOnce);
-
-    MqttClientPayloadBuilder builder = MqttClientPayloadBuilder();
-    builder.addString('*');
-    final payload = builder.payload;
-    widget.broker_connection_info.client
-        .publishMessage('pza', MqttQos.atLeastOnce, payload!);
-
-    Future.delayed(Duration(milliseconds: 100), () async {
-      // Run your async function here
-      // await myAsyncFunction();
-
-      widget.broker_connection_info.client.updates!
-          .listen((List<MqttReceivedMessage<MqttMessage>> c) {
-        // final MqttMessage message = c[0].payload;
-
-        // print('Received  from userspace from topic: ${c[0].topic}>');
-
-        // final string = binascii.b2a_base64(bytearray(data)).decode('utf-8');
-        // print(message.toString());
-
-        // pza/*/atts/info
-
-        if (c![0].topic.startsWith("pza") & c![0].topic.endsWith("atts/info")) {
-          final recMess = c![0].payload as MqttPublishMessage;
-
-          var topic = c![0]
-              .topic
-              .substring(0, c![0].topic.length - "/atts/info".length);
-
-          final pt =
-              MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
-
-          var jsonObject = json.decode(pt);
-
-          InterfaceConnection ic = InterfaceConnection(
-            widget.broker_connection_info.client, topic, jsonObject["info"]
-          );
-
-          
-          if (!interfaceAlreadyRegistered(ic)) {
-            if (ic.getType() != "device") {
-              setState(() {
-                interfaces = [...interfaces, ic];
-              });
-            }
-          }
-          
-
-          // if device not registered add a new list of interfaces connected to it
-          if (!deviceToInterfaces.containsKey(ic.getDeviceName())) {
-            deviceToInterfaces[ic.getDeviceName()] = [ic];
-          } else {
-            // The interfaceList cannot in normal case be null
-            List<InterfaceConnection>? interfaceList = deviceToInterfaces[ic.getDeviceName()];
-            if (interfaceList != null) {
-              interfaceList.add(ic);
-              deviceToInterfaces[ic.getDeviceName()] = interfaceList;
-            }
-          }
-        }
-        // final payload =
-        // MqttPublishPayload.bytesToStringAsString(message.);
-
-        // print('Received message:$payload from topic: ${c[0].topic}>');
-
-        // sort and put in my map
-        
-        
-      });
-    });
 
     /*
     Future.delayed(Duration(seconds: 2), () async {
@@ -145,18 +74,17 @@ class _UserspacePageState extends State<UserspacePage> {
       interfaces = newInterfaces;
     });
     */
-  }
 
   // Build item of the grid that control the interfaces
-  
+
   Widget interfaceControlItemBuiler(context, index) {
     // Get the type of the interface
 
-    if (index >= interfaces.length) {
+    if (index >= interfacesBench.length) {
       return Container();
     }
 
-    final ic = interfaces[index];
+    final ic = interfacesBench[index];
     final type = ic.info["type"];
 
     switch (type) {
@@ -173,7 +101,8 @@ class _UserspacePageState extends State<UserspacePage> {
         return IcNotManaged(ic);
     }
   }
-  
+
+
 
   /*
   Widget interfaceControlItemBuiler(context, index, lic) {
@@ -258,7 +187,7 @@ class _UserspacePageState extends State<UserspacePage> {
     );
   }
   */
-
+  /*
   List<Widget> interfacesOfDevice(int index) {
     print(deviceToInterfaces.keys.elementAt(index));
     List<InterfaceConnection>? lic = deviceToInterfaces[deviceToInterfaces.keys.elementAt(index)];
@@ -285,6 +214,7 @@ class _UserspacePageState extends State<UserspacePage> {
     }
     return [Container()];
   }
+  */
 
   @override
   Widget build(BuildContext context) {
@@ -397,14 +327,13 @@ class _UserspacePageState extends State<UserspacePage> {
         ],
       )
       */
-      
-      // Button to add a device
+
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => AddDevicePage(),
+              builder: (context) => const AddDevicePage(),
             ),
           );
           setState(() {});
@@ -418,7 +347,6 @@ class _UserspacePageState extends State<UserspacePage> {
           color: white,
         ),
       ),
-      
     );
   }
 }

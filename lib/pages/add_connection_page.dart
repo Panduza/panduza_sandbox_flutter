@@ -4,7 +4,7 @@ import 'package:panduza_sandbox_flutter/pages/manual_connection_page.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 
 import 'package:panduza_sandbox_flutter/data/const.dart';
-import 'package:panduza_sandbox_flutter/pages/userspace/ic_powermeter.dart';
+import 'package:panduza_sandbox_flutter/userspace2_widgets/ic_powermeter.dart';
 import 'package:panduza_sandbox_flutter/utils_widgets/appBar.dart';
 
 // Page with the 3 choices of adding connection :
@@ -24,93 +24,121 @@ class AddConnectionPage extends StatelessWidget {
         child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              SizedBox(
-                width: MediaQuery.sizeOf(context).width / 1.1,
-                height: MediaQuery.sizeOf(context).height / 5,
-                child: TextButton(
-                  style: ButtonStyle (
-                    backgroundColor: MaterialStateProperty.all<Color>(grey)
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(90),
+                  border: Border.all(
+                    color: blue
                   ),
-                  onPressed: () {
-                    // go to manual connection
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const ManualConnectionPage(
-                          ip: "",
-                          port: ""
+                  color: black,
+                ),
+                child: SizedBox(
+                  width: MediaQuery.sizeOf(context).width / 1.1,
+                  height: MediaQuery.sizeOf(context).height / 5,
+                  child: TextButton(
+                    style: ButtonStyle (
+                      backgroundColor: MaterialStateProperty.all<Color>(black)
+                    ),
+                    onPressed: () {
+                      // go to manual connection
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const ManualConnectionPage(
+                            ip: "",
+                            port: ""
+                          ),
                         ),
+                      );
+                    },
+                    child: AutoSizeText(
+                      "Manual connection",
+                      style: TextStyle(
+                        fontSize: 20,
+                        color: white
                       ),
-                    );
-                  },
-                  child: AutoSizeText(
-                    "Manual connection",
-                    style: TextStyle(
-                      fontSize: 20,
-                      color: white
+                      maxLines: 1,
+                    )
+                  ),
+                ),
+              ),
+              
+              SizedBox(
+                height: MediaQuery.sizeOf(context).height / 13
+              ),
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(90),
+                  border: Border.all(
+                    color: blue
+                  ),
+                  color: black,
+                ),
+                child: SizedBox(
+                  width: MediaQuery.sizeOf(context).width / 1.1,
+                  height: MediaQuery.sizeOf(context).height / 5,
+                  child: TextButton(
+                    style: ButtonStyle (
+                      backgroundColor: MaterialStateProperty.all<Color>(black)
                     ),
-                    maxLines: 1,
-                  )
+                    onPressed: () {
+                      // go to discovery page 
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const DiscoveryPage(),
+                        ),
+                      );
+                    },
+                    child: AutoSizeText(
+                      "Discovery",
+                      style: TextStyle(
+                        fontSize: 20,
+                        color: white
+                      ),
+                      maxLines: 1,
+                    )
+                  ),
                 ),
               ),
               SizedBox(
                 height: MediaQuery.sizeOf(context).height / 13
               ),
-              SizedBox(
-                width: MediaQuery.sizeOf(context).width / 1.1,
-                height: MediaQuery.sizeOf(context).height / 5,
-                child: TextButton(
-                  style: ButtonStyle (
-                    backgroundColor: MaterialStateProperty.all<Color>(grey)
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(90),
+                  border: Border.all(
+                    color: blue
                   ),
-                  onPressed: () {
-                    // go to discovery page 
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const DiscoveryPage(),
-                      ),
-                    );
-                  },
-                  child: AutoSizeText(
-                    "Discovery",
-                    style: TextStyle(
-                      fontSize: 20,
-                      color: white
-                    ),
-                    maxLines: 1,
-                  )
+                  color: black,
                 ),
-              ),
-              SizedBox(
-                height: MediaQuery.sizeOf(context).height / 13
-              ),
-              SizedBox(
-                width: MediaQuery.sizeOf(context).width / 1.1,
-                height: MediaQuery.sizeOf(context).height / 5,
-                child: TextButton(
-                  style: ButtonStyle (
-                    backgroundColor: MaterialStateProperty.all<Color>(grey)
-                  ),
-                  onPressed: () {
-                    // test on userspace
-                    /*
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => IcPowermeter(InterfaceConnection),
-                      ),
-                    );
-                    */
-                  },
-                  child: AutoSizeText(
-                    "Cloud",
-                    style: TextStyle(
-                      fontSize: 20,
-                      color: white
+                child: SizedBox(
+                  width: MediaQuery.sizeOf(context).width / 1.1,
+                  height: MediaQuery.sizeOf(context).height / 5,
+                  child: TextButton(
+                    style: ButtonStyle (
+                      backgroundColor: MaterialStateProperty.all<Color>(black)
                     ),
-                    maxLines: 1,
-                  )
+                    onPressed: () {
+                      // test on userspace
+                      /*
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => IcPowermeter(InterfaceConnection),
+                        ),
+                      );
+                      */
+                    },
+                    child: AutoSizeText(
+                      "Cloud",
+                      style: TextStyle(
+                        fontSize: 20,
+                        color: white
+                      ),
+                      maxLines: 1,
+                    )
+                  ),
                 ),
               )
             ],
