@@ -12,7 +12,7 @@ import 'package:panduza_sandbox_flutter/userspace_widgets/ic_not_managed.dart';
 // import '../widgets/interface_control/icw_bpc.dart';
 
 import 'package:panduza_sandbox_flutter/data/interface_connection.dart';
-import 'package:panduza_sandbox_flutter/utils_widgets/appBar.dart';
+import 'package:panduza_sandbox_flutter/utils_widgets/app_bar.dart';
 import 'package:panduza_sandbox_flutter/data/broker_connection_info.dart';
 import 'package:panduza_sandbox_flutter/data/const.dart';
 import 'package:panduza_sandbox_flutter/pages/add_device_page.dart';

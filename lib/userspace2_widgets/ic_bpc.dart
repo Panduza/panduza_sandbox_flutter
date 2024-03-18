@@ -2,48 +2,32 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 
-// import '../widgets/interface_control/icw_bpc.dart';
-import 'package:panduza_sandbox_flutter/userspace_widgets/templates.dart';
 import 'package:panduza_sandbox_flutter/data/interface_connection.dart';
+import 'package:panduza_sandbox_flutter/userspace_widgets/templates.dart';
 
 
-class IcBlc extends StatefulWidget {
-  const IcBlc(this._interfaceConnection, {super.key});
+
+// import '../widgets/interface_control/icw_bpc.dart';
+
+
+class IcBpc extends StatefulWidget {
+  const IcBpc(this._interfaceConnection, {super.key});
 
   final InterfaceConnection _interfaceConnection;
 
   @override
-  _IcBlcState createState() => _IcBlcState();
+  _IcBpcState createState() => _IcBpcState();
 }
 
-double value_to_double(dynamic value) {
-  switch (value.runtimeType) {
-    case int:
-      return value.toDouble();
-    case double:
-      return value;
-  }
-  return 0.0;
-}
-
-class _IcBlcState extends State<IcBlc> {
+class _IcBpcState extends State<IcBpc> {
   bool? _enableValueReq;
   bool? _enableValueEff;
 
-  int _powerDecimals = 3;
-  double _powerMin = 0;
-  double _powerMax = 0.1;
-  double? _powerValueReq;
-  double? _powerValueEff;
+  double? _voltageValueReq;
+  double? _voltageValueEff;
 
-  int _currentDecimals = 3;
-  double _currentMin = 0;
-  double _currentMax = 0.1;
   double? _currentValueReq;
   double? _currentValueEff;
-
-  String? _modeValueReq;
-  String? _modeValueEff;
 
   ///
   ///
@@ -71,99 +55,37 @@ class _IcBlcState extends State<IcBlc> {
               print('${atts.key} ${field.key} => ${field.value}');
 
               switch (atts.key) {
-                case "mode":
-                  if (field.key == "value") {
-                    bool sync = false;
-                    if (_modeValueEff == _modeValueReq ||
-                        _modeValueReq == null) {
-                      sync = true;
-                    }
-
-                    _modeValueEff = field.value;
-                    if (sync) {
-                      _modeValueReq = _modeValueEff;
-                    }
-                  }
-                  break;
-
                 case "enable":
                   if (field.key == "value") {
-                    bool sync = false;
-                    if (_enableValueEff == _enableValueReq ||
-                        _enableValueReq == null) {
-                      sync = true;
-                    }
-
                     _enableValueEff = field.value;
-                    if (sync) {
-                      _enableValueReq = _enableValueEff;
-                    }
+                    _enableValueReq ??= _enableValueEff;
                   }
                   break;
 
-                case "power":
+                case "voltage":
                   if (field.key == "value") {
                     // print("pokkk !! ${field.value.runtimeType}");
-
-                    bool sync = false;
-                    if (_powerValueEff == _powerValueReq ||
-                        _powerValueReq == null) {
-                      sync = true;
-                    }
-
                     switch (field.value.runtimeType) {
                       case int:
-                        _powerValueEff = field.value.toDouble();
+                        _voltageValueEff = field.value.toDouble();
                       case double:
-                        _powerValueEff = field.value;
+                        _voltageValueEff = field.value;
                     }
-                    if (sync) {
-                      _powerValueReq = _powerValueEff;
-                    }
+                    _voltageValueReq ??= _voltageValueEff;
                   }
-
-                  if (field.key == "min") {
-                    _powerMin = value_to_double(field.value);
-                  }
-                  if (field.key == "max") {
-                    _powerMax = value_to_double(field.value);
-                  }
-                  if (field.key == "decimals") {
-                    _powerDecimals = field.value;
-                  }
-
                   break;
 
                 case "current":
                   if (field.key == "value") {
-                    bool sync = false;
-                    if (_currentValueEff == _currentValueReq ||
-                        _currentValueReq == null) {
-                      sync = true;
-                    }
-
+                    // print("pokkk !! ${field.value.runtimeType}");
                     switch (field.value.runtimeType) {
                       case int:
                         _currentValueEff = field.value.toDouble();
                       case double:
                         _currentValueEff = field.value;
                     }
-
-                    if (sync) {
-                      _currentValueReq = _currentValueEff;
-                    }
+                    _currentValueReq ??= _currentValueEff;
                   }
-
-                  if (field.key == "min") {
-                    _currentMin = value_to_double(field.value);
-                  }
-                  if (field.key == "max") {
-                    _currentMax = value_to_double(field.value);
-                  }
-                  if (field.key == "decimals") {
-                    _currentDecimals = field.value;
-                  }
-
                   break;
               }
             }
@@ -228,18 +150,17 @@ class _IcBlcState extends State<IcBlc> {
   ///
   ///
   ///
-  void Function()? applyPowerCurrentRequest() {
-    if (_powerValueEff == _powerValueReq &&
-        _currentValueReq == _currentValueEff &&
-        _modeValueReq == _modeValueEff) {
+  void Function()? applyVoltageCurrentRequest() {
+    if (_voltageValueEff == _voltageValueReq &&
+        _currentValueReq == _currentValueEff) {
       return null;
     } else {
       return () {
-        if (_powerValueEff != _powerValueReq) {
+        if (_voltageValueEff != _voltageValueReq) {
           MqttClientPayloadBuilder builder = MqttClientPayloadBuilder();
 
           Map<String, dynamic> data = {
-            "power": {"value": _powerValueReq!}
+            "voltage": {"value": _voltageValueReq!}
           };
 
           String jsonString = jsonEncode(data);
@@ -257,24 +178,6 @@ class _IcBlcState extends State<IcBlc> {
 
           Map<String, dynamic> data = {
             "current": {"value": _currentValueReq!}
-          };
-
-          String jsonString = jsonEncode(data);
-
-          builder.addString(jsonString);
-          final payload = builder.payload;
-
-          String cmdsTopic = "${widget._interfaceConnection.topic}/cmds/set";
-
-          widget._interfaceConnection.client
-              .publishMessage(cmdsTopic, MqttQos.atLeastOnce, payload!);
-        }
-
-        if (_modeValueEff != _modeValueReq) {
-          MqttClientPayloadBuilder builder = MqttClientPayloadBuilder();
-
-          Map<String, dynamic> data = {
-            "mode": {"value": _modeValueReq!}
           };
 
           String jsonString = jsonEncode(data);
@@ -322,89 +225,77 @@ class _IcBlcState extends State<IcBlc> {
 
   @override
   Widget build(BuildContext context) {
-    print("decimals $_currentDecimals");
-
     if (_enableValueEff != null &&
-        _powerValueReq != null &&
-        _currentValueReq != null &&
-        _modeValueReq != null) {
+        _voltageValueReq != null &&
+        _currentValueReq != null) {
       return Card(
           child: Column(
         children: [
           cardHeadLine(widget._interfaceConnection),
-          DropdownButton<String>(
-              items: const [
-                DropdownMenuItem<String>(
-                  value: "constant_power",
-                  child: Text("constant_power"),
-                ),
-                DropdownMenuItem<String>(
-                  value: "constant_current",
-                  child: Text("constant_current"),
-                )
-              ],
-              value: _modeValueReq!,
-              onChanged: (String? value) {
-                setState(() {
-                  _modeValueReq = value!;
-                });
-              }),
+          // Column(
+          //   children: [
+          //     TextFormField(
+          //       decoration: InputDecoration(
+          //         border: OutlineInputBorder(),
+          //       ),
+          //       // controller: sliderController,
+          //     ),
+          //     TextFormField(
+          //       decoration: InputDecoration(
+          //         border: OutlineInputBorder(),
+          //       ),
+          //       // controller: sliderController,
+          //     ),
+          //   ],
+          // ),
           Text(
-              'Power : ${double.parse(_powerValueReq!.toStringAsFixed(_powerDecimals))}W'),
+              'Voltage : ${double.parse(_voltageValueReq!.toStringAsFixed(2))}V'),
           Slider(
-            value: _powerValueReq!,
+            value: _voltageValueReq!,
             onChanged: (value) {
               setState(() {
-                _powerValueReq =
-                    double.parse((value).toStringAsFixed(_powerDecimals));
+                _voltageValueReq = value;
               });
             },
-            min: _powerMin,
-            max: _powerMax,
+            // min: _attsEffective["voltage"]["min"],
+            // max: _attsEffective["voltage"]["max"],
           ),
           Text(
-              'Current : ${double.parse(_currentValueReq!.toStringAsFixed(_currentDecimals))}A'),
+              'Current : ${double.parse(_currentValueReq!.toStringAsFixed(2))}V'),
           Slider(
             value: _currentValueReq!,
             onChanged: (value) {
               setState(() {
-                _currentValueReq =
-                    double.parse((value).toStringAsFixed(_currentDecimals));
+                _currentValueReq = value;
               });
             },
-            min: _currentMin,
-            max: _currentMax,
+            // min: 0.0,
+            // max: 100.0,
           ),
           Row(
             children: [
-              IconButton(
-                icon: const Icon(
-                  Icons.close
-                ),
-                onPressed: applyPowerCurrentRequest(),
+              OutlinedButton(
+                onPressed: applyVoltageCurrentRequest(),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: Colors.red,
                   side: BorderSide(
-                    color: (applyPowerCurrentRequest() != null)
+                    color: (applyVoltageCurrentRequest() != null)
                         ? Colors.red
-                        : Colors.white,
+                        : Colors.grey,
                   ),
                 ),
-                // child: const Text("Cancel"),
+                child: const Text("Cancel"),
               ),
-              IconButton(
-                icon: const Icon(
-                  Icons.check
-                ),
-                onPressed: applyPowerCurrentRequest(),
+              ElevatedButton(
+                onPressed: applyVoltageCurrentRequest(),
                 style: ElevatedButton.styleFrom(
                   elevation: 0,
                   backgroundColor: Colors.green, // Green background
                   foregroundColor: Colors.white, // White foreground
                 ),
-                // child: const Text("Apply"),
+                child: const Text("Apply"),
               ),
-              const Spacer(),
+              Spacer(),
               Switch(
                   value: _enableValueEff!,
                   onChanged: enableValueSwitchOnChanged()),
@@ -413,14 +304,7 @@ class _IcBlcState extends State<IcBlc> {
         ],
       ));
     } else {
-      return basicCard(
-        Column(
-          children: [
-            cardHeadLine(widget._interfaceConnection),
-            const Text("Wait for data...")
-          ]
-        )
-      );
+      return Card();
     }
   }
 }

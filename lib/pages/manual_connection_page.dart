@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:panduza_sandbox_flutter/forms/add_connection_form.dart';
 
-import 'package:panduza_sandbox_flutter/utils_widgets/appBar.dart';
+import 'package:panduza_sandbox_flutter/utils_widgets/app_bar.dart';
 
 // Page with the 3 choices of adding connection :
 // with manual input, with discovery or with the cloud

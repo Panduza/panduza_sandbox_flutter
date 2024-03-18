@@ -5,7 +5,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 
 import 'package:panduza_sandbox_flutter/data/const.dart';
 import 'package:panduza_sandbox_flutter/userspace2_widgets/ic_powermeter.dart';
-import 'package:panduza_sandbox_flutter/utils_widgets/appBar.dart';
+import 'package:panduza_sandbox_flutter/utils_widgets/app_bar.dart';
 
 // Page with the 3 choices of adding connection :
 // with manual input, with discovery or with the cloud

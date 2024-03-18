@@ -46,6 +46,7 @@ dependencies:
   fluttertoast: ^8.2.4
   win_toast: ^0.3.0
   msix: ^3.16.7
+  quiver: ^3.2.1
 
 dev_dependencies:
   flutter_test:

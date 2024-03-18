@@ -4,6 +4,7 @@ import 'dart:convert';
 // import '../widgets/interface_control/icw_bpc.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:panduza_sandbox_flutter/data/device_config.dart';
+import 'package:panduza_sandbox_flutter/utils_widgets/app_bar.dart';
 // import 'package:mqtt_client/mqtt_server_client.dart';
 
 // import 'userspace/ic_bpc.dart';
@@ -15,6 +16,7 @@ import '../data/interface_connection.dart';
 // import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 import '../data/platform_config.dart';
+import 'package:panduza_sandbox_flutter/data/const.dart';
 
 
 class DevicePage extends StatefulWidget {
@@ -111,19 +113,34 @@ class _DevicePageState extends State<DevicePage> {
       // final int columns = (width / 300.0).round();
 
       return Scaffold(
-          appBar: AppBar(
-            title: Text('Device ${_config.name}'),
+        appBar: getAppBar('Device ${_config.name}'),
+        body: Column(children: [
+          const SizedBox(
+            height: 10,
           ),
-          body: Column(children: [
-            TextField(
-              controller: _nameController,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                labelText: 'Name',
-              ),
-              onChanged: (value) => {_config.name = value},
+          TextField(
+            controller: _nameController,
+            decoration: InputDecoration(
+              border: const OutlineInputBorder(),
+              labelText: 'Name',
+              labelStyle: TextStyle(
+                color: white
+              )
             ),
-            DropdownButton<String>(
+            onChanged: (value) => {_config.name = value},
+          ),
+          const SizedBox(
+            height: 10,
+          ),
+          Container (
+            width: 300,
+            decoration: BoxDecoration(
+              color: white,
+              borderRadius: BorderRadius.all(Radius.circular(10))
+            ),
+            child: Center (
+              child: DropdownButton<String>(
+                underline: SizedBox.shrink(),
                 items: _availableRefList!
                     .map<DropdownMenuItem<String>>((String value) {
                   return DropdownMenuItem<String>(
@@ -136,15 +153,30 @@ class _DevicePageState extends State<DevicePage> {
                   setState(() {
                     _config.ref = value!;
                   });
-                }),
-            propertyWidget(),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context, true);
-              },
-              child: const Text("Apply"),
-            )
-          ]));
+                },
+              ),
+            ),
+          ),
+          
+          propertyWidget(),
+          const SizedBox(
+            height: 10,
+          ),
+          ElevatedButton(
+            style: ButtonStyle(
+              backgroundColor: MaterialStateColor.resolveWith((states) => blue)
+            ),
+            onPressed: () {
+              Navigator.pop(context, true);
+            },
+            child: Text(
+              "Apply",
+              style: TextStyle(
+                color: black
+              ),
+            ),
+          )
+        ]));
     }
   }
 }

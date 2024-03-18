@@ -5,7 +5,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:panduza_sandbox_flutter/data/const.dart';
 import 'package:panduza_sandbox_flutter/pages/add_connection_page.dart';
 import 'package:panduza_sandbox_flutter/utils_widgets/drawer.dart';
-import 'package:panduza_sandbox_flutter/utils_widgets/appBar.dart';
+import 'package:panduza_sandbox_flutter/utils_widgets/app_bar.dart';
 import 'package:panduza_sandbox_flutter/utils_widgets/utils_widgets.dart';
 
 // final List<String> equipments = ["LASER", "ROBOT O", "Quantique"];

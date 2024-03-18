@@ -37,6 +37,9 @@ class PanduzaSandboxApp extends StatelessWidget {
         ).apply(
           bodyColor: white, 
         ),
+        scrollbarTheme: const ScrollbarThemeData().copyWith(
+          thumbColor: MaterialStateProperty.all(white),
+        )
       ),
       // routes: {
       //   // '/second': (BuildContext context) => SecondPage(),

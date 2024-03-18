@@ -3,9 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 
 // import '../widgets/interface_control/icw_bpc.dart';
-import 'package:panduza_sandbox_flutter/userspace_widgets/templates.dart';
 import 'package:panduza_sandbox_flutter/data/interface_connection.dart';
-
+import 'package:panduza_sandbox_flutter/userspace_widgets/templates.dart';
 
 class IcBlc extends StatefulWidget {
   const IcBlc(this._interfaceConnection, {super.key});
@@ -377,34 +376,28 @@ class _IcBlcState extends State<IcBlc> {
           ),
           Row(
             children: [
-              IconButton(
-                icon: const Icon(
-                  Icons.close
-                ),
+              OutlinedButton(
                 onPressed: applyPowerCurrentRequest(),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: Colors.red,
                   side: BorderSide(
                     color: (applyPowerCurrentRequest() != null)
                         ? Colors.red
-                        : Colors.white,
+                        : Colors.grey,
                   ),
                 ),
-                // child: const Text("Cancel"),
+                child: const Text("Cancel"),
               ),
-              IconButton(
-                icon: const Icon(
-                  Icons.check
-                ),
+              ElevatedButton(
                 onPressed: applyPowerCurrentRequest(),
                 style: ElevatedButton.styleFrom(
                   elevation: 0,
                   backgroundColor: Colors.green, // Green background
                   foregroundColor: Colors.white, // White foreground
                 ),
-                // child: const Text("Apply"),
+                child: const Text("Apply"),
               ),
-              const Spacer(),
+              Spacer(),
               Switch(
                   value: _enableValueEff!,
                   onChanged: enableValueSwitchOnChanged()),
@@ -413,14 +406,11 @@ class _IcBlcState extends State<IcBlc> {
         ],
       ));
     } else {
-      return basicCard(
-        Column(
-          children: [
-            cardHeadLine(widget._interfaceConnection),
-            const Text("Wait for data...")
-          ]
-        )
-      );
+      return Card(
+          child: Column(children: [
+        cardHeadLine(widget._interfaceConnection),
+        const Text("Wait for data...")
+      ]));
     }
   }
 }

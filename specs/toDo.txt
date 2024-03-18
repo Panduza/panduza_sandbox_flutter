@@ -1,3 +1,11 @@
 - Check if equality in discovery_page in the time works
 - Change the logo
 - In add connection form change the color of the description label
+- In userspace check if the fact to not add in the map didn't make 
+problem to register the info of the interface widget (example : 
+if I change the current and validate the action it but stay still 
+when I come back)
+
+- try to compact at maximum the device widget
+
+- send screenshot to Xavier

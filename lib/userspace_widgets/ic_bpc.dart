@@ -34,7 +34,9 @@ class _IcBpcState extends State<IcBpc> {
 
     //
     if (c[0].topic.startsWith(widget._interfaceConnection.topic)) {
+      print("test = ${c[0].topic}");
       if (!c[0].topic.endsWith('/info')) {
+        print("success = ${c[0].topic}");
         final recMess = c![0].payload as MqttPublishMessage;
 
         final pt =
@@ -128,12 +130,7 @@ class _IcBpcState extends State<IcBpc> {
     // subscribe to info and atts ?
     Future.delayed(const Duration(milliseconds: 1), initializeMqttSubscription);
   }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
+  
   void Function(bool)? enableValueSwitchOnChanged() {
     if (_enableValueReq != _enableValueEff) {
       return null;
@@ -245,46 +242,57 @@ class _IcBpcState extends State<IcBpc> {
             //     ),
             //   ],
             // ),
-            Text(
-              'Voltage : ${double.parse(_voltageValueReq!.toStringAsFixed(2))}V',
-              style: TextStyle(
-                color: white
-              )
+            Row(
+              children: <Widget>[
+                Slider(
+                  value: _voltageValueReq!,
+                  activeColor: blue,
+                  onChanged: (value) {
+                    setState(() {
+                      _voltageValueReq = value;
+                    });
+                  },
+                  // min: _attsEffective["voltage"]["min"],
+                  // max: _attsEffective["voltage"]["max"],
+                ),
+                Text(
+                  'Voltage : ${double.parse(_voltageValueReq!.toStringAsFixed(2))}V',
+                  style: TextStyle(
+                    color: white
+                  )
+                ),
+              ],
             ),
-            Slider(
-              value: _voltageValueReq!,
-              activeColor: blue,
-              onChanged: (value) {
-                setState(() {
-                  _voltageValueReq = value;
-                });
-              },
-              // min: _attsEffective["voltage"]["min"],
-              // max: _attsEffective["voltage"]["max"],
-            ),
-            Text(
-              'Current : ${double.parse(_currentValueReq!.toStringAsFixed(2))}V',
-              style: TextStyle(
-                color: white
-              )
-            ),
-            Slider(
-              value: _currentValueReq!,
-              activeColor: blue,
-              onChanged: (value) {
-                setState(() {
-                  _currentValueReq = value;
-                });
-              },
-              // min: 0.0,
-              // max: 100.0,
+            Row(
+              children: <Widget>[
+                Slider(
+                  value: _currentValueReq!,
+                  activeColor: blue,
+                  onChanged: (value) {
+                    setState(() {
+                      _currentValueReq = value;
+                    });
+                  },
+                  // min: 0.0,
+                  // max: 100.0,
+                ),
+                Text(
+                  'Current : ${double.parse(_currentValueReq!.toStringAsFixed(2))}V',
+                  style: TextStyle(
+                    color: white
+                  )
+                ),
+              ],
             ),
             Row(
               children: [
                 const SizedBox(
                   width: 10,
                 ),
-                OutlinedButton(
+                IconButton(
+                  icon: const Icon(
+                    Icons.close
+                  ),
                   onPressed: applyVoltageCurrentRequest(),
                   style: OutlinedButton.styleFrom(
                     disabledBackgroundColor: white,
@@ -295,12 +303,15 @@ class _IcBpcState extends State<IcBpc> {
                           : Colors.grey,
                     ),
                   ),
-                  child: const Text("Cancel"),
+                  // child: const Text("Cancel"),
                 ),
                 const SizedBox(
                   width: 10,
                 ),
-                ElevatedButton(
+                IconButton(
+                  icon: const Icon(
+                    Icons.check
+                  ),
                   onPressed: applyVoltageCurrentRequest(),
                   style: ElevatedButton.styleFrom(
                     elevation: 0,
@@ -308,15 +319,17 @@ class _IcBpcState extends State<IcBpc> {
                     backgroundColor: Colors.green, // Green background
                     foregroundColor: Colors.white, // White foreground
                   ),
-                  child: const Text("Apply"),
                 ),
-                Spacer(),
+                const Spacer(),
                 Switch(
                   value: _enableValueEff!,
                   onChanged: enableValueSwitchOnChanged(),
                   activeColor: blue,
                 ),
               ],
+            ),
+            const SizedBox(
+              height: 5,
             )
           ],
         )

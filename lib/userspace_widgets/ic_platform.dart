@@ -49,10 +49,13 @@ class _IcPlatformState extends State<IcPlatform> {
       builder.addString(jsonEncode(content));
       final payload = builder.payload;
 
+      print(widget._interfaceConnection.topic);
+
       widget._interfaceConnection.client.publishMessage(
           widget._interfaceConnection.topic + "/cmds/set",
           MqttQos.atLeastOnce,
-          payload!);
+          payload!
+      );
     }
   }
 

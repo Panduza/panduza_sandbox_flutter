@@ -39,23 +39,38 @@ class AddConnectionForm extends StatelessWidget {
             children: <Widget>[
               TextField(
                 controller: ctrlName,
-                // textAlign: TextAlign.center,
-                decoration: const InputDecoration(
+                style: TextStyle(
+                  color: white
+                ),
+                decoration: InputDecoration(
                   labelText: 'Platform name',
+                  labelStyle: TextStyle(
+                    color: white
+                  )
                 ),
               ),
               TextField(
                 controller: ctrlHostIp,
-                // textAlign: TextAlign.center,
-                decoration: const InputDecoration(
-                  labelText: 'Broker Hostname'
+                style: TextStyle(
+                  color: white
+                ),
+                decoration: InputDecoration(
+                  labelText: 'Broker Hostname',
+                  labelStyle: TextStyle(
+                    color: white
+                  )
                 ),
               ),
               TextField(
                 controller: ctrlPort,
-                // textAlign: TextAlign.center,
-                decoration: const InputDecoration(
+                style: TextStyle(
+                  color: white
+                ),
+                decoration: InputDecoration(
                   labelText: 'Broker Port',
+                  labelStyle: TextStyle(
+                    color: white
+                  )
                 ),
               ),
             ]

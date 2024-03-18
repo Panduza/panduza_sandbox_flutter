@@ -13,6 +13,8 @@ import 'package:auto_size_text/auto_size_text.dart';
 
 import 'package:panduza_sandbox_flutter/data/const.dart';
 import 'package:panduza_sandbox_flutter/pages/manual_connection_page.dart';
+import 'package:panduza_sandbox_flutter/data/broker_connection_info.dart';
+import 'package:panduza_sandbox_flutter/data/interface_connection.dart';
 
 late MqttServerClient _client;
 bool _isConnecting = false;
@@ -196,6 +198,32 @@ Future<List<(InternetAddress, int)>> platformDiscovery() async {
   udpSocket.close();
 
   return ipPort;
+}
+
+
+// Check if the interface has already been added to the list
+
+bool interfaceAlreadyRegistered(InterfaceConnection ic, 
+    List<InterfaceConnection> interfaces) {
+  for (var interface in interfaces) {
+    if (interface.topic == ic.topic) {
+      return true;
+    }
+  }
+  // print(ic.topic);
+  return false;
+}
+
+// Check if the platform has already been added to the list of devices
+
+bool platformAlreadyRegistered(String benchTest, List<String> benchList) {
+  for (var bench in benchList) {
+    if (bench == benchTest) {
+      return true;
+    }
+  }
+  // print(ic.topic);
+  return false;
 }
 
 

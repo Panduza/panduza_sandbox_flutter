@@ -27,21 +27,24 @@ Widget cardHeadLine(InterfaceConnection ic) {
   return ListTile(
     title: Center(
       child: Text(
-        ic.getType(),
+        "${ic.getType()} ${ic.getInterfaceName()}" ,
         style: TextStyle(
           color: white,
-          fontSize: 20
+          fontSize: 16
         ),
       ),
-    ),
-    subtitle: Row(
+    )
+    /*
+    Row(
       children: [
+        
         Text(
-          ic.getDeviceName(),
+          "${ic.getDeviceName()} ${ic.getInterfaceName()}",
           style: TextStyle(
             color: white, 
             fontSize: 12)
           ),
+        
         Text(
           "  ",
           style: TextStyle(
@@ -56,8 +59,10 @@ Widget cardHeadLine(InterfaceConnection ic) {
             fontSize: 12
           )
         ),
+        
       ]
     )
+    */
   );
 }
 

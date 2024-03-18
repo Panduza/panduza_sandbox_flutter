@@ -41,23 +41,33 @@ class EditConnectionForm extends StatelessWidget {
               TextField(
                 controller: ctrlName,
                 // textAlign: TextAlign.center,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'Platform name',
+                  labelStyle: TextStyle(
+                    color: white
+                  )
                 ),
                 
               ),
               TextField(
                 controller: ctrlHostIp,
                 // textAlign: TextAlign.center,
-                decoration: const InputDecoration(
-                  labelText: 'Broker Hostname'
+                decoration: InputDecoration(
+                  labelText: 'Broker Hostname',
+                  labelStyle: TextStyle(
+                    color: white
+                  )
                 ),
               ),
               TextField(
                 controller: ctrlPort,
                 // textAlign: TextAlign.center,
-                decoration: const InputDecoration(
+                
+                decoration: InputDecoration(
                   labelText: 'Broker Port',
+                  labelStyle: TextStyle(
+                    color: white
+                  )
                 ),
               ),
             ]

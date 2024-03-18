@@ -28,3 +28,13 @@ different interfaces
 ------------------------------------------------------------------------------------
 
 Think about the futur cloud application :
+
+------------------------------------------------------------------------------------
+
+Question to Xavier :
+
+- Ask him if it's probably better to put the device config of a user on local and not directly 
+on the broker else if different user who use the same bench will each time have to change the display
+
+- For the psu, he send message for ampermetter and voltmetre but not for the controller (problem with the 
+platform ?)

@@ -18,7 +18,8 @@ import 'package:panduza_sandbox_flutter/data/interface_connection.dart';
 // import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 import 'package:panduza_sandbox_flutter/data/platform_config.dart';
-import 'package:panduza_sandbox_flutter/utils_widgets/appBar.dart';
+import 'package:panduza_sandbox_flutter/utils_widgets/app_bar.dart';
+import 'package:panduza_sandbox_flutter/data/const.dart';
 
 // class BrokerConnectionInfo {
 //   String host;
@@ -135,8 +136,18 @@ class _PlatformPageState extends State<PlatformPage> {
     for (var device in _platformConfig.devices) {
       // device.
       items.add(ListTile(
-        title: Text(device.name),
-        subtitle: Text(device.ref),
+        title: Text(
+          device.name,
+          style: TextStyle(
+            color: white
+          ),
+        ),
+        subtitle: Text(
+          device.ref,
+          style: TextStyle(
+            color: white
+          ),
+        ),
         onTap: () {
           Navigator.push(
             context,
@@ -173,33 +184,56 @@ class _PlatformPageState extends State<PlatformPage> {
           // mainAxisAlignment: MainAxisAlignment.center,
 
           children: [
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => HuntPage(
-                          widget._interfaceConnection, _platformConfig)),
-                ).then((value) {
-                  // print(" !!!!!!!!!!! ^^^^ ");
-                  setState(() {});
-                });
-              },
-              style: ElevatedButton.styleFrom(
-                elevation: 0,
-                // backgroundColor: Colors.green, // Green background
-                // foregroundColor: Colors.white, // White foreground
-              ),
-              child: const Text("New Device"),
+            const SizedBox(
+              height: 10,
             ),
-            ElevatedButton(
-              onPressed: sendConfigToPlatform,
-              style: ElevatedButton.styleFrom(elevation: 0),
-              child: const Text("Push Config"),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => HuntPage(
+                              widget._interfaceConnection, _platformConfig)),
+                    ).then((value) {
+                      // print(" !!!!!!!!!!! ^^^^ ");
+                      setState(() {});
+                    });
+                  },
+                  style: ElevatedButton.styleFrom(
+                    elevation: 0,
+                    // backgroundColor: Colors.green, // Green background
+                    // foregroundColor: Colors.white, // White foreground
+                  ),
+                  child: Text(
+                    "New Device",
+                    style: TextStyle(
+                      color: black
+                    ),
+                  ),
+                ),
+                const SizedBox(
+                  width: 20,
+                ),
+                ElevatedButton(
+                  onPressed: sendConfigToPlatform,
+                  style: ElevatedButton.styleFrom(elevation: 0),
+                  child: Text(
+                    "Push config",
+                    style: TextStyle(
+                      color: black
+                    ),
+                  ),
+                ),
+              ],
             ),
             // Text("!!! ${_platformConfig.devices.length}"),
             SizedBox(
-                height: 400.0, child: ListView(children: deviceListItems()))
+              height: 400.0, 
+              child: ListView(children: deviceListItems())
+            )
           ],
         ),
       ),

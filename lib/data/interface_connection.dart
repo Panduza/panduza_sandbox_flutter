@@ -1,4 +1,5 @@
 import 'package:mqtt_client/mqtt_server_client.dart';
+import 'package:quiver/core.dart';
 
 /// Minimal data package to access an interface from the application
 ///
@@ -36,6 +37,12 @@ class InterfaceConnection {
     final index = elements.length - 3;
     return elements[index]; 
   }
+
+  @override
+  bool operator ==(o) => o is InterfaceConnection && topic == o.topic;
+
+  @override
+  int get hashCode => topic.hashCode;
 }
 
 // pza/server/alien/test
