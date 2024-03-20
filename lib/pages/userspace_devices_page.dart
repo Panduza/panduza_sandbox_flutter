@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:panduza_sandbox_flutter/pages/add_device_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:panduza_sandbox_flutter/userspace_widgets/ic_blc.dart';
 import 'package:panduza_sandbox_flutter/userspace_widgets/ic_bpc.dart';
@@ -16,6 +17,7 @@ import 'package:panduza_sandbox_flutter/data/interface_connection.dart';
 import 'package:panduza_sandbox_flutter/utils_widgets/app_bar.dart';
 import 'package:panduza_sandbox_flutter/data/broker_connection_info.dart';
 import 'package:panduza_sandbox_flutter/data/const.dart';
+import 'package:panduza_sandbox_flutter/pages/edit_devices_page.dart';
 
 class UserspaceDevicesPage extends StatefulWidget {
   const UserspaceDevicesPage({
@@ -39,12 +41,13 @@ class _UserspaceDevicesPageState extends State<UserspaceDevicesPage> {
 
   List<InterfaceConnection> interfacesBench = [];
   List<String> deviceNames = [];
+  Map<String, List<InterfaceConnection>> visibleInterfaces = {};
   Timer? timer;
 
-  // I should go check the max size of list<InterfaceConnection> in the map
-  final maxItem = 10;
+  late final SharedPreferences _prefs;
+  late final _prefsFuture = SharedPreferences.getInstance().then((v) => _prefs = v);
 
-  
+  /*
   void publishToAllPanduza() {
     widget.brokerConnectionInfo.client
           .subscribe('pza/+/+/+/atts/info', MqttQos.atLeastOnce);
@@ -55,13 +58,13 @@ class _UserspaceDevicesPageState extends State<UserspaceDevicesPage> {
     widget.brokerConnectionInfo.client
         .publishMessage('pza', MqttQos.atLeastOnce, payload!);
   }
-  
+  */
 
   @override 
   void initState() {
     super.initState();
 
-    publishToAllPanduza();
+    // publishToAllPanduza();
 
     for (var interface in widget.listInterfaceConnection) {
       if (interface.getBenchName() == widget.benchName) {
@@ -78,7 +81,8 @@ class _UserspaceDevicesPageState extends State<UserspaceDevicesPage> {
     );
 
     deviceNames.addAll(widget.deviceToInterfaces.keys);
-    deviceNames.sort();
+    deviceNames.sort(); 
+
   }
 
   bool interfaceAlreadyRegistered(InterfaceConnection ic) {
@@ -239,13 +243,16 @@ class _UserspaceDevicesPageState extends State<UserspaceDevicesPage> {
   }
 
   // Build item of the grid that control the interfaces
-  
+  /*
   Widget interfaceControlItemBuiler2(context, index, index2) {
     // Get the type of the interface
 
     if (index >= widget.deviceToInterfaces.keys.length) {
       return const SizedBox.shrink();
     }
+
+    // here I could use a loop to see which interface must be visible but yes (it would be better to 
+    // look for a better solution)
 
     List<InterfaceConnection>? listInterface = widget.deviceToInterfaces[deviceNames[index]];
 
@@ -274,8 +281,228 @@ class _UserspaceDevicesPageState extends State<UserspaceDevicesPage> {
         return IcNotManaged(ic);
     }
   }
+  */
   
+  // Build item of the grid that control the interfaces
+  Widget interfaceControlItemBuiler2(context, index, index2) {
+    // Get the type of the interface
+
+    if (index >= visibleInterfaces.keys.length) {
+      return const SizedBox.shrink();
+    }
+
+    // here I could use a loop to see which interface must be visible but yes (it would be better to 
+    // look for a better solution)
+
+    List<InterfaceConnection>? listInterface = visibleInterfaces[deviceNames[index]];
+
+    if (listInterface == null) {
+      return const SizedBox.shrink();
+    }
+
+    if (index2 >= listInterface.length) {
+      return const SizedBox.shrink();
+    }
+
+    final ic = listInterface[index2];
+    final type = ic.info["type"];
+
+    switch (type) {
+      case "blc":
+        return IcBlc(ic);
+      case "bpc":
+        return IcBpc(ic);
+      case "platform":
+        return IcPlatform(ic);
+      case "powermeter":
+        return IcPowermeter(ic);
+      default:
+        // print("!!!! $type");
+        return IcNotManaged(ic);
+    }
+  }
+
+  // Display of 1 device with his visible interfaces 
+
+  Widget deviceWithVisibleInterfaces(List<String> visibleDevicesNames, int index,
+      SharedPreferences prefs) {
+
+    return Column(
+      children: <Widget>[
+        Container(
+          color: grey,
+          child: Row(
+            children: <Widget>[
+              SizedBox(
+                width: MediaQuery.sizeOf(context).width/2,
+              ),
+              Center(
+                child: Text(
+                  visibleDevicesNames[index],
+                  style: TextStyle(
+                    color: white
+                  ),
+                ),
+              ),
+              const Spacer(),
+              IconButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                        EditDevicePage(
+                          deviceName: visibleDevicesNames[index],
+                          deviceInterfacesVisible: visibleInterfaces[visibleDevicesNames[index]] as List<InterfaceConnection>,
+                          deviceInterfaces: widget.deviceToInterfaces[visibleDevicesNames[index]] as List<InterfaceConnection>, 
+                          prefs: prefs
+                        )
+                    ),
+                  ).then((value) {
+                    // load the new interface to show, only need to change one device 
+
+
+                    List<InterfaceConnection>? interfaces = widget.deviceToInterfaces[visibleDevicesNames[index]];
+                    List<InterfaceConnection> interfaceVisible = [];
+                    List<String>? nameVisibleInterfaces = _prefs.getStringList(visibleDevicesNames[index]);
+
+                    if (nameVisibleInterfaces != null && interfaces != null) {
+
+                      for (var interface in interfaces) {
+                        if (nameVisibleInterfaces.contains(interface.getInterfaceName())) {
+                          interfaceVisible.add(interface);
+                        }
+                      }
+
+                      if (interfaceVisible != []) {
+                        visibleInterfaces[visibleDevicesNames[index]] = interfaceVisible;
+                      }
+                     
+                    }
+                    
+                    setState(() {});
+                  });
+                }, 
+                icon: Icon(
+                  Icons.edit,
+                  color: white,
+                  size: 20,
+                ),
+              ),
+              IconButton(
+                onPressed: () {
+                  showDialog(
+                    context: context, 
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        actionsAlignment: MainAxisAlignment.center,
+                        title: const Center(
+                          child: Text('Are you sure ?'),
+                        ),
+                        actions: <Widget>[
+                          TextButton(
+                            style: TextButton.styleFrom(
+                              textStyle: Theme.of(context).textTheme.labelLarge,
+                            ),
+                            child: Text(
+                              'Yes',
+                              style: TextStyle(
+                                color: black
+                              ),
+                            ),
+                            onPressed: () {
+                              // remove the widget of the targeted device
+
+                              prefs.remove(visibleDevicesNames[index]);
+                              setState(() {});
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                          TextButton(
+                            style: TextButton.styleFrom(
+                              textStyle: Theme.of(context).textTheme.labelLarge,
+                            ),
+                            child: Text(
+                              'No',
+                              style: TextStyle(
+                                color: black
+                              ),
+                            ),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                        ],
+                      );
+                    }
+                  );
+                }, 
+                icon: Icon(
+                  Icons.delete,
+                  color: white,
+                  size: 20,
+                ),
+              )
+            ],
+          ),
+        ),
+        MasonryGridView.builder(
+          // itemCount: (widget.deviceToInterfaces[visibleDevicesNames[index]] as List<InterfaceConnection>).length,
+          itemCount: prefs.getStringList(visibleDevicesNames[index])?.length,
+          gridDelegate: const SliverSimpleGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 4
+          ),
+          shrinkWrap: true,
+          // crossAxisCount: columns,
+          mainAxisSpacing: 0,
+          crossAxisSpacing: 0,
+          itemBuilder: (context2, index2) {
+            return interfaceControlItemBuiler2(context2, index, index2);
+          }
+        )
+      ],
+    );
+  }
   
+  // print the device the user has choose to add at his last utilisations 
+  // this data are stocked in the disk
+
+  Widget listDevicesWithInterfaces(SharedPreferences prefs) {
+
+    List<String> visibleDevicesNames = [];
+    
+    for (var deviceName in deviceNames) {
+      if (prefs.containsKey(deviceName)) {
+        visibleDevicesNames.add(deviceName);
+      }
+    } 
+
+
+    return ListView.separated (
+      itemCount: visibleDevicesNames.length,
+      itemBuilder: (context, index) {
+        return Padding(
+          padding: const EdgeInsets.all(10),
+          child:  Container(
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: white
+              ),
+              // color: Colors.blueGrey,
+              // color: Color(0xFF606060)
+              // color: Color(0xFF5A5E6B)
+              // color: Color(0xFF303030)
+              color: Color(0xFF696969)
+              // color: Color(0xFF463F32)
+              // color: Color(0xFF2F4F4F)
+            ),
+            child: deviceWithVisibleInterfaces(visibleDevicesNames, index, prefs)
+          ),
+        );
+      },
+      separatorBuilder: (context, index) => const Divider(),
+    ); 
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -285,165 +512,51 @@ class _UserspaceDevicesPageState extends State<UserspaceDevicesPage> {
 
     return Scaffold(
       appBar: getAppBar("Bench : ${widget.benchName}"),
-      body: 
+      body: FutureBuilder(
+        future: _prefsFuture,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            // get the current visible interface for each device 
 
-      /*
-      ListView.separated(
-        shrinkWrap: true,
-        padding: const EdgeInsets.all(20),
-        itemCount: deviceToInterfaces.length,
+            // n² but not a lot of device for a bench so I think it's not a real problem 
+            // but try to find a better alternative 
 
-        itemBuilder: (BuildContext context, int index) {
-          return interfaceControlItemBuiler2(deviceToInterfaces.keys.elementAt(index));
-        },
-        separatorBuilder: (context, index) => Container(),
-      )
-      */
-      
+            for (String deviceName in deviceNames) {
 
-      /*
-      ListView.separated(
-        padding: const EdgeInsets.all(20),
-        itemCount: widget.deviceToInterfaces.length,
-        shrinkWrap: true,
-        scrollDirection: Axis.vertical,
+              List<InterfaceConnection>? interfaces = widget.deviceToInterfaces[deviceName];
+              List<InterfaceConnection> interfaceVisible = [];
+              List<String>? nameVisibleInterfaces = _prefs.getStringList(deviceName);
 
-        itemBuilder: (BuildContext context, int index) {
-          return Row(
-            children: getWidgetsForOneDevice(widget.deviceToInterfaces.keys.elementAt(index)),
-          );
-        },
-        separatorBuilder: (context, index) => const Divider(),
-      ),
-      */
-      
-      /*
-      Column(
-        // Start with the platform then display every device
-        children: <Widget>[
-          Center(
-            child: Container(
-              height: MediaQuery.sizeOf(context).height / 3,
-              width: MediaQuery.sizeOf(context).width / 3,
-              child: IcPlatform(findPlatform() as InterfaceConnection),
-            )
-          ),
-        ]
-      )
-      */
-      /*
-      ListView.separated(
-        padding: const EdgeInsets.all(20),
-        itemCount: interfacesBench.length,
+              if (nameVisibleInterfaces != null && interfaces != null) {
 
-        itemBuilder: (BuildContext context, int index) {
-          return interfaceControlItemBuiler(context, index);
-        },
-        separatorBuilder: (context, index) => const Divider(),
-      ),
-      */
-
-      // one device 
-      /*
-      Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: blue
-          ),
-          color: black,
-        ),
-        child: GridView.builder(
-          shrinkWrap: true,
-          itemCount: (widget.deviceToInterfaces["test"] as List<InterfaceConnection>).length,
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            // number of items per row
-            crossAxisCount: 5,
-            // vertical spacing between the items
-            mainAxisSpacing: 0,
-            // horizontal spacing between the items
-            crossAxisSpacing: 0,
-          ),
-          itemBuilder: (context, index) {
-            return getListWidgetsForOneDevice(index, widget.deviceToInterfaces["test"] as List<InterfaceConnection>);
-          },
-        ),
-      ),
-      */
-
-      /*
-      MasonryGridView.count(
-        shrinkWrap: true,
-        crossAxisCount: columns,
-        mainAxisSpacing: 4,
-        crossAxisSpacing: 4,
-        itemBuilder: interfaceControlItemBuiler
-      ),
-      */
-      
-      /*
-      MasonryGridView.builder(
-        itemCount: widget.listInterfaceConnection.length,
-        gridDelegate: SliverSimpleGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: columns
-        ),
-        shrinkWrap: true,
-        // crossAxisCount: columns,
-        mainAxisSpacing: 4,
-        crossAxisSpacing: 4,
-        itemBuilder: interfaceControlItemBuiler
-      ),
-      */
-      
-      
-      ListView.separated (
-        itemCount: widget.deviceToInterfaces.length,
-        itemBuilder: (context, index) {
-          return Container(
-            decoration: BoxDecoration(
-              border: Border.all(
-                color: blue
-              ),
-              color: black,
-            ),
-            child: Column(
-              children: <Widget>[
-                Text(
-                  deviceNames[index],
-                  style: TextStyle(
-                    color: white
-                  ),
-                ),
-                MasonryGridView.builder(
-                  itemCount: maxItem,
-                  gridDelegate: SliverSimpleGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: columns
-                  ),
-                  shrinkWrap: true,
-                  // crossAxisCount: columns,
-                  mainAxisSpacing: 0,
-                  crossAxisSpacing: 0,
-                  itemBuilder: (context2, index2) {
-                    return interfaceControlItemBuiler2(context2, index, index2);
+                for (var interface in interfaces) {
+                  if (nameVisibleInterfaces.contains(interface.getInterfaceName())) {
+                    interfaceVisible.add(interface);
                   }
-                )
-              ],
-            )
-          );
-        },
-        separatorBuilder: (context, index) => const Divider(),
-      ),
-      
+                }
 
+                if (interfaceVisible != []) {
+                  visibleInterfaces[deviceName] = interfaceVisible;
+                }
+              }
+            }
+            return listDevicesWithInterfaces(_prefs);
+          } 
+          // `_prefs` is not ready yet, show loading bar till then.
+          return const CircularProgressIndicator(); 
+        },
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => const AddDevicePage(),
+              builder: (context) => AddDevicePage(
+                listDevices: widget.deviceToInterfaces,
+                prefs: _prefs,
+              ),
             ),
-          );
-          setState(() {});
+          ).then((value) => setState(() {}));
         },
         backgroundColor: black,
         shape: const CircleBorder(

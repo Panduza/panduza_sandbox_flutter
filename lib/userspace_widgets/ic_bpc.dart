@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // import '../widgets/interface_control/icw_bpc.dart';
 import 'package:mqtt_client/mqtt_client.dart';
@@ -8,9 +9,20 @@ import 'package:panduza_sandbox_flutter/userspace_widgets/templates.dart';
 import 'package:panduza_sandbox_flutter/data/interface_connection.dart';
 
 class IcBpc extends StatefulWidget {
-  const IcBpc(this._interfaceConnection, {super.key});
+  const IcBpc(this._interfaceConnection, {
+    super.key,
+    this.isEdit = false,
+    this.prefs, 
+    this.deviceName,
+    this.editSetState
+  });
 
   final InterfaceConnection _interfaceConnection;
+  final bool isEdit;
+  final SharedPreferences? prefs;
+  final String? deviceName;
+  final Function? editSetState;
+
 
   @override
   _IcBpcState createState() => _IcBpcState();
@@ -31,7 +43,8 @@ class _IcBpcState extends State<IcBpc> {
   void onMqttMessage(List<MqttReceivedMessage<MqttMessage>> c) {
     print("============");
     print('Received ${c[0].topic} from ${widget._interfaceConnection.topic} ');
-
+    
+    // print("ouaf\n");
     //
     if (c[0].topic.startsWith(widget._interfaceConnection.topic)) {
       print("test = ${c[0].topic}");
@@ -107,7 +120,12 @@ class _IcBpcState extends State<IcBpc> {
   /// Initialize MQTT Subscriptions
   ///
   void initializeMqttSubscription() async {
+
+    // Here we listen only the differences with the precedents publish 
+    // so here if I just notify a topic to get him back it's not going 
+    // to work, need to have something who work in every case 
     widget._interfaceConnection.client.updates!.listen(onMqttMessage);
+
 
     String attsTopic = "${widget._interfaceConnection.topic}/atts/#";
     // print(attsTopic);
@@ -225,7 +243,13 @@ class _IcBpcState extends State<IcBpc> {
       return basicCard(
         Column(
           children: [
-            cardHeadLine(widget._interfaceConnection),
+            cardHeadLine(
+              widget._interfaceConnection, 
+              widget.isEdit,
+              deviceName: widget.deviceName,
+              prefs: widget.prefs,
+              editSetState: widget.editSetState
+            ),
             // Column(
             //   children: [
             //     TextFormField(
@@ -242,47 +266,41 @@ class _IcBpcState extends State<IcBpc> {
             //     ),
             //   ],
             // ),
-            Row(
-              children: <Widget>[
-                Slider(
-                  value: _voltageValueReq!,
-                  activeColor: blue,
-                  onChanged: (value) {
-                    setState(() {
-                      _voltageValueReq = value;
-                    });
-                  },
-                  // min: _attsEffective["voltage"]["min"],
-                  // max: _attsEffective["voltage"]["max"],
-                ),
-                Text(
-                  'Voltage : ${double.parse(_voltageValueReq!.toStringAsFixed(2))}V',
-                  style: TextStyle(
-                    color: white
-                  )
-                ),
-              ],
+            Text(
+              'Voltage : ${double.parse(_voltageValueReq!.toStringAsFixed(2))}V',
+              style: TextStyle(
+                color: white,
+                fontSize: 12
+              ),
             ),
-            Row(
-              children: <Widget>[
-                Slider(
-                  value: _currentValueReq!,
-                  activeColor: blue,
-                  onChanged: (value) {
-                    setState(() {
-                      _currentValueReq = value;
-                    });
-                  },
-                  // min: 0.0,
-                  // max: 100.0,
-                ),
-                Text(
-                  'Current : ${double.parse(_currentValueReq!.toStringAsFixed(2))}V',
-                  style: TextStyle(
-                    color: white
-                  )
-                ),
-              ],
+            Slider(
+              value: _voltageValueReq!,
+              activeColor: blue,
+              onChanged: (value) {
+                setState(() {
+                  _voltageValueReq = value;
+                });
+              },
+              // min: _attsEffective["voltage"]["min"],
+              // max: _attsEffective["voltage"]["max"],
+            ),
+            Text(
+              'Current : ${double.parse(_currentValueReq!.toStringAsFixed(2))}V',
+              style: TextStyle(
+                color: white,
+                fontSize: 12
+              ),
+            ),
+            Slider(
+              value: _currentValueReq!,
+              activeColor: blue,
+              onChanged: (value) {
+                setState(() {
+                  _currentValueReq = value;
+                });
+              },
+              // min: 0.0,
+              // max: 100.0,
             ),
             Row(
               children: [

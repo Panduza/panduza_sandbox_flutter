@@ -1,3 +1,4 @@
+/*
 import 'dart:async';
 import 'dart:math';
 // import 'dart:convert';
@@ -6,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
 
 import 'package:panduza_sandbox_flutter/data/broker_connection_info.dart';
-import 'package:panduza_sandbox_flutter/pages/userspace_page.dart';
 
 
 class MqttConnectionForm extends StatefulWidget {
@@ -117,7 +117,7 @@ class _MqttConnectionFormState extends State<MqttConnectionForm> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => UserspacePage(
+                      builder: (context) => UserspaceDevicesPage(
                             broker_connection_info: BrokerConnectionInfo(
                                 getHost(), getPort(), _client),
                           )),
@@ -135,3 +135,4 @@ class _MqttConnectionFormState extends State<MqttConnectionForm> {
     }
   }
 }
+*/

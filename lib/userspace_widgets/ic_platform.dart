@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:mqtt_client/mqtt_client.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:panduza_sandbox_flutter/pages/platform_page.dart';
 import 'package:panduza_sandbox_flutter/data/const.dart';
@@ -8,9 +9,21 @@ import 'package:panduza_sandbox_flutter/data/interface_connection.dart';
 import 'package:panduza_sandbox_flutter/userspace_widgets/templates.dart';
 
 class IcPlatform extends StatefulWidget {
-  IcPlatform(this._interfaceConnection);
+  IcPlatform(this._interfaceConnection, 
+  {
+    super.key,
+    this.isEdit = false,
+    this.prefs, 
+    this.deviceName,
+    this.editSetState
+  });
 
-  InterfaceConnection _interfaceConnection;
+  final InterfaceConnection _interfaceConnection;
+  final bool isEdit;
+  final SharedPreferences? prefs;
+  final String? deviceName;
+  final Function? editSetState;
+
 
   @override
   _IcPlatformState createState() => _IcPlatformState();
@@ -70,7 +83,13 @@ class _IcPlatformState extends State<IcPlatform> {
         ),
         child: Column(
           children: [
-            cardHeadLine(widget._interfaceConnection),
+            cardHeadLine(
+              widget._interfaceConnection, 
+              widget.isEdit,
+              deviceName: widget.deviceName,
+              prefs: widget.prefs,
+              editSetState: widget.editSetState
+            ),
             const SizedBox(
               height: 5,
             ),

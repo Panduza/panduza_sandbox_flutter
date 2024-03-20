@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:mqtt_client/mqtt_client.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // import '../widgets/interface_control/icw_bpc.dart';
 import 'package:panduza_sandbox_flutter/userspace_widgets/templates.dart';
@@ -8,9 +9,19 @@ import 'package:panduza_sandbox_flutter/data/interface_connection.dart';
 
 
 class IcBlc extends StatefulWidget {
-  const IcBlc(this._interfaceConnection, {super.key});
+  const IcBlc(this._interfaceConnection, {
+    super.key,
+    this.isEdit = false,
+    this.prefs, 
+    this.deviceName,
+    this.editSetState
+  });
 
   final InterfaceConnection _interfaceConnection;
+  final bool isEdit;
+  final SharedPreferences? prefs;
+  final String? deviceName;
+  final Function? editSetState;
 
   @override
   _IcBlcState createState() => _IcBlcState();
@@ -331,7 +342,13 @@ class _IcBlcState extends State<IcBlc> {
       return Card(
           child: Column(
         children: [
-          cardHeadLine(widget._interfaceConnection),
+          cardHeadLine(
+            widget._interfaceConnection, 
+            widget.isEdit,
+            deviceName: widget.deviceName,
+            prefs: widget.prefs,
+            editSetState: widget.editSetState
+          ),
           DropdownButton<String>(
               items: const [
                 DropdownMenuItem<String>(
@@ -416,7 +433,7 @@ class _IcBlcState extends State<IcBlc> {
       return basicCard(
         Column(
           children: [
-            cardHeadLine(widget._interfaceConnection),
+            cardHeadLine(widget._interfaceConnection, widget.isEdit),
             const Text("Wait for data...")
           ]
         )

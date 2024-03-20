@@ -135,6 +135,7 @@ class _UserspaceBenchPageState extends State<UserspaceBenchPage> {
                   (tmpMap[ic.getDeviceName()] as List<InterfaceConnection>).sort((a, b) {
                     return a.getType().compareTo(b.getType());
                   });
+                  
                   deviceToInterfaces[ic.getBenchName()] = tmpMap;
                 }
               }
@@ -216,6 +217,18 @@ class _UserspaceBenchPageState extends State<UserspaceBenchPage> {
                     ),
                   ),
                 );
+                /*
+                .then((value) {
+                  widget.brokerConnectionInfo.client
+                        .subscribe('pza/+/+/+/atts/info', MqttQos.atLeastOnce);
+
+                  MqttClientPayloadBuilder builder = MqttClientPayloadBuilder();
+                  builder.addString('*');
+                  final payload = builder.payload;
+                  widget.brokerConnectionInfo.client
+                      .publishMessage('pza', MqttQos.atLeastOnce, payload!);
+                });
+                */
               },
             ),
           );
@@ -229,7 +242,7 @@ class _UserspaceBenchPageState extends State<UserspaceBenchPage> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => AddBenchPage(),
+              builder: (context) => const AddBenchPage(),
             ),
           );
           setState(() {});

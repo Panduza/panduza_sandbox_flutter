@@ -8,7 +8,6 @@ import 'package:panduza_sandbox_flutter/data/const.dart';
 import 'package:panduza_sandbox_flutter/pages/edit_page.dart';
 import 'package:panduza_sandbox_flutter/pages/home_page.dart';
 import 'package:panduza_sandbox_flutter/data/utils.dart';
-import 'package:panduza_sandbox_flutter/pages/userspace_page.dart';
 import 'package:panduza_sandbox_flutter/data/broker_connection_info.dart';
 import 'package:panduza_sandbox_flutter/pages/manual_connection_page.dart';
 
@@ -95,13 +94,21 @@ Widget getDeleteConnectionButton(SharedPreferences prefs, List<String> platformN
         context: context, 
         builder: (BuildContext context) {
           return AlertDialog(
-            title: const Text('Are you sure ?'),
+            actionsAlignment: MainAxisAlignment.center,
+            title: const Center(
+              child: Text('Are you sure ?'),
+            ),
             actions: <Widget>[
               TextButton(
                 style: TextButton.styleFrom(
                   textStyle: Theme.of(context).textTheme.labelLarge,
                 ),
-                child: const Text('Yes'),
+                child: Text(
+                  'Yes',
+                  style: TextStyle(
+                    color: black
+                  ),
+                ),
                 onPressed: () {
                   // remove the connection of disk, 
                   // first the direct entry of this connection 
@@ -123,7 +130,12 @@ Widget getDeleteConnectionButton(SharedPreferences prefs, List<String> platformN
                 style: TextButton.styleFrom(
                   textStyle: Theme.of(context).textTheme.labelLarge,
                 ),
-                child: const Text('No'),
+                child: Text(
+                  'No',
+                  style: TextStyle(
+                    color: black
+                  ),
+                ),
                 onPressed: () {
                   Navigator.of(context).pop();
                 },

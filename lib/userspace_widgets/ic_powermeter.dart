@@ -7,11 +7,23 @@ import 'package:mqtt_client/mqtt_client.dart';
 // import '../widgets/interface_control/icw_bpc.dart';
 import 'package:panduza_sandbox_flutter/data/interface_connection.dart';
 import 'package:panduza_sandbox_flutter/userspace_widgets/templates.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class IcPowermeter extends StatefulWidget {
-  const IcPowermeter(this._interfaceConnection, {super.key});
+  const IcPowermeter(this._interfaceConnection, {
+    super.key,
+    this.isEdit = false,
+    this.prefs, 
+    this.deviceName,
+    this.editSetState
+  });
 
   final InterfaceConnection _interfaceConnection;
+  final bool isEdit;
+  final SharedPreferences? prefs;
+  final String? deviceName;
+  final Function? editSetState;
+
 
   @override
   _IcPowermeterState createState() => _IcPowermeterState();
@@ -243,7 +255,13 @@ class _IcPowermeterState extends State<IcPowermeter> {
       Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          cardHeadLine(widget._interfaceConnection),
+          cardHeadLine(
+            widget._interfaceConnection, 
+            widget.isEdit,
+            deviceName: widget.deviceName,
+            prefs: widget.prefs,
+            editSetState: widget.editSetState
+          ),
           Text("${_value.toString()}W"),
           Row(
             children: [
