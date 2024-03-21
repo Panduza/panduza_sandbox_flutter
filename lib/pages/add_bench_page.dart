@@ -20,7 +20,7 @@ class AddBenchPage extends StatelessWidget {
     return Scaffold(
       // bar at the top of the application
       appBar: getAppBar("Add bench"),
-      body: AddBenchForm()
+      body: const AddBenchForm()
     );
   }
 }

@@ -121,9 +121,6 @@ class _IcBpcState extends State<IcBpc> {
   ///
   void initializeMqttSubscription() async {
 
-    // Here we listen only the differences with the precedents publish 
-    // so here if I just notify a topic to get him back it's not going 
-    // to work, need to have something who work in every case 
     widget._interfaceConnection.client.updates!.listen(onMqttMessage);
 
 
@@ -139,11 +136,21 @@ class _IcBpcState extends State<IcBpc> {
     // }
   }
 
+  /*
+  @override
+  void dispose() {
+    widget._interfaceConnection.client.updates.
+    super.dispose();
+  }
+  */
+
   /// Perform MQTT Subscriptions at the start of the component
   ///
   @override
   void initState() {
     super.initState();
+
+    print("pouf");
 
     // subscribe to info and atts ?
     Future.delayed(const Duration(milliseconds: 1), initializeMqttSubscription);
@@ -266,83 +273,141 @@ class _IcBpcState extends State<IcBpc> {
             //     ),
             //   ],
             // ),
-            Text(
-              'Voltage : ${double.parse(_voltageValueReq!.toStringAsFixed(2))}V',
-              style: TextStyle(
-                color: white,
-                fontSize: 12
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Column(
+                  children: <Widget>[
+                    Text(
+                      'Volt',
+                      style: TextStyle(
+                        color: white,
+                        fontSize: 12
+                      ),
+                    ),
+                    RotatedBox(
+                      quarterTurns: 3,
+                      child: Slider(
+                        value: _voltageValueReq!,
+                        activeColor: blue,
+                        onChanged: (value) {
+                          setState(() {
+                            _voltageValueReq = value;
+                          });
+                        },
+                        label: '${double.parse(_voltageValueReq!.toStringAsFixed(2))} V',
+                        // min: _attsEffective["voltage"]["min"],
+                        // max: _attsEffective["voltage"]["max"],
+                      ),
+                    ),
+                    Text(
+                      // 'Voltage : ${double.parse(_voltageValueReq!.toStringAsFixed(2))}V',
+                      '${double.parse(_voltageValueReq!.toStringAsFixed(2))} V',
+                      style: TextStyle(
+                        color: white,
+                        fontSize: 12
+                      ),
+                    ),
+                  ],
+                ),
+                Column(
+                  children: <Widget> [
+                    Text(
+                      'Current',
+                      style: TextStyle(
+                        color: white,
+                        fontSize: 12
+                      ),
+                    ),
+                    RotatedBox(
+                      quarterTurns: 3,
+                      child: Slider(
+                        value: _currentValueReq!,
+                        activeColor: blue,
+                        onChanged: (value) {
+                          setState(() {
+                            _currentValueReq = value;
+                          });
+                        },
+                        label: '${double.parse(_currentValueReq!.toStringAsFixed(2))} V',
+                        // min: 0.0,
+                        // max: 100.0,
+                      ),
+                    ),
+                    
+                    Text(
+                      // 'Current : ${double.parse(_currentValueReq!.toStringAsFixed(2))}V',
+                      '${double.parse(_currentValueReq!.toStringAsFixed(2))} V',
+                      style: TextStyle(
+                        color: white,
+                        fontSize: 12
+                      ),
+                    ),
+                  ]
+                ),
+              ],
             ),
-            Slider(
-              value: _voltageValueReq!,
-              activeColor: blue,
-              onChanged: (value) {
-                setState(() {
-                  _voltageValueReq = value;
-                });
-              },
-              // min: _attsEffective["voltage"]["min"],
-              // max: _attsEffective["voltage"]["max"],
-            ),
-            Text(
-              'Current : ${double.parse(_currentValueReq!.toStringAsFixed(2))}V',
-              style: TextStyle(
-                color: white,
-                fontSize: 12
-              ),
-            ),
-            Slider(
-              value: _currentValueReq!,
-              activeColor: blue,
-              onChanged: (value) {
-                setState(() {
-                  _currentValueReq = value;
-                });
-              },
-              // min: 0.0,
-              // max: 100.0,
+            const SizedBox(
+              height: 10,
             ),
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
+                /*
+                SizedBox(
+                  height: 30,
+                  width: 30,
+                  child: IconButton(
+                    iconSize: 14,
+                    icon: const Icon(
+                      Icons.close
+                    ),
+                    onPressed: applyVoltageCurrentRequest(),
+                    style: OutlinedButton.styleFrom(
+                      disabledBackgroundColor: white,
+                      foregroundColor: Colors.red,
+                      side: BorderSide(
+                        color: (applyVoltageCurrentRequest() != null)
+                            ? Colors.red
+                            : Colors.grey,
+                      ),
+                    ),
+                    // child: const Text("Cancel"),
+                  ),
+                ),
+                
                 const SizedBox(
                   width: 10,
                 ),
-                IconButton(
-                  icon: const Icon(
-                    Icons.close
-                  ),
-                  onPressed: applyVoltageCurrentRequest(),
-                  style: OutlinedButton.styleFrom(
-                    disabledBackgroundColor: white,
-                    foregroundColor: Colors.red,
-                    side: BorderSide(
-                      color: (applyVoltageCurrentRequest() != null)
-                          ? Colors.red
-                          : Colors.grey,
+                */
+                SizedBox(
+                  height: 30,
+                  width: 30,
+                  child: IconButton(
+                    iconSize: 16,
+                    icon: const Icon(
+                      Icons.check
+                    ),
+                    onPressed: applyVoltageCurrentRequest(),
+                    style: ElevatedButton.styleFrom(
+                      elevation: 0,
+                      disabledBackgroundColor: white,
+                      backgroundColor: Colors.green, // Green background
+                      foregroundColor: Colors.white, // White foreground
                     ),
                   ),
-                  // child: const Text("Cancel"),
                 ),
-                const SizedBox(
-                  width: 10,
-                ),
-                IconButton(
-                  icon: const Icon(
-                    Icons.check
+                SizedBox(
+                  width: 50,
+                  height: 35,
+                  child: FittedBox(
+                    fit: BoxFit.fill,
+                    child: Switch(
+                      value: _enableValueEff!,
+                      onChanged: enableValueSwitchOnChanged(),
+                      activeColor: blue,
+                    ),
                   ),
-                  onPressed: applyVoltageCurrentRequest(),
-                  style: ElevatedButton.styleFrom(
-                    elevation: 0,
-                    disabledBackgroundColor: white,
-                    backgroundColor: Colors.green, // Green background
-                    foregroundColor: Colors.white, // White foreground
-                  ),
-                ),
-                const Spacer(),
-                Switch(
-                  value: _enableValueEff!,
-                  onChanged: enableValueSwitchOnChanged(),
-                  activeColor: blue,
                 ),
               ],
             ),

@@ -39,6 +39,9 @@ class PanduzaSandboxApp extends StatelessWidget {
         ),
         scrollbarTheme: const ScrollbarThemeData().copyWith(
           thumbColor: MaterialStateProperty.all(white),
+        ),
+        sliderTheme: const SliderThemeData(
+          showValueIndicator: ShowValueIndicator.always
         )
       ),
       // routes: {

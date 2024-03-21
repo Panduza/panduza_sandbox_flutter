@@ -251,13 +251,13 @@ Widget localDiscoveryConnections(List<(InternetAddress, int)> platformsIpsPorts,
               child: Column (
                 children: <Widget>[
                   AutoSizeText(
-                    '${platformsIpsPorts[index].$1.host}',
+                    platformsIpsPorts[index].$1.host,
                     style: TextStyle(
                       color: blue
                     ),
                   ),
                   AutoSizeText(
-                    '${platformsIpsPorts[index].$1.address}',
+                    platformsIpsPorts[index].$1.address,
                     style: TextStyle(
                       color: white
                     ),
@@ -287,5 +287,25 @@ Widget localDiscoveryConnections(List<(InternetAddress, int)> platformsIpsPorts,
       );
     },
     separatorBuilder: (context, index) => const Divider(),
+  );
+}
+
+
+// A simple style of button, 
+
+Widget basicButtonStyle(Function func, String labelButton, Color colorButton, Color colorLabelButton) {
+  return ElevatedButton(
+    onPressed: () {
+      func.call();
+    },
+    style: ButtonStyle(
+      backgroundColor: MaterialStateProperty.all<Color>(colorButton)
+    ),
+    child: Text(
+      labelButton,
+      style: TextStyle(
+        color: colorLabelButton
+      ),
+    ),
   );
 }

@@ -1,34 +1,17 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
-
-// import '../widgets/interface_control/icw_bpc.dart';
 import 'package:mqtt_client/mqtt_client.dart';
-// import 'package:mqtt_client/mqtt_server_client.dart';
-
-// import 'userspace/ic_bpc.dart';
-// import 'userspace/ic_not_managed.dart';
-// import 'userspace/ic_platform.dart';
 
 import 'package:panduza_sandbox_flutter/pages/hunt_page.dart';
-
 import 'package:panduza_sandbox_flutter/pages/device_page.dart';
-
 import 'package:panduza_sandbox_flutter/data/interface_connection.dart';
-
-// import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
-
 import 'package:panduza_sandbox_flutter/data/platform_config.dart';
 import 'package:panduza_sandbox_flutter/utils_widgets/app_bar.dart';
 import 'package:panduza_sandbox_flutter/data/const.dart';
 
-// class BrokerConnectionInfo {
-//   String host;
-//   int port;
-
-//   MqttServerClient client;
-
-//   BrokerConnectionInfo(this.host, this.port, this.client);
-// }
+// admin page where he can add the new devices for a specific bench 
+// (for the moment you can't choose in which bench add a device 
+// it's directly going inside of the default bench)
 
 class PlatformPage extends StatefulWidget {
   const PlatformPage(this._interfaceConnection, {super.key});
@@ -36,7 +19,7 @@ class PlatformPage extends StatefulWidget {
   final InterfaceConnection _interfaceConnection;
 
   @override
-  _PlatformPageState createState() => _PlatformPageState();
+  State<PlatformPage> createState() => _PlatformPageState();
 }
 
 class _PlatformPageState extends State<PlatformPage> {

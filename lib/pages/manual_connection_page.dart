@@ -3,8 +3,8 @@ import 'package:panduza_sandbox_flutter/forms/add_connection_form.dart';
 
 import 'package:panduza_sandbox_flutter/utils_widgets/app_bar.dart';
 
-// Page with the 3 choices of adding connection :
-// with manual input, with discovery or with the cloud
+// Page to add a broker connection on the disk, you need to give name,
+// ip and port to add it
 
 class ManualConnectionPage extends StatelessWidget {
   const ManualConnectionPage({

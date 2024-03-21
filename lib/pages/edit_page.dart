@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:panduza_sandbox_flutter/forms/edit_connection_form.dart';
 import 'package:panduza_sandbox_flutter/utils_widgets/app_bar.dart';
 
-// Page with the 3 choices of adding connection :
-// with manual input, with discovery or with the cloud
+// Page who will call the form to edit a connection 
+// (change ip, port or name of a broker connection)
 
 class EditPage extends StatelessWidget {
   const EditPage({

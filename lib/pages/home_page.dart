@@ -8,23 +8,15 @@ import 'package:panduza_sandbox_flutter/utils_widgets/drawer.dart';
 import 'package:panduza_sandbox_flutter/utils_widgets/app_bar.dart';
 import 'package:panduza_sandbox_flutter/utils_widgets/utils_widgets.dart';
 
-// final List<String> equipments = ["LASER", "ROBOT O", "Quantique"];
-// final List<String> brokers = ["Broker 1", "Broker 2", "Broker 3"];
-// final List<String> ips = ["192.168.1.33", "192.168.1.32", "192.168.1.31"];
-// final List<String> ports = ["1885", "1884", "1883"];
-
 List<String> platformNames = [];
 List<String> ips = [];
 List<String> ports = [];
 
 class HomePage extends StatefulWidget {
-  // get every connections existing on the disk
 
   const HomePage({super.key, required this.title});
 
   final String title;
-
-  // BrokerSniffing brokenSniffer = BrokerSniffing();
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -34,6 +26,16 @@ class _HomePageState extends State<HomePage> {
 
   late final SharedPreferences _prefs;
   late final _prefsFuture = SharedPreferences.getInstance().then((v) => _prefs = v);
+
+  void functionFloatingActionButtonOnPressed() async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const AddConnectionPage(),
+      ),
+    );
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +51,7 @@ class _HomePageState extends State<HomePage> {
       // Sliding menu 
       drawer: getDrawer(context),
 
-      // The connection buttons who show connections save on the disk
+      // The connection buttons who show connections saved on the disk
       body: FutureBuilder(
         future: _prefsFuture,
         builder: (context, snapshot) {
@@ -85,7 +87,7 @@ class _HomePageState extends State<HomePage> {
           Icons.add,
           color: white,
         ),
-      ),
+      )
     );
   }
 }

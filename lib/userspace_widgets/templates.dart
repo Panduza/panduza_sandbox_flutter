@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 
 import 'package:panduza_sandbox_flutter/data/const.dart';
 import 'package:panduza_sandbox_flutter/data/interface_connection.dart';
@@ -22,7 +23,8 @@ Widget basicCard(Widget child) {
 }
 
 
-// Card head content: type, name,  
+// basic card head content: type, name and if we are in edit page 
+// also show a edit and remove button on these interfaces 
 
 Widget cardHeadLine(InterfaceConnection ic, bool isEdit, 
   {SharedPreferences? prefs, String? deviceName, Function? editSetState}) {
@@ -32,12 +34,13 @@ Widget cardHeadLine(InterfaceConnection ic, bool isEdit,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Text(
+            AutoSizeText(
               "${ic.getType()} ${ic.getInterfaceName()}" ,
               style: TextStyle(
                 color: white,
                 fontSize: 14
               ),
+              maxLines: 1,
             ),
             const Spacer(),
             IconButton(
@@ -65,43 +68,15 @@ Widget cardHeadLine(InterfaceConnection ic, bool isEdit,
   }
   return ListTile(
     title: Center(
-      child: Text(
+      child: AutoSizeText(
         "${ic.getType()} ${ic.getInterfaceName()}" ,
         style: TextStyle(
           color: white,
-          fontSize: 14
+          fontSize: 12
         ),
+        maxLines: 2,
       ),
     )
-    /*
-    Row(
-      children: [
-        
-        Text(
-          "${ic.getDeviceName()} ${ic.getInterfaceName()}",
-          style: TextStyle(
-            color: white, 
-            fontSize: 12)
-          ),
-        
-        Text(
-          "  ",
-          style: TextStyle(
-            color: white,
-            fontSize: 12
-          )
-        ),
-        Text(
-          ic.getInterfaceName(),
-          style: TextStyle(
-            color: white, 
-            fontSize: 12
-          )
-        ),
-        
-      ]
-    )
-    */
   );
 }
 

@@ -11,6 +11,10 @@ import 'package:panduza_sandbox_flutter/pages/userspace_devices_page.dart';
 import 'package:panduza_sandbox_flutter/data/interface_connection.dart';
 import 'package:panduza_sandbox_flutter/data/utils.dart';
 
+// Page who display the different bench registered on the broker, you can 
+// add a new bench or go watch the current visible devices of these devices 
+// pressing one of them
+
 class UserspaceBenchPage extends StatefulWidget {
   const UserspaceBenchPage({super.key, required this.brokerConnectionInfo});
 
@@ -28,8 +32,6 @@ class _UserspaceBenchPageState extends State<UserspaceBenchPage> {
 
   // Map who associate a bench to different devices with differents interfaces
   Map<String, Map<String, List<InterfaceConnection>>> deviceToInterfaces = {}; 
-
-  // Map<String, List<InterfaceConnection>> deviceToInterfaces = {}; 
 
   Timer? timer;
 
@@ -51,14 +53,6 @@ class _UserspaceBenchPageState extends State<UserspaceBenchPage> {
 
     widget.brokerConnectionInfo.client.updates!
         .listen((List<MqttReceivedMessage<MqttMessage>> c) {
-      // final MqttMessage message = c[0].payload;
-
-      // print('Received  from userspace from topic: ${c[0].topic}>');
-
-      // final string = binascii.b2a_base64(bytearray(data)).decode('utf-8');
-      // print(message.toString());
-
-      // pza/*/atts/info
 
       if (c![0].topic.startsWith("pza") & c![0].topic.endsWith("atts/info")) {
         final recMess = c![0].payload as MqttPublishMessage;
@@ -79,38 +73,13 @@ class _UserspaceBenchPageState extends State<UserspaceBenchPage> {
         
         if (!interfaceAlreadyRegistered(ic, interfaces)) {
           if (ic.getType() != "device") {
-            // setState(() {
-              interfaces = [...interfaces, ic];
-            // });
+            interfaces = [...interfaces, ic];
           }
         }
-        
-        
-
-        // if device not registered add a new list of interfaces connected to it
-        /*
-        if (!deviceToInterfaces.containsKey(ic.getDeviceName())) {
-          print(ic.getBenchName());
-          deviceToInterfaces[ic.getDeviceName()] = [ic];
-        } else {
-          // The interfaceList cannot in normal case be null
-          List<InterfaceConnection>? interfaceList = deviceToInterfaces[ic.getDeviceName()];
-          if (interfaceList != null) {
-            if (!interfaceList.contains(ic)) {
-              interfaceList.add(ic);
-              interfaceList.sort((a, b) {
-                return a.getType().compareTo(b.getType());
-              });
-              deviceToInterfaces[ic.getDeviceName()] = interfaceList;
-            }
-          }
-        }
-        */
         
         if (!deviceToInterfaces.containsKey(ic.getBenchName())) {
           deviceToInterfaces[ic.getBenchName()] = {ic.getDeviceName() : [ic]};
         } else {
-
           // We are sure there is a element to the index of this benchName
           var interfaces = deviceToInterfaces[ic.getBenchName()] as Map<String, List<InterfaceConnection>>;
           if (!interfaces.containsKey(ic.getDeviceName())) {
@@ -142,8 +111,6 @@ class _UserspaceBenchPageState extends State<UserspaceBenchPage> {
             }
           }
         }
-        
-        
 
         // Get a list for the benchs 
         if(!platformAlreadyRegistered(ic.getBenchName(), benchList)) {
@@ -164,7 +131,7 @@ class _UserspaceBenchPageState extends State<UserspaceBenchPage> {
     });
 
     // Here it would be better to setState only when the map became different
-    // but the only way to do that is compare complety the two
+
     timer = Timer.periodic(
       const Duration(seconds: 1), (Timer t) {
         setState(() {});
@@ -172,7 +139,16 @@ class _UserspaceBenchPageState extends State<UserspaceBenchPage> {
     );
   }
   
+  @override
+  void dispose() {
+    timer?.cancel();
+    super.dispose();
+  }
 
+  // Page who display the different bench registered on the broker, you can 
+  // add a new bench or go watch the current visible devices of these devices 
+  // pressing one of them
+  
   @override
   Widget build(BuildContext context) {
     // Get width of the widget
@@ -183,27 +159,16 @@ class _UserspaceBenchPageState extends State<UserspaceBenchPage> {
       appBar: getAppBar("Benches"),
       body: ListView.builder(
         itemBuilder: (context, index) {
-          return MouseRegion(
-            cursor: SystemMouseCursors.click,
-            child: GestureDetector(
-              child: Container(
-                height: 50,
-                decoration: BoxDecoration(
-                  border: Border(
-                    bottom: BorderSide(
-                      color: white
-                    )
-                  )
-                ),
-                child: Center(
-                  child: Text(
-                    benchList[index],
-                    style: TextStyle(
-                      color: white
-                    ),
-                  ),  
-                ),
-              ),
+          return Ink(
+            height: 50,
+            decoration: BoxDecoration(
+              border: Border(
+                bottom: BorderSide(
+                  color: white
+                )
+              )
+            ),
+            child: InkWell(
               onTap: () {
                 Navigator.push(
                   context,
@@ -217,19 +182,15 @@ class _UserspaceBenchPageState extends State<UserspaceBenchPage> {
                     ),
                   ),
                 );
-                /*
-                .then((value) {
-                  widget.brokerConnectionInfo.client
-                        .subscribe('pza/+/+/+/atts/info', MqttQos.atLeastOnce);
-
-                  MqttClientPayloadBuilder builder = MqttClientPayloadBuilder();
-                  builder.addString('*');
-                  final payload = builder.payload;
-                  widget.brokerConnectionInfo.client
-                      .publishMessage('pza', MqttQos.atLeastOnce, payload!);
-                });
-                */
               },
+              child: Center(
+                child: Text(
+                  benchList[index],
+                  style: TextStyle(
+                    color: white
+                  ),
+                ),  
+              ),
             ),
           );
         }, 

@@ -1,8 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:mqtt_client/mqtt_client.dart';
-import 'package:panduza_sandbox_flutter/pages/discovery_page.dart';
-import 'package:panduza_sandbox_flutter/pages/manual_connection_page.dart';
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 import 'package:panduza_sandbox_flutter/userspace_widgets/ic_blc.dart';
@@ -10,19 +6,16 @@ import 'package:panduza_sandbox_flutter/userspace_widgets/ic_bpc.dart';
 import 'package:panduza_sandbox_flutter/userspace_widgets/ic_platform.dart';
 import 'package:panduza_sandbox_flutter/userspace_widgets/ic_powermeter.dart';
 import 'package:panduza_sandbox_flutter/userspace_widgets/ic_not_managed.dart';
+import 'package:panduza_sandbox_flutter/userspace_widgets/ic_relay.dart';
 
 import 'package:panduza_sandbox_flutter/data/const.dart';
 import 'package:panduza_sandbox_flutter/utils_widgets/app_bar.dart';
-import 'package:panduza_sandbox_flutter/forms/add_bench_form.dart';
 import 'package:panduza_sandbox_flutter/data/interface_connection.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:panduza_sandbox_flutter/utils_widgets/utils_widgets.dart';
 
 
-// First display a list of the interface than a user can add with a button add, cancel, add all 
-// (like in the add device page)
-// Second display the current device with this interfaces and put button on them to make them visible 
-// or not 
-
+// Page to add/remove visible interface of the targeted device 
 
 class EditDevicePage extends StatefulWidget {
 
@@ -41,17 +34,17 @@ class EditDevicePage extends StatefulWidget {
   List<InterfaceConnection> deviceInterfacesVisible; 
   final SharedPreferences prefs;
 
-  // BrokerSniffing brokenSniffer = BrokerSniffing();
-
   @override
-  _EditDevicePageState createState() => _EditDevicePageState();
+  State<EditDevicePage> createState() => _EditDevicePageState();
 }
 
 class _EditDevicePageState extends State<EditDevicePage> {
 
   InterfaceConnection? currentInterface;
-
   final ctrlName = TextEditingController();
+
+  // function to set the state of the page called inside of the template 
+  // of every interface when their are removed (bin icon on edit device page)
 
   void callbackSetState() {
     List<String>? listNameInterfaces = widget.prefs.getStringList(widget.deviceName);
@@ -78,7 +71,9 @@ class _EditDevicePageState extends State<EditDevicePage> {
     currentInterface = widget.deviceInterfaces.first;
   }
   
-  // List of the interface of the device that the user can add 
+  // List of the interface of the device that the user can add to make them 
+  // become visible 
+
   List<DropdownMenuItem<InterfaceConnection>>? listDropDown() {
     List<DropdownMenuItem<InterfaceConnection>>? listMenuItem = [];
 
@@ -100,6 +95,9 @@ class _EditDevicePageState extends State<EditDevicePage> {
 
     return listMenuItem;
   }
+
+  // function to return the correct interface widget corresponding to the broker
+  // information on the interfaces link to the targeted device 
 
   Widget interfaceControlItemBuiler2(context, index) {
     // Get the type of the interface
@@ -144,6 +142,13 @@ class _EditDevicePageState extends State<EditDevicePage> {
           deviceName: widget.deviceName,
           editSetState: callbackSetState,
         );
+      case "relay":
+        return IcRelay(ic,
+          isEdit: true, 
+          prefs: widget.prefs, 
+          deviceName: widget.deviceName,
+          editSetState: callbackSetState,
+        );
       default:
         // print("!!!! $type");
         return IcNotManaged(ic, 
@@ -155,8 +160,9 @@ class _EditDevicePageState extends State<EditDevicePage> {
     }
   }
 
-  Widget deviceWithVisibleInterfaces(String deviceName, SharedPreferences prefs) {
+  // function displaying a device box with his current visible interfaces 
 
+  Widget deviceWithVisibleInterfaces(String deviceName, SharedPreferences prefs) {
     return Column(
       children: <Widget>[
         Container(
@@ -186,13 +192,54 @@ class _EditDevicePageState extends State<EditDevicePage> {
       ],
     );
   }
+
+  // function to add a visible interface of the current device targeted by the edit 
+  // icon on the device page 
+
+  void addButtonOnPressedFunction() {
+    List<String>? listNameInterfaces = widget.prefs.getStringList(widget.deviceName);
+    String? currentInterfaceName = currentInterface?.getInterfaceName();
+
+    listNameInterfaces ??= [];
+
+    if (!listNameInterfaces.contains(currentInterfaceName)) {
+
+      listNameInterfaces.add(currentInterfaceName as String);
+      widget.prefs.setStringList(widget.deviceName, listNameInterfaces);
+
+      widget.deviceInterfacesVisible.add(currentInterface as InterfaceConnection);
+      setState(() {});
+    }
+  }   
+
+  // Add every interface in the visible interface list of the targeted device
+
+  void addEveryDeviceOnPressedFunction() {
   
+    List<String>? listNameInterfaces = widget.prefs.getStringList(widget.deviceName);
+
+    listNameInterfaces ??= [];
+
+    for (var interface in widget.deviceInterfaces) {
+      if (!listNameInterfaces.contains(interface.getInterfaceName())) {
+        listNameInterfaces.add(interface.getInterfaceName());
+        widget.deviceInterfacesVisible.add(interface);
+      }
+    }
+
+    widget.prefs.setStringList(widget.deviceName, listNameInterfaces);
+    setState(() {});
+  }
+  
+  // Page to add/remove visible interface of the targeted device 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       // bar at the top of the application
       appBar: getAppBar("Edit device"),
       body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const SizedBox(
             height: 10,
@@ -244,65 +291,22 @@ class _EditDevicePageState extends State<EditDevicePage> {
               const SizedBox(
                 width: 20,
               ),
-              ElevatedButton(
-                // We add on the disk a new interface attach to this device
-                onPressed: () {
-
-                  List<String>? listNameInterfaces = widget.prefs.getStringList(widget.deviceName);
-                  String? currentInterfaceName = currentInterface?.getInterfaceName();
-
-                  listNameInterfaces ??= [];
-
-                  if (!listNameInterfaces.contains(currentInterfaceName)) {
-
-                    listNameInterfaces.add(currentInterfaceName as String);
-                    widget.prefs.setStringList(widget.deviceName, listNameInterfaces);
-
-                    widget.deviceInterfacesVisible.add(currentInterface as InterfaceConnection);
-                    setState(() {});
-                  }
-                }, 
-                style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all<Color>(blue)
-                ),
-                child: Text(
-                  'ADD',
-                  style: TextStyle(
-                    color: black
-                  ),
-                ),
+              basicButtonStyle(
+                addButtonOnPressedFunction,
+                'ADD',
+                blue,
+                black
               )
             ],
           ),
           const SizedBox(
             height: 20,
           ),
-          ElevatedButton(
-            onPressed: () {
-              // Add every interface of the device
-              List<String>? listNameInterfaces = widget.prefs.getStringList(widget.deviceName);
-
-              listNameInterfaces ??= [];
-
-              for (var interface in widget.deviceInterfaces) {
-                if (!listNameInterfaces.contains(interface.getInterfaceName())) {
-                  listNameInterfaces.add(interface.getInterfaceName());
-                  widget.deviceInterfacesVisible.add(interface);
-                }
-              }
-
-              widget.prefs.setStringList(widget.deviceName, listNameInterfaces);
-              setState(() {});
-            }, 
-            style: ButtonStyle(
-              backgroundColor: MaterialStateProperty.all<Color>(black)
-            ),
-            child: Text(
-              'ADD EVERY POSSIBLE INTERFACE',
-              style: TextStyle(
-                color: white
-              ),
-            ),
+          basicButtonStyle(
+            addButtonOnPressedFunction,
+            'ADD EVERY POSSIBLE INTERFACE',
+            black,
+            white
           ),
           const SizedBox(
             height: 20,

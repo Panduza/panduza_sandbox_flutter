@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
-import 'package:mqtt_client/mqtt_client.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:panduza_sandbox_flutter/pages/add_device_page.dart';
+import 'package:panduza_sandbox_flutter/userspace_widgets/ic_relay.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:panduza_sandbox_flutter/userspace_widgets/ic_blc.dart';
@@ -11,13 +11,14 @@ import 'package:panduza_sandbox_flutter/userspace_widgets/ic_platform.dart';
 import 'package:panduza_sandbox_flutter/userspace_widgets/ic_powermeter.dart';
 import 'package:panduza_sandbox_flutter/userspace_widgets/ic_not_managed.dart';
 
-// import '../widgets/interface_control/icw_bpc.dart';
-
 import 'package:panduza_sandbox_flutter/data/interface_connection.dart';
 import 'package:panduza_sandbox_flutter/utils_widgets/app_bar.dart';
 import 'package:panduza_sandbox_flutter/data/broker_connection_info.dart';
 import 'package:panduza_sandbox_flutter/data/const.dart';
 import 'package:panduza_sandbox_flutter/pages/edit_devices_page.dart';
+
+// Page to display the different curently visible device with their 
+// interfaces (relay, powermeter, amperemetre ...)
 
 class UserspaceDevicesPage extends StatefulWidget {
   const UserspaceDevicesPage({
@@ -82,7 +83,12 @@ class _UserspaceDevicesPageState extends State<UserspaceDevicesPage> {
 
     deviceNames.addAll(widget.deviceToInterfaces.keys);
     deviceNames.sort(); 
+  }
 
+  @override 
+  void dispose() {
+    timer?.cancel();
+    super.dispose();
   }
 
   bool interfaceAlreadyRegistered(InterfaceConnection ic) {
@@ -316,6 +322,8 @@ class _UserspaceDevicesPageState extends State<UserspaceDevicesPage> {
         return IcPlatform(ic);
       case "powermeter":
         return IcPowermeter(ic);
+      case "relay":
+        return IcRelay(ic);
       default:
         // print("!!!! $type");
         return IcNotManaged(ic);
@@ -330,21 +338,20 @@ class _UserspaceDevicesPageState extends State<UserspaceDevicesPage> {
     return Column(
       children: <Widget>[
         Container(
-          color: grey,
+          color: black,
           child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
-              SizedBox(
-                width: MediaQuery.sizeOf(context).width/2,
-              ),
-              Center(
-                child: Text(
-                  visibleDevicesNames[index],
-                  style: TextStyle(
-                    color: white
+              Expanded(
+                child: Center(
+                  child: Text(
+                    visibleDevicesNames[index],
+                    style: TextStyle(
+                      color: white
+                    ),
                   ),
                 ),
               ),
-              const Spacer(),
               IconButton(
                 onPressed: () {
                   Navigator.push(
@@ -361,7 +368,6 @@ class _UserspaceDevicesPageState extends State<UserspaceDevicesPage> {
                   ).then((value) {
                     // load the new interface to show, only need to change one device 
 
-
                     List<InterfaceConnection>? interfaces = widget.deviceToInterfaces[visibleDevicesNames[index]];
                     List<InterfaceConnection> interfaceVisible = [];
                     List<String>? nameVisibleInterfaces = _prefs.getStringList(visibleDevicesNames[index]);
@@ -377,7 +383,7 @@ class _UserspaceDevicesPageState extends State<UserspaceDevicesPage> {
                       if (interfaceVisible != []) {
                         visibleInterfaces[visibleDevicesNames[index]] = interfaceVisible;
                       }
-                     
+                    
                     }
                     
                     setState(() {});
@@ -388,7 +394,7 @@ class _UserspaceDevicesPageState extends State<UserspaceDevicesPage> {
                   color: white,
                   size: 20,
                 ),
-              ),
+              ), 
               IconButton(
                 onPressed: () {
                   showDialog(
@@ -446,11 +452,16 @@ class _UserspaceDevicesPageState extends State<UserspaceDevicesPage> {
             ],
           ),
         ),
+
+        // The container of every interfaces inside the box of the device 
+        // we can change the number of element on a single row with crossAxisCount 
+        // this parameter is going to change a lot based on the screen size
+
         MasonryGridView.builder(
           // itemCount: (widget.deviceToInterfaces[visibleDevicesNames[index]] as List<InterfaceConnection>).length,
           itemCount: prefs.getStringList(visibleDevicesNames[index])?.length,
           gridDelegate: const SliverSimpleGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 4
+            crossAxisCount: 2
           ),
           shrinkWrap: true,
           // crossAxisCount: columns,
@@ -464,10 +475,11 @@ class _UserspaceDevicesPageState extends State<UserspaceDevicesPage> {
     );
   }
   
-  // print the device the user has choose to add at his last utilisations 
-  // this data are stocked in the disk
+  // Display every devices who has been chosen by the user
 
   Widget listDevicesWithInterfaces(SharedPreferences prefs) {
+
+    // get a list of the device name who has been choose by the user (on the disk)
 
     List<String> visibleDevicesNames = [];
     
@@ -477,31 +489,67 @@ class _UserspaceDevicesPageState extends State<UserspaceDevicesPage> {
       }
     } 
 
-
+    /*
     return ListView.separated (
       itemCount: visibleDevicesNames.length,
       itemBuilder: (context, index) {
         return Padding(
           padding: const EdgeInsets.all(10),
-          child:  Container(
-            decoration: BoxDecoration(
-              border: Border.all(
-                color: white
+          child: Row (
+            children: <Widget>[
+              Container(
+                width: MediaQuery.sizeOf(context).width / 2,
+                decoration: const BoxDecoration(
+                  // color: Colors.blueGrey,
+                  // color: Color(0xFF606060)
+                  // color: Color(0xFF5A5E6B)
+                  // color: Color(0xFF303030)
+                  color: Color(0xFF696969)
+                  // color: Color(0xFF463F32)
+                  // color: Color(0xFF2F4F4F)
+                ),
+                child: deviceWithVisibleInterfaces(visibleDevicesNames, index, prefs)
               ),
-              // color: Colors.blueGrey,
-              // color: Color(0xFF606060)
-              // color: Color(0xFF5A5E6B)
-              // color: Color(0xFF303030)
-              color: Color(0xFF696969)
-              // color: Color(0xFF463F32)
-              // color: Color(0xFF2F4F4F)
-            ),
-            child: deviceWithVisibleInterfaces(visibleDevicesNames, index, prefs)
-          ),
+            ],
+          ) 
         );
       },
       separatorBuilder: (context, index) => const Divider(),
     ); 
+    */
+
+    // A device box, currently there only two devices by line can be changed 
+    // with the crossAxisCount (can have strong esthetics difference), 
+    // I think it's better to set it pretty low (something like 2-3) for mobile application but 
+    // for desktop application can be easily put to 4
+
+    return MasonryGridView.count(
+      crossAxisCount: 2,
+      mainAxisSpacing: 0,
+      crossAxisSpacing: 4,
+      itemCount: visibleDevicesNames.length,
+       itemBuilder: (context, index) {
+        return Column(
+          children: <Widget>[
+            const SizedBox(
+              height: 5,
+            ),
+            Container(
+              decoration: const BoxDecoration(
+                // color: Colors.blueGrey,
+                // color: Color(0xFF606060)
+                // color: Color(0xFF5A5E6B)
+                // color: Color(0xFF303030)
+                color: Color(0xFF696969)
+                // color: Color(0xFF463F32)
+                // color: Color(0xFF2F4F4F)
+              ),
+              child: deviceWithVisibleInterfaces(visibleDevicesNames, index, prefs)
+            )
+          ],
+        );
+      }
+    );
   }
 
   @override

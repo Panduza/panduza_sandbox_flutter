@@ -180,7 +180,7 @@ Future<List<(InternetAddress, int)>> platformDiscovery() async {
   List<(InternetAddress, int)> ipPort = []; 
   String waitedAnswer = '{"name": "panduza_platform","version": 1.0}';
   
-  var udpSocket = await UDP.bind(Endpoint.any(port: const Port(65008)));
+  var udpSocket = await UDP.bind(Endpoint.any(port: const Port(portReceiveLocalDiscovery)));
   await udpSocket.send(jsonEncode('{"search": true}').codeUnits, Endpoint.broadcast(port: const Port(portLocalDiscovery)));
   
   udpSocket.asStream().listen((datagram) {

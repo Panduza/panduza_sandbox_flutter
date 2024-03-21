@@ -24,9 +24,10 @@ class _DiscoveryPageState extends State<DiscoveryPage> {
   bool isLoading = false;
   Timer? timer;
 
-  @override
-  void initState() {
-    super.initState();
+  // Send broadcast to every ip connect on the same network connect to the port 
+  // 
+
+  void basicPlatformDiscovery() {
     platformDiscovery().then(
       (value) {
         platformsIpsPorts = value;
@@ -34,22 +35,27 @@ class _DiscoveryPageState extends State<DiscoveryPage> {
         setState(() {});
       }
     );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    basicPlatformDiscovery();
     
     // check if 
     timer = Timer.periodic(
-      Duration(seconds: 5), (Timer t) {
-        platformDiscovery().then(
-          (value) {
-            value.sort((a, b) => a.$1.host.compareTo(b.$1.host));
-            if (!listEquals(value, platformsIpsPorts)) {
-              platformsIpsPorts = value;
-              setState(() {});
-            }
-          }
-        );
+      const Duration(seconds: 2), (Timer t) {
+        basicPlatformDiscovery();
       }
     );
-    
+  }
+
+  // Cancel the timer to not setState the page while the 
+
+  @override
+  void dispose() {
+    timer?.cancel();
+    super.dispose();
   }
 
   @override

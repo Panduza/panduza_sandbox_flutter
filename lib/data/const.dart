@@ -14,4 +14,4 @@ Color grey = const Color(0xFF1E1E1E);
 String connectionKey = "connectionName";
 
 const int portLocalDiscovery = 53035;
-const int portReceiveLocalDiscovery = 63008;
+const int portReceiveLocalDiscovery = 65000;

@@ -26,13 +26,13 @@ class ManualConnectionPage extends StatelessWidget {
       appBar: getAppBar("Add connection"),
       body: Center(
         child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              AddConnectionForm(
-                ip: ip,
-                port: port,
-              )
-            ],
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            AddConnectionForm(
+              ip: ip,
+              port: port,
+            )
+          ],
         ),
       ),
     );
