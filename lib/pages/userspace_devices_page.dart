@@ -26,7 +26,7 @@ class UserspaceDevicesPage extends StatefulWidget {
     required this.brokerConnectionInfo, 
     required this.listInterfaceConnection,
     required this.benchName,
-    required this.deviceToInterfaces
+    required this.deviceToInterfaces,
   });
 
   final BrokerConnectionInfo brokerConnectionInfo;
@@ -40,8 +40,14 @@ class UserspaceDevicesPage extends StatefulWidget {
 
 class _UserspaceDevicesPageState extends State<UserspaceDevicesPage> {
 
+  // List of every interface on this bench
   List<InterfaceConnection> interfacesBench = [];
+
+  // Name list of every device on this bench 
   List<String> deviceNames = [];
+
+  // Map representing the interfaces display for each device 
+  // key = device Name, value = list interface to show for this
   Map<String, List<InterfaceConnection>> visibleInterfaces = {};
   Timer? timer;
 
@@ -100,103 +106,9 @@ class _UserspaceDevicesPageState extends State<UserspaceDevicesPage> {
     return false;
   }
 
-    /*
-    Future.delayed(Duration(seconds: 2), () async {
-      List<InterfaceConnection> newInterfaces = [];
+  // get every widget who have be loaded for one device
 
-      newInterfaces.add(findPlatform() as InterfaceConnection);
-
-      for (var interface in interfaces) {
-        if (interface.info["type"] != "platform") {
-          newInterfaces.add(interface);
-        }
-      }
-
-      interfaces = newInterfaces;
-    });
-    */
-
-  // Build item of the grid that control the interfaces
-  /*
-  Widget interfaceControlItemBuiler(context, index) {
-
-    // Get the type of the interface
-
-    final ic = interfacesBench[index];
-    final type = ic.info["type"];
-
-    switch (type) {
-      case "blc":
-        return IcBlc(ic);
-      case "bpc":
-        return IcBpc(ic);
-      case "platform":
-        return IcPlatform(ic);
-      case "powermeter":
-        return IcPowermeter(ic);
-      default:
-        print("!!!! $type");
-        return IcNotManaged(ic);
-    }
-  }
-  */
-
-  /*
-  List<Widget> testOneDevice() {
-
-    List<Widget> listWidget = [];
-
-    final interfaceList = widget.deviceToInterfaces["test"];
-    print("interface of test" + interfaceList.toString());
-
-    if (interfaceList == null) return listWidget;
-
-    for (var interface in interfaceList) {
-
-      final type = interface.getType();
-
-      switch (type) {
-        case "blc":
-          listWidget.add(IcBlc(interface));
-        case "bpc":
-          listWidget.add(IcBpc(interface));
-        case "platform":
-          listWidget.add(IcPlatform(interface));
-        case "powermeter":
-          listWidget.add(IcPowermeter(interface));
-        default:
-          print("!!!! $type");
-          listWidget.add(IcNotManaged(interface));
-      }
-    }
-
-    print(listWidget);
-
-    return listWidget;
-  }
-  */
-
-  Widget getListWidgetsForOneDevice(int index, List<InterfaceConnection> listCo) {
-
-    
-    final type = listCo[index].getType(); 
-    switch (type) {
-      case "blc":
-        return IcBlc(listCo[index]);
-      case "bpc":
-        return IcBpc(listCo[index]);
-      case "platform":
-        return IcPlatform(listCo[index]);
-      case "powermeter":
-        return IcPowermeter(listCo[index]);
-      default:
-        // print("!!!! $type");
-        return IcNotManaged(listCo[index]);
-    }
-  }
-  
-  
-  List<Widget> getWidgetsForOneDevice(String deviceName) {
+  List<Widget> getWidgetsInterfacesForOneDevice(String deviceName) {
     List<Widget> widgetsForDevice = [];
 
     if (widget.deviceToInterfaces[deviceName] == null) return widgetsForDevice;
@@ -247,47 +159,6 @@ class _UserspaceDevicesPageState extends State<UserspaceDevicesPage> {
         return IcNotManaged(ic);
     }
   }
-
-  // Build item of the grid that control the interfaces
-  /*
-  Widget interfaceControlItemBuiler2(context, index, index2) {
-    // Get the type of the interface
-
-    if (index >= widget.deviceToInterfaces.keys.length) {
-      return const SizedBox.shrink();
-    }
-
-    // here I could use a loop to see which interface must be visible but yes (it would be better to 
-    // look for a better solution)
-
-    List<InterfaceConnection>? listInterface = widget.deviceToInterfaces[deviceNames[index]];
-
-    if (listInterface == null) {
-      return const SizedBox.shrink();
-    }
-
-    if (index2 >= listInterface.length) {
-      return const SizedBox.shrink();
-    }
-
-    final ic = listInterface[index2];
-    final type = ic.info["type"];
-
-    switch (type) {
-      case "blc":
-        return IcBlc(ic);
-      case "bpc":
-        return IcBpc(ic);
-      case "platform":
-        return IcPlatform(ic);
-      case "powermeter":
-        return IcPowermeter(ic);
-      default:
-        // print("!!!! $type");
-        return IcNotManaged(ic);
-    }
-  }
-  */
   
   // Build item of the grid that control the interfaces
   Widget interfaceControlItemBuiler2(context, index, index2) {
@@ -326,6 +197,7 @@ class _UserspaceDevicesPageState extends State<UserspaceDevicesPage> {
         return IcRelay(ic);
       default:
         // print("!!!! $type");
+        // return IcRelay(ic);
         return IcNotManaged(ic);
     }
   }

@@ -28,8 +28,8 @@ class IcRelay extends StatefulWidget {
 }
 
 class _IcRelayState extends State<IcRelay> {
-  bool? _enableValueReq;
-  bool? _enableValueEff;
+  bool? _enableValueReq = false;
+  bool? _enableValueEff = false;
 
   ///
   ///
@@ -58,7 +58,7 @@ class _IcRelayState extends State<IcRelay> {
           for (MapEntry<String, dynamic> atts in jsonObject.entries) {
             for (MapEntry<String, dynamic> field in atts.value.entries) {
 
-              if (field.key == "value") {
+              if (field.key == "open") {
                 _enableValueEff = field.value;
                 _enableValueReq ??= _enableValueEff;
               }
@@ -146,21 +146,34 @@ class _IcRelayState extends State<IcRelay> {
   Widget build(BuildContext context) {
     if (_enableValueEff != null) {
       return basicCard(
-        Column(
+        Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            cardHeadLine(
-              widget._interfaceConnection, 
-              widget.isEdit,
-              deviceName: widget.deviceName,
-              prefs: widget.prefs,
-              editSetState: widget.editSetState
+            SizedBox(
+              width: 100,
+              child: cardHeadLine(
+                widget._interfaceConnection, 
+                widget.isEdit,
+                deviceName: widget.deviceName,
+                prefs: widget.prefs,
+                editSetState: widget.editSetState
+              ),
             ),
             Switch(
               value: _enableValueEff!,
-              onChanged: enableValueSwitchOnChanged(),
+              onChanged: (event) {
+                enableValueSwitchOnChanged();
+                setState(() {});
+              },
               activeColor: blue,
             ),
+            /*
+            Switch(
+              value: _enableValueEff, 
+              onChanged: (value) {
+              },
+            )
+            */
           ],
         )
       );

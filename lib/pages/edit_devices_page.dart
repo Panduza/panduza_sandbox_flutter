@@ -13,6 +13,7 @@ import 'package:panduza_sandbox_flutter/utils_widgets/app_bar.dart';
 import 'package:panduza_sandbox_flutter/data/interface_connection.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:panduza_sandbox_flutter/utils_widgets/utils_widgets.dart';
+import 'package:panduza_sandbox_flutter/data/broker_connection_info.dart';
 
 
 // Page to add/remove visible interface of the targeted device 
@@ -25,7 +26,7 @@ class EditDevicePage extends StatefulWidget {
       required this.deviceName,
       required this.deviceInterfaces,
       required this.deviceInterfacesVisible,
-      required this.prefs
+      required this.prefs,
     }
   );
 
@@ -40,8 +41,16 @@ class EditDevicePage extends StatefulWidget {
 
 class _EditDevicePageState extends State<EditDevicePage> {
 
+  // Current interface selected by dropdown menu 
+
   InterfaceConnection? currentInterface;
   final ctrlName = TextEditingController();
+
+  @override
+  void initState() {
+    currentInterface = widget.deviceInterfaces.firstOrNull;
+    super.initState();
+  }
 
   // function to set the state of the page called inside of the template 
   // of every interface when their are removed (bin icon on edit device page)
@@ -61,14 +70,6 @@ class _EditDevicePageState extends State<EditDevicePage> {
     widget.deviceInterfacesVisible = newListVisibleInterfaces;
 
     setState(() {});
-  }
-
-  
-  @override
-  void initState() {
-    super.initState();
-
-    currentInterface = widget.deviceInterfaces.first;
   }
   
   // List of the interface of the device that the user can add to make them 

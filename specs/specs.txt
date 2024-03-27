@@ -31,10 +31,28 @@ Think about the futur cloud application :
 
 ------------------------------------------------------------------------------------
 
+Other ideas : 
+
+- Maybe it could be better to use a other system than juste icon button to discard or
+edit the devices widgets or just have the possibility to reorder them with drag and drop
+(with for example ReorderableListView)
+
+- Group userspace widget by size
+
+- 
+
+------------------------------------------------------------------------------------
 Question to Xavier :
 
-- Ask him if it's probably better to put the device config of a user on local and not directly 
-on the broker else if different user who use the same bench will each time have to change the display
 
-- For the psu, he send message for ampermetter and voltmetre but not for the controller (problem with the 
-platform ?)
+
+------------------------------------------------------------------------------------
+
+Problem to talk with Antoine :
+
+1 - Bug with the loading of interface, the only moment where they are loads are to the first 
+connection of the user (the utilisation of upadte on the mqtt client in interface widget make this effect), it's 
+was not a problem in the first version because there was any separation between bench this, so each widget 
+was load only 1 time.
+
+Solution 1 - Once load keep widget state in the bench page

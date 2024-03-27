@@ -1,7 +1,9 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mqtt_client/mqtt_client.dart';
+import 'package:panduza_sandbox_flutter/data/const.dart';
 
 
 // import '../widgets/interface_control/icw_bpc.dart';
@@ -40,6 +42,7 @@ class _IcPowermeterState extends State<IcPowermeter> {
   // double? _currentValueEff;
 
   double _value = 0;
+  StreamSubscription? listenerManager;
 
   ///
   ///
@@ -129,7 +132,7 @@ class _IcPowermeterState extends State<IcPowermeter> {
   /// Initialize MQTT Subscriptions
   ///
   void initializeMqttSubscription() async {
-    widget._interfaceConnection.client.updates!.listen(onMqttMessage);
+    listenerManager = widget._interfaceConnection.client.updates!.listen(onMqttMessage);
 
     String attsTopic = "${widget._interfaceConnection.topic}/atts/#";
     // print(attsTopic);
@@ -160,6 +163,7 @@ class _IcPowermeterState extends State<IcPowermeter> {
 
   @override
   void dispose() {
+    listenerManager!.cancel();
     super.dispose();
   }
 
@@ -264,16 +268,21 @@ class _IcPowermeterState extends State<IcPowermeter> {
           ),
           Text("${_value.toString()}W"),
           Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               SizedBox(
-                  width: 100,
-                  child: TextField(
-                    controller: _freqController,
-                    keyboardType: TextInputType.number,
-                    inputFormatters: <TextInputFormatter>[
-                      FilteringTextInputFormatter.digitsOnly
-                    ],
-                  )),
+                width: 30,
+                child: TextField(
+                  decoration: InputDecoration(
+                    fillColor: blue
+                  ),
+                  controller: _freqController,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: <TextInputFormatter>[
+                    FilteringTextInputFormatter.digitsOnly
+                  ],
+                )
+              ),
               const Text("read per sec"),
             ],
           )

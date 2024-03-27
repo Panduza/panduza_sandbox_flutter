@@ -29,6 +29,21 @@ class _AddDevicePageState extends State<AddDevicePage> {
 
   final ctrlName = TextEditingController();
 
+  // find first interface not visible and assign it to the current interface targeted
+  // by the dropdown bar
+  void getFirstInterfaceNotVisible() {
+    for (String deviceName in widget.listDevices.keys) {
+      /*
+      if (!widget.prefs.containsKey(deviceName)) {
+        
+      }
+      */
+      if (!widget.prefs.containsKey(deviceName)) {
+        currentDevice = deviceName;
+      }
+    }
+  }
+
   
   @override
   void initState() {
@@ -36,7 +51,7 @@ class _AddDevicePageState extends State<AddDevicePage> {
 
     // The dropbar will take the first value of the list of the devices 
 
-    currentDevice = widget.listDevices.keys.first;
+    getFirstInterfaceNotVisible(); 
   }
 
   // The list of item of the drop down list representing the different 
@@ -51,14 +66,16 @@ class _AddDevicePageState extends State<AddDevicePage> {
         
       }
       */
-      listMenuItem.add(
-        DropdownMenuItem(
-          value: deviceName,
-          child: Text(
-            deviceName
-          ),
-        )
-      );
+      if (!widget.prefs.containsKey(deviceName)) {
+        listMenuItem.add(
+          DropdownMenuItem(
+            value: deviceName,
+            child: Text(
+              deviceName
+            ),
+          )
+        );
+      }
     }
 
     return listMenuItem;

@@ -140,7 +140,7 @@ class _DevicePageState extends State<DevicePage> {
             ),
             child: Center (
               child: DropdownButton<String>(
-                underline: SizedBox.shrink(),
+                underline: const SizedBox.shrink(),
                 items: _availableRefList!
                     .map<DropdownMenuItem<String>>((String value) {
                   return DropdownMenuItem<String>(

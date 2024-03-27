@@ -29,6 +29,17 @@ class IcBpc extends StatefulWidget {
 }
 
 class _IcBpcState extends State<IcBpc> {
+  
+  bool? _enableValueReq = false;
+  bool? _enableValueEff = false;
+
+  double? _voltageValueReq = 0;
+  double? _voltageValueEff = 0;
+
+  double? _currentValueReq = 0;
+  double? _currentValueEff = 0;
+  
+  /*
   bool? _enableValueReq;
   bool? _enableValueEff;
 
@@ -37,6 +48,7 @@ class _IcBpcState extends State<IcBpc> {
 
   double? _currentValueReq;
   double? _currentValueEff;
+  */
 
   ///
   ///
@@ -70,7 +82,8 @@ class _IcBpcState extends State<IcBpc> {
                 case "enable":
                   if (field.key == "value") {
                     _enableValueEff = field.value;
-                    _enableValueReq ??= _enableValueEff;
+                    // _enableValueReq ??= _enableValueEff;
+                    _enableValueReq = _enableValueEff;
                   }
                   break;
 
@@ -83,7 +96,8 @@ class _IcBpcState extends State<IcBpc> {
                       case double:
                         _voltageValueEff = field.value;
                     }
-                    _voltageValueReq ??= _voltageValueEff;
+                    // _voltageValueReq ??= _voltageValueEff;
+                    _voltageValueReq = _voltageValueEff;
                   }
                   break;
 
@@ -96,7 +110,8 @@ class _IcBpcState extends State<IcBpc> {
                       case double:
                         _currentValueEff = field.value;
                     }
-                    _currentValueReq ??= _currentValueEff;
+                    // _currentValueReq ??= _currentValueEff;
+                    _currentValueReq = _currentValueEff;
                   }
                   break;
               }
@@ -257,22 +272,6 @@ class _IcBpcState extends State<IcBpc> {
               prefs: widget.prefs,
               editSetState: widget.editSetState
             ),
-            // Column(
-            //   children: [
-            //     TextFormField(
-            //       decoration: InputDecoration(
-            //         border: OutlineInputBorder(),
-            //       ),
-            //       // controller: sliderController,
-            //     ),
-            //     TextFormField(
-            //       decoration: InputDecoration(
-            //         border: OutlineInputBorder(),
-            //       ),
-            //       // controller: sliderController,
-            //     ),
-            //   ],
-            // ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[

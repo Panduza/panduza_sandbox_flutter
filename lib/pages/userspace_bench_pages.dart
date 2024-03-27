@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mqtt_client/mqtt_client.dart';
+import 'package:panduza_sandbox_flutter/pages/perf_test_page.dart';
 import 'dart:async';
 import 'dart:convert';
 
@@ -32,7 +33,7 @@ class _UserspaceBenchPageState extends State<UserspaceBenchPage> {
 
   // Map who associate a bench to different devices with differents interfaces
   Map<String, Map<String, List<InterfaceConnection>>> deviceToInterfaces = {}; 
-
+  
   Timer? timer;
 
   // load the mqtt topics of the broker mqtt 
@@ -69,43 +70,49 @@ class _UserspaceBenchPageState extends State<UserspaceBenchPage> {
         InterfaceConnection ic = InterfaceConnection(
           widget.brokerConnectionInfo.client, topic, jsonObject["info"]
         );
-
+        
+        // get the list of every interface except device 
         
         if (!interfaceAlreadyRegistered(ic, interfaces)) {
           if (ic.getType() != "device") {
             interfaces = [...interfaces, ic];
           }
         }
-        
-        if (!deviceToInterfaces.containsKey(ic.getBenchName())) {
-          deviceToInterfaces[ic.getBenchName()] = {ic.getDeviceName() : [ic]};
-        } else {
-          // We are sure there is a element to the index of this benchName
-          var interfaces = deviceToInterfaces[ic.getBenchName()] as Map<String, List<InterfaceConnection>>;
-          if (!interfaces.containsKey(ic.getDeviceName())) {
-            // The interfaceList cannot in normal case be null
-            
-            interfaces[ic.getDeviceName()] = [ic];
+
+        if (ic.getType() != "device") {
+
+          // if bench test name didn't exist in the map we add it with the device name and interface of 
+          // connection corresponding
+          if (!deviceToInterfaces.containsKey(ic.getBenchName())) {
+            deviceToInterfaces[ic.getBenchName()] = {ic.getDeviceName() : [ic]};
           } else {
+            // We are sure there is a element to the index of this benchName
+            var interfaces = deviceToInterfaces[ic.getBenchName()] as Map<String, List<InterfaceConnection>>;
+            if (!interfaces.containsKey(ic.getDeviceName())) {
+              // The interfaceList cannot in normal case be null
+              
+              interfaces[ic.getDeviceName()] = [ic];
+            } else {
 
-            List<InterfaceConnection>? interfaceList = interfaces[ic.getDeviceName()];
+              List<InterfaceConnection>? interfaceList = interfaces[ic.getDeviceName()];
 
-            if (interfaceList != null) {
-              if (!interfaceList.contains(ic)) {
-                interfaceList.add(ic);
-                interfaceList.sort((a, b) {
-                  return a.getType().compareTo(b.getType());
-                });
-
-                var tmpMap = deviceToInterfaces[ic.getBenchName()];
-                
-                if (tmpMap != null) {
-                  tmpMap[ic.getDeviceName()] = interfaceList;
-                  (tmpMap[ic.getDeviceName()] as List<InterfaceConnection>).sort((a, b) {
+              if (interfaceList != null) {
+                if (!interfaceList.contains(ic)) {
+                  interfaceList.add(ic);
+                  interfaceList.sort((a, b) {
                     return a.getType().compareTo(b.getType());
                   });
+
+                  var tmpMap = deviceToInterfaces[ic.getBenchName()];
                   
-                  deviceToInterfaces[ic.getBenchName()] = tmpMap;
+                  if (tmpMap != null) {
+                    tmpMap[ic.getDeviceName()] = interfaceList;
+                    (tmpMap[ic.getDeviceName()] as List<InterfaceConnection>).sort((a, b) {
+                      return a.getType().compareTo(b.getType());
+                    });
+                    
+                    deviceToInterfaces[ic.getBenchName()] = tmpMap;
+                  }
                 }
               }
             }
@@ -133,7 +140,7 @@ class _UserspaceBenchPageState extends State<UserspaceBenchPage> {
     // Here it would be better to setState only when the map became different
 
     timer = Timer.periodic(
-      const Duration(seconds: 1), (Timer t) {
+      const Duration(milliseconds: 100), (Timer t) {
         setState(() {});
       }
     );
@@ -156,7 +163,49 @@ class _UserspaceBenchPageState extends State<UserspaceBenchPage> {
     final int columns = (width / 300.0).round();
 
     return Scaffold(
-      appBar: getAppBar("Benches"),
+      // appBar: getAppBar("Benches"),
+      appBar: AppBar(
+        // color of hamburger button
+        iconTheme: IconThemeData(color: white),
+        backgroundColor: black,
+        title: Text(
+          "Benches",
+          style: TextStyle(
+            color: blue,
+          ),
+        ),
+        // Panduza logo
+        // TO DO : Change to logo2 
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.airport_shuttle),
+            iconSize: 50,
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => PerfTestPage(
+                    brokerConnection: widget.brokerConnectionInfo,
+                  ),
+                ),
+              );
+            },
+          ),
+          IconButton(
+            icon: Image.asset('assets/logo_1024.png'),
+            /*            
+            icon: SvgPicture.asset(
+              '../../assets/icons/logo2.svg'
+            ),
+            */
+            iconSize: 50,
+            onPressed: () {
+              return;
+            }, 
+          ),
+
+        ],
+      ),
       body: ListView.builder(
         itemBuilder: (context, index) {
           return Ink(
@@ -181,7 +230,10 @@ class _UserspaceBenchPageState extends State<UserspaceBenchPage> {
                       // deviceToInterfaces: deviceToInterfaces,
                     ),
                   ),
-                );
+                ).then((value) async {
+                  widget.brokerConnectionInfo.client.disconnect();
+                  await widget.brokerConnectionInfo.client.connect();
+                });
               },
               child: Center(
                 child: Text(

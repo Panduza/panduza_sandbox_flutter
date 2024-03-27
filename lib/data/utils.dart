@@ -226,4 +226,51 @@ bool platformAlreadyRegistered(String benchTest, List<String> benchList) {
   return false;
 }
 
+// Send a ping to the targeted broker
 
+void sendPing(MqttServerClient client) async {
+  MqttClientPayloadBuilder builder = MqttClientPayloadBuilder();
+
+  Map<String, dynamic> data = {};
+
+  String jsonString = jsonEncode(data);
+  builder.addString(jsonString);
+  final payload = builder.payload;
+
+  client.publishMessage("ping", MqttQos.atLeastOnce, payload!);
+}
+
+// Test the reactivity of the platform, giving a average of ping transmit and receive in 5 seconds
+
+Future<int>? perfTest(BrokerConnectionInfo brokerConnection) async{
+
+  int totalPingReceived = 0;
+  Subscription? sub = brokerConnection.client.subscribe("ping", MqttQos.atLeastOnce);
+
+  // if subscribe successful
+  if (sub != null) {
+    // When a ping message is received we publish a new one until the timer of 5 seconds is completed
+    var listener = brokerConnection.client.updates!.listen((List<MqttReceivedMessage<MqttMessage?>>? c) { 
+      if (c![0].topic.compareTo("ping") == 0) {
+        totalPingReceived++;
+        sendPing(brokerConnection.client);
+      }
+    });
+
+    // First ping send
+    sendPing(brokerConnection.client);
+
+    return await Future.delayed(const Duration(seconds: 5), () {
+      listener.cancel();
+      brokerConnection.client.unsubscribe("ping");
+
+      // ~/ directly obtains an approximation with a int result
+      int pingBySecond = totalPingReceived ~/ 5;
+      return pingBySecond;
+    }).then((int value) {
+      return value;
+    });
+  }
+
+  return 0;
+}
