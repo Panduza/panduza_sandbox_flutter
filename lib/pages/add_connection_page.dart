@@ -6,6 +6,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:panduza_sandbox_flutter/data/const.dart';
 import 'package:panduza_sandbox_flutter/userspace_widgets/ic_powermeter.dart';
 import 'package:panduza_sandbox_flutter/utils_widgets/appBar.dart';
+import 'package:panduza_sandbox_flutter/pages/cloud_config_auth_page.dart';
 
 // Page with the 3 choices of adding connection :
 // with manual input, with discovery or with the cloud
@@ -93,18 +94,18 @@ class AddConnectionPage extends StatelessWidget {
                     backgroundColor: MaterialStateProperty.all<Color>(grey)
                   ),
                   onPressed: () {
-                    // test on userspace
-                    /*
+                    // send on the page of configuration of the cloud (change broker address 
+                    // link to the platform ...)                
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => IcPowermeter(InterfaceConnection),
+                        builder: (context) => const CloudConfigAuthPage(),
                       ),
                     );
-                    */
+                    
                   },
                   child: AutoSizeText(
-                    "Cloud",
+                    "Config cloud",
                     style: TextStyle(
                       fontSize: 20,
                       color: white
