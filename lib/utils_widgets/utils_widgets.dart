@@ -1,15 +1,17 @@
 import 'dart:io';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:http/http.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:panduza_sandbox_flutter/data/const.dart';
 import 'package:panduza_sandbox_flutter/pages/edit_page.dart';
 import 'package:panduza_sandbox_flutter/pages/home_page.dart';
-import 'package:panduza_sandbox_flutter/data/utils.dart';
-import 'package:panduza_sandbox_flutter/pages/userspace_page.dart';
-import 'package:panduza_sandbox_flutter/data/broker_connection_info.dart';
 import 'package:panduza_sandbox_flutter/pages/manual_connection_page.dart';
+import 'package:panduza_sandbox_flutter/pages/first_user_creation_page.dart';
+import 'package:panduza_sandbox_flutter/data/rest_request.dart';
+import 'package:panduza_sandbox_flutter/pages/authentification_page.dart';
 
 // on the home page content of each connection button 
 // displaying the name, the host ip and the port 
@@ -176,22 +178,33 @@ Widget getConnectionsButtonsList(SharedPreferences prefs, List<String> platformN
           onTap: () {
             String host = (prefs.getStringList(platformNames[index]) as List<String>)[1];
             String port = (prefs.getStringList(platformNames[index]) as List<String>)[2];
-            tryConnecting(host, port).then((client) {
-              if (client != null) {
+
+            // check if first account has been created, if it's true then go to the authentification
+            // page else go to the page of creation of the first admin account
+            firstAccountExist().then((response) {
+              bool fistAccountExist = json.decode(response.body)["first_account_exist"];
+
+              if (fistAccountExist) {
+                // Go to authentification page with connection information of the broker
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => UserspacePage(
-                      broker_connection_info: BrokerConnectionInfo(
-                        host, 
-                        int.parse(port), 
-                        client
-                      ),
+                    builder: (context) => AuthentificationPage(
+                      hostIp: host, 
+                      port: port
                     )
                   ),
-                ).then((value) {
-                  client.disconnect();
-                });
+                );
+              } else {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => FirstUserCreationPage(
+                      hostIp: host, 
+                      port: port
+                    )
+                  ),
+                );
               }
             });
           },

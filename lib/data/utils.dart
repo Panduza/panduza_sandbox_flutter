@@ -99,7 +99,7 @@ String generateRandomMqttIdentifier() {
 // Try connecting to the broker mqtt, if succes return the client
 // else return null  
 
-Future<MqttServerClient?> tryConnecting(String host, String portStr) async {
+Future<MqttServerClient?> tryConnecting(String host, String portStr, String username, String password) async {
 
   if (!_isConnecting) {
     _isConnecting = true;
@@ -107,12 +107,13 @@ Future<MqttServerClient?> tryConnecting(String host, String portStr) async {
       
       int port = int.parse(portStr);
 
+
       _client = MqttServerClient.withPort(
-           host, generateRandomMqttIdentifier(), port);
+          host, generateRandomMqttIdentifier(), port);
 
       _client.keepAlivePeriod = 20;
 
-      await _client.connect();
+      await _client.connect(username, password);
 
       _client.onConnected = () {
         print("MQTT connected");
