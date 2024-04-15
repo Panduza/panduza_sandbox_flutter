@@ -4,7 +4,7 @@ import 'package:panduza_sandbox_flutter/pages/manual_connection_page.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 
 import 'package:panduza_sandbox_flutter/data/const.dart';
-import 'package:panduza_sandbox_flutter/pages/userspace/ic_powermeter.dart';
+import 'package:panduza_sandbox_flutter/userspace_widgets/ic_powermeter.dart';
 import 'package:panduza_sandbox_flutter/utils_widgets/appBar.dart';
 
 // Page with the 3 choices of adding connection :

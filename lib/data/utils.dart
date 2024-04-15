@@ -8,7 +8,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:udp/udp.dart';
-import 'package:win_toast/win_toast.dart' as win_toast;
 import 'package:auto_size_text/auto_size_text.dart';
 
 import 'package:panduza_sandbox_flutter/data/const.dart';
@@ -133,13 +132,6 @@ Future<MqttServerClient?> tryConnecting(String host, String portStr) async {
           backgroundColor: Colors.red,
           toastLength: Toast.LENGTH_LONG
         );
-      } else if (Platform.isWindows) {
-        win_toast.WinToast.instance().initialize(
-          aumId: 'one.mixin.WinToastExample',
-          displayName: 'Connection failed',
-          iconPath: '',
-          clsid: 'your-notification-activator-guid-2EB1AE5198B7'
-        );
       }
       
       // never return because _client not init
@@ -154,13 +146,6 @@ Future<MqttServerClient?> tryConnecting(String host, String portStr) async {
       gravity: ToastGravity.BOTTOM,
       backgroundColor: Colors.red,
       toastLength: Toast.LENGTH_LONG
-    );
-  } else if (Platform.isWindows) {
-    win_toast.WinToast.instance().initialize(
-      aumId: 'one.mixin.WinToastExample',
-      displayName: 'A connection is already in process',
-      iconPath: '',
-      clsid: 'your-notification-activator-guid-2EB1AE5198B7',
     );
   }
  

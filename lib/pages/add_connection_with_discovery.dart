@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:panduza_sandbox_flutter/pages/add_connection_form.dart';
+import 'package:panduza_sandbox_flutter/forms/add_connection_form.dart';
 
 import 'package:panduza_sandbox_flutter/data/const.dart';
 import 'package:panduza_sandbox_flutter/utils_widgets/appBar.dart';
