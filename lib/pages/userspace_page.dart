@@ -161,7 +161,8 @@ class _UserspacePageState extends State<UserspacePage> {
     final int columns = (width / 300.0).round();
 
     return Scaffold(
-      appBar: getAppBar("UserSpace"),
+      // appBar: getAppBar("UserSpace"),
+      appBar: getAppBarUserSpace("Userspace", context),
       body: 
       /*
       ListView.separated(
