@@ -88,7 +88,7 @@ class BrokerInfoConfigForm extends StatelessWidget {
                 // request to change company info with token information
                 postBrokerInfo(token, newCompany).then((response) {
                   if (response.statusCode == 201) {
-                    Navigator.pop(context, company);
+                    Navigator.pop(context, newCompany);
                   } else {
                     // manage error code 
                     print("post broker info failed ${response.statusCode}");

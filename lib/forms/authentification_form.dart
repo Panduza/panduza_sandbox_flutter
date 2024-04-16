@@ -47,6 +47,7 @@ class AuthentificationForm extends StatelessWidget {
                 decoration: const InputDecoration(
                   labelText: 'Password'
                 ),
+                obscureText: true,
               )
             ]
           )

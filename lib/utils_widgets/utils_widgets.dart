@@ -246,7 +246,8 @@ Widget localDiscoveryConnections(List<(InternetAddress, int)> platformsIpsPorts,
               child: Column (
                 children: <Widget>[
                   AutoSizeText(
-                    '${platformsIpsPorts[index].$1.host}',
+                    // '${platformsIpsPorts[index].$1.host}',
+                    "local",
                     style: TextStyle(
                       color: blue
                     ),
