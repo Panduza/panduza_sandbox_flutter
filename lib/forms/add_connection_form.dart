@@ -27,6 +27,7 @@ class AddConnectionForm extends StatelessWidget {
     final ctrlPort = TextEditingController(
       text: port
     );
+    bool isCloud = false;
 
     return Column(
       children: [
@@ -58,6 +59,15 @@ class AddConnectionForm extends StatelessWidget {
                   labelText: 'Broker Port',
                 ),
               ),
+              // need to manage the isCloud button
+              /*
+              CheckboxListTile(
+                value: isCloud,
+                onChanged: (value) {
+                  isCloud = false;
+                },
+              ),
+              */
             ]
           )
         ),
@@ -87,7 +97,7 @@ class AddConnectionForm extends StatelessWidget {
             // add the connection to the home page
             ElevatedButton(
               onPressed: () async {
-                await addConnection(ctrlName.text, ctrlHostIp.text, ctrlPort.text);
+                await addConnection(ctrlName.text, ctrlHostIp.text, ctrlPort.text, isCloud);
                 Navigator.of(context).popUntil((route) => route.isFirst);
               }, 
               style: ButtonStyle(

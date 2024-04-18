@@ -24,6 +24,7 @@ class EditConnectionForm extends StatelessWidget {
     final ctrlName = TextEditingController();
     final ctrlHostIp = TextEditingController();
     final ctrlPort = TextEditingController();
+    bool isCloud = false;
 
     ctrlName.text = platformName;
     ctrlHostIp.text = hostIp;
@@ -60,6 +61,15 @@ class EditConnectionForm extends StatelessWidget {
                   labelText: 'Broker Port',
                 ),
               ),
+              // need to manage the isCloud button
+              /*
+              CheckboxListTile(
+                value: isCloud,
+                onChanged: (value) {
+                  isCloud = false;
+                },
+              ),
+              */
             ]
           )
         ),
@@ -89,7 +99,7 @@ class EditConnectionForm extends StatelessWidget {
             // add the connection to the home page
             ElevatedButton(
               onPressed: () async {
-                await editConnection(platformName, ctrlName.text, ctrlHostIp.text, ctrlPort.text);
+                await editConnection(platformName, ctrlName.text, ctrlHostIp.text, ctrlPort.text, isCloud);
                 if (!context.mounted) return;
                 Navigator.pop(context);
               }, 

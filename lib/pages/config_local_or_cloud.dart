@@ -4,16 +4,15 @@ import 'package:panduza_sandbox_flutter/pages/manual_connection_page.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 
 import 'package:panduza_sandbox_flutter/data/const.dart';
-import 'package:panduza_sandbox_flutter/userspace_widgets/ic_powermeter.dart';
+import 'package:panduza_sandbox_flutter/pages/local_config_auth_page.dart';
 import 'package:panduza_sandbox_flutter/utils_widgets/appBar.dart';
 import 'package:panduza_sandbox_flutter/pages/cloud_config_auth_page.dart';
-import 'package:panduza_sandbox_flutter/pages/config_local_or_cloud.dart';
 
 // Page with the 3 choices of adding connection :
 // with manual input, with discovery or with the cloud
 
-class AddConnectionPage extends StatelessWidget {
-  const AddConnectionPage({
+class ConfigLocalOrCloud extends StatelessWidget {
+  const ConfigLocalOrCloud({
     super.key,
   });
 
@@ -21,7 +20,7 @@ class AddConnectionPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       // bar at the top of the application
-      appBar: getAppBar("Add connection"),
+      appBar: getAppBar("Config Choices"),
       body: Center(
         child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -38,15 +37,12 @@ class AddConnectionPage extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const ManualConnectionPage(
-                          ip: "",
-                          port: ""
-                        ),
+                        builder: (context) => const LocalConfigAuthPage(),
                       ),
                     );
                   },
                   child: AutoSizeText(
-                    "Manual connection",
+                    "Local config",
                     style: TextStyle(
                       fontSize: 20,
                       color: white
@@ -70,42 +66,12 @@ class AddConnectionPage extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const DiscoveryPage(),
+                        builder: (context) => const CloudConfigAuthPage(),
                       ),
                     );
                   },
                   child: AutoSizeText(
-                    "Discovery",
-                    style: TextStyle(
-                      fontSize: 20,
-                      color: white
-                    ),
-                    maxLines: 1,
-                  )
-                ),
-              ),
-              SizedBox(
-                height: MediaQuery.sizeOf(context).height / 13
-              ),
-              SizedBox(
-                width: MediaQuery.sizeOf(context).width / 1.1,
-                height: MediaQuery.sizeOf(context).height / 5,
-                child: TextButton(
-                  style: ButtonStyle (
-                    backgroundColor: MaterialStateProperty.all<Color>(grey)
-                  ),
-                  onPressed: () {
-                    // send on the page of configuration of the cloud (change broker address 
-                    // link to the platform ...)                
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const ConfigLocalOrCloud(),
-                      ),
-                    );
-                  },
-                  child: AutoSizeText(
-                    "Config",
+                    "Cloud config",
                     style: TextStyle(
                       fontSize: 20,
                       color: white

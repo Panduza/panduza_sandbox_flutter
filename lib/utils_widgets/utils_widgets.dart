@@ -143,6 +143,19 @@ Widget getDeleteConnectionButton(SharedPreferences prefs, List<String> platformN
   );
 }
 
+Widget getCloudOrLocalIcon(String isCloud) {
+  if (isCloud == "1") {
+    return const Icon(
+      Icons.cloud,
+      color: Colors.white,
+    );
+  }
+  return const Icon(
+    Icons.home,
+    color: Colors.white,
+  );
+}
+
 // Connection list display on the home page load from the disk
 
 Widget getConnectionsButtonsList(SharedPreferences prefs, List<String> platformNames,
@@ -162,6 +175,7 @@ Widget getConnectionsButtonsList(SharedPreferences prefs, List<String> platformN
             ),
             child: Row (
               children: <Widget>[
+                getCloudOrLocalIcon((prefs.getStringList(platformNames[index]) as List<String>)[3]),
                 getConnectionButton(prefs, platformNames, index),
                 Column(
                   children: [
@@ -179,34 +193,50 @@ Widget getConnectionsButtonsList(SharedPreferences prefs, List<String> platformN
             String host = (prefs.getStringList(platformNames[index]) as List<String>)[1];
             String port = (prefs.getStringList(platformNames[index]) as List<String>)[2];
 
-            // check if first account has been created, if it's true then go to the authentification
-            // page else go to the page of creation of the first admin account
-            firstAccountExist().then((response) {
-              bool fistAccountExist = json.decode(response.body)["first_account_exist"];
+            // Here check if it's local or cloud connection
+            String isCloud = (prefs.getStringList(platformNames[index]) as List<String>)[3];
 
-              if (fistAccountExist) {
-                // Go to authentification page with connection information of the broker
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => AuthentificationPage(
-                      hostIp: host, 
-                      port: port
-                    )
-                  ),
-                );
-              } else {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => FirstUserCreationPage(
-                      hostIp: host, 
-                      port: port
-                    )
-                  ),
-                );
-              }
-            });
+            if (isCloud == "1") {
+              // authentification page in the cloud 
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => AuthentificationPage(
+                    hostIp: host, 
+                    port: port
+                  )
+                ),
+              );
+            } else {
+              // check if first account has been created, if it's true then go to the authentification
+              // page else go to the page of creation of the first admin account
+              firstAccountExist().then((response) {
+                bool fistAccountExist = json.decode(response.body)["first_account_exist"];
+
+                if (fistAccountExist) {
+                  // Go to authentification page with connection information of the broker
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => AuthentificationPage(
+                        hostIp: host, 
+                        port: port
+                      )
+                    ),
+                  );
+                } else {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => FirstUserCreationPage(
+                        hostIp: host, 
+                        port: port
+                      )
+                    ),
+                  );
+                }
+              });
+            }
           },
         ),
       );
@@ -214,7 +244,6 @@ Widget getConnectionsButtonsList(SharedPreferences prefs, List<String> platformN
     separatorBuilder: (context, index) => const Divider(),
   );
 }
-
 
 // Button list of connection in the local discovery page
 

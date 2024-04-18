@@ -27,13 +27,18 @@ Future<SharedPreferences> getPreferences() async {
 // Add a connection on the disk if the name hasn't been used
 
 Future<void> addConnection(String name, String hostIp, 
-  String port) async {
+  String port, bool isCloud) async {
 
   SharedPreferences pref = await SharedPreferences.getInstance();
   Object? newCollection = pref.get(name);
 
   if (newCollection == null) {
-    pref.setStringList(name, [name, hostIp, port]);
+    if (isCloud) {
+      pref.setStringList(name, [name, hostIp, port, "1"]);
+    } else {
+      pref.setStringList(name, [name, hostIp, port, "0"]);
+    }
+    
 
     // print(pref.containsKey(connectionKey));
 
@@ -54,12 +59,17 @@ Future<void> addConnection(String name, String hostIp,
 // Edit the existing connection having this name on the disk
 
 Future<void> editConnection(String oldName, String newName, String hostIp, 
-  String port) async {
+  String port, bool isCloud) async {
 
   SharedPreferences pref = await SharedPreferences.getInstance();
 
   pref.remove(oldName);
-  pref.setStringList(newName, [newName, hostIp, port]);
+  if (isCloud) {
+    pref.setStringList(newName, [newName, hostIp, port, "1"]);
+  } else {
+    pref.setStringList(newName, [newName, hostIp, port, "0"]);
+  }
+  
 
   List<String>? platformNames = pref.getStringList(connectionKey);
   if (platformNames != null) {
