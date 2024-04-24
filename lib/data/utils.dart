@@ -173,23 +173,27 @@ Future<List<(InternetAddress, int)>> platformDiscovery() async {
 
   List<(InternetAddress, int)> ipPort = []; 
   String waitedAnswer = '{"name": "panduza_platform","version": 1.0}';
-  
-  var udpSocket = await UDP.bind(Endpoint.any(port: const Port(65008)));
-  await udpSocket.send(jsonEncode('{"search": true}').codeUnits, Endpoint.broadcast(port: const Port(portLocalDiscovery)));
-  
-  udpSocket.asStream().listen((datagram) {
-    if (datagram != null) {
-      String answer = String.fromCharCodes(datagram.data);
-      if(answer == waitedAnswer) {
-        // add the host name if there is one (or maybe even if he didn't)
-        // print(datagram.address.host);
-        ipPort.add((datagram.address, datagram.port));
+
+  await RawDatagramSocket.bind(InternetAddress.anyIPv4, 63500).then((RawDatagramSocket socket) async {
+    
+    socket.broadcastEnabled = true;
+    socket.send(jsonEncode({"search" : true}).codeUnits, InternetAddress("255.255.255.255"), portLocalDiscovery);
+    socket.listen((e) {
+      Datagram? datagram = socket.receive();
+      if (datagram != null) {
+        String answer = String.fromCharCodes(datagram.data);
+        
+        if(answer == waitedAnswer) {
+          if (!ipPort.contains((datagram.address, datagram.port))) ipPort.add((datagram.address, datagram.port));
+        }
       }
-    }
+    });
+
+    await Future.delayed(const Duration(milliseconds: 10));
+    socket.close();
   });
 
-  await Future.delayed(Duration(milliseconds: 10));
-  udpSocket.close();
+  await Future.delayed(const Duration(milliseconds: 10));
 
   return ipPort;
 }
