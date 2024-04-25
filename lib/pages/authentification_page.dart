@@ -1,34 +1,32 @@
 import 'package:flutter/material.dart';
-import 'package:panduza_sandbox_flutter/forms/add_connection_form.dart';
-
+import 'package:panduza_sandbox_flutter/forms/authentification_form.dart';
 import 'package:panduza_sandbox_flutter/utils_widgets/appBar.dart';
 
+// Page to authentificate to a broker
 
-// Page with the 3 choices of adding connection :
-// with manual input, with discovery or with the cloud
+class AuthentificationPage extends StatelessWidget {
 
-class ManualConnectionPage extends StatelessWidget {
-  
-  const ManualConnectionPage({
+  // Maybe show the platform name to the user could be a good idea
+  const AuthentificationPage({
     super.key,
-    required this.ip,
+    required this.hostIp,
     required this.port
   });
 
-  final String ip;
+  final String hostIp;
   final String port;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       // bar at the top of the application
-      appBar: getAppBar("Add connection"),
+      appBar: getAppBar("Authentification"),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            AddConnectionForm(
-              ip: ip,
+            AuthentificationForm(
+              ip: hostIp,
               port: port,
             )
           ],

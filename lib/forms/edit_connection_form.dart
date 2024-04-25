@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:panduza_sandbox_flutter/pages/home_page.dart';
 
-import '../data/const.dart';
-import '../data/utils.dart';
-
+import 'package:panduza_sandbox_flutter/data/const.dart';
+import 'package:panduza_sandbox_flutter/data/utils.dart';
 
 // Form to edit a existing connection
 
-class EditConnectionForm extends StatefulWidget {
-
+class EditConnectionForm extends StatelessWidget {
   const EditConnectionForm({
     super.key,
     required this.platformName,
@@ -21,25 +19,17 @@ class EditConnectionForm extends StatefulWidget {
   final String port;
 
   @override
-  _EditConnectionForm createState() => _EditConnectionForm();
-}
-
-class _EditConnectionForm extends State<EditConnectionForm> {
-
-  final _ctrlName = TextEditingController();
-  final _ctrlHostIp = TextEditingController();
-  final _ctrlPort = TextEditingController();
-
-  @override
-  void initState() {
-    _ctrlName.text = widget.platformName;
-    _ctrlHostIp.text = widget.hostIp;
-    _ctrlPort.text = widget.port;
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
+
+    final ctrlName = TextEditingController();
+    final ctrlHostIp = TextEditingController();
+    final ctrlPort = TextEditingController();
+    bool isCloud = false;
+
+    ctrlName.text = platformName;
+    ctrlHostIp.text = hostIp;
+    ctrlPort.text = port;
+    
     return Column(
       children: [
         Padding(
@@ -50,7 +40,7 @@ class _EditConnectionForm extends State<EditConnectionForm> {
           child: Column(
             children: <Widget>[
               TextField(
-                controller: _ctrlName,
+                controller: ctrlName,
                 // textAlign: TextAlign.center,
                 decoration: const InputDecoration(
                   labelText: 'Platform name',
@@ -58,19 +48,28 @@ class _EditConnectionForm extends State<EditConnectionForm> {
                 
               ),
               TextField(
-                controller: _ctrlHostIp,
+                controller: ctrlHostIp,
                 // textAlign: TextAlign.center,
                 decoration: const InputDecoration(
                   labelText: 'Broker Hostname'
                 ),
               ),
               TextField(
-                controller: _ctrlPort,
+                controller: ctrlPort,
                 // textAlign: TextAlign.center,
                 decoration: const InputDecoration(
                   labelText: 'Broker Port',
                 ),
               ),
+              // need to manage the isCloud button
+              /*
+              CheckboxListTile(
+                value: isCloud,
+                onChanged: (value) {
+                  isCloud = false;
+                },
+              ),
+              */
             ]
           )
         ),
@@ -100,7 +99,8 @@ class _EditConnectionForm extends State<EditConnectionForm> {
             // add the connection to the home page
             ElevatedButton(
               onPressed: () async {
-                await editConnection(widget.platformName, _ctrlName.text, _ctrlHostIp.text, _ctrlPort.text);
+                await editConnection(platformName, ctrlName.text, ctrlHostIp.text, ctrlPort.text, isCloud);
+                if (!context.mounted) return;
                 Navigator.pop(context);
               }, 
               style: ButtonStyle(
@@ -115,10 +115,7 @@ class _EditConnectionForm extends State<EditConnectionForm> {
             )
           ],
         )
-      ],
+      ]
     );
   }
-  
 }
-
-  
