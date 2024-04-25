@@ -1,11 +1,17 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:mqtt_client/mqtt_client.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:udp/udp.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 
-import 'const.dart';
+import 'package:panduza_sandbox_flutter/data/const.dart';
+import 'package:panduza_sandbox_flutter/pages/manual_connection_page.dart';
 
 late MqttServerClient _client;
 bool _isConnecting = false;
@@ -21,13 +27,18 @@ Future<SharedPreferences> getPreferences() async {
 // Add a connection on the disk if the name hasn't been used
 
 Future<void> addConnection(String name, String hostIp, 
-  String port) async {
+  String port, bool isCloud) async {
 
   SharedPreferences pref = await SharedPreferences.getInstance();
   Object? newCollection = pref.get(name);
 
   if (newCollection == null) {
-    pref.setStringList(name, [name, hostIp, port]);
+    if (isCloud) {
+      pref.setStringList(name, [name, hostIp, port, "1"]);
+    } else {
+      pref.setStringList(name, [name, hostIp, port, "0"]);
+    }
+    
 
     // print(pref.containsKey(connectionKey));
 
@@ -48,12 +59,17 @@ Future<void> addConnection(String name, String hostIp,
 // Edit the existing connection having this name on the disk
 
 Future<void> editConnection(String oldName, String newName, String hostIp, 
-  String port) async {
+  String port, bool isCloud) async {
 
   SharedPreferences pref = await SharedPreferences.getInstance();
 
   pref.remove(oldName);
-  pref.setStringList(newName, [newName, hostIp, port]);
+  if (isCloud) {
+    pref.setStringList(newName, [newName, hostIp, port, "1"]);
+  } else {
+    pref.setStringList(newName, [newName, hostIp, port, "0"]);
+  }
+  
 
   List<String>? platformNames = pref.getStringList(connectionKey);
   if (platformNames != null) {
@@ -66,8 +82,7 @@ Future<void> editConnection(String oldName, String newName, String hostIp,
   // editing exist (so there at least this connection inside of directory
   // value of connectionKey)
 }
-
-
+ 
 
 // get every connections existing on the disk
 /*
@@ -94,7 +109,7 @@ String generateRandomMqttIdentifier() {
 // Try connecting to the broker mqtt, if succes return the client
 // else return null  
 
-Future<MqttServerClient?> tryConnecting(String host, String portStr) async {
+Future<MqttServerClient?> tryConnecting(String host, String portStr, String username, String password) async {
 
   if (!_isConnecting) {
     _isConnecting = true;
@@ -102,34 +117,85 @@ Future<MqttServerClient?> tryConnecting(String host, String portStr) async {
       
       int port = int.parse(portStr);
 
+
       _client = MqttServerClient.withPort(
           host, generateRandomMqttIdentifier(), port);
 
-      await _client.connect();
+      _client.keepAlivePeriod = 20;
+
+      await _client.connect(username, password);
+
+      _client.onConnected = () {
+        print("MQTT connected");
+      };
 
       _isConnecting = false;
       return _client;
     } catch (error) {
+      print(error);
+
       _isConnecting = false;
-      Fluttertoast.showToast(
-        msg: "Connection failed",
-        textColor: Colors.black,
-        gravity: ToastGravity.BOTTOM,
-        backgroundColor: Colors.red,
-        toastLength: Toast.LENGTH_LONG
-      );
+      if (Platform.isAndroid || Platform.isIOS) {
+        Fluttertoast.showToast(
+          msg: "Connection failed",
+          textColor: Colors.black,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.red,
+          toastLength: Toast.LENGTH_LONG
+        );
+      }
+      
       // never return because _client not init
       return null;
     }
   }
 
-  Fluttertoast.showToast(
-    msg: "A connection is already in process",
-    textColor: Colors.black,
-    gravity: ToastGravity.BOTTOM,
-    backgroundColor: Colors.red,
-    toastLength: Toast.LENGTH_LONG
-  );
+  if (Platform.isAndroid || Platform.isIOS) {
+     Fluttertoast.showToast(
+      msg: "A connection is already in process",
+      textColor: Colors.black,
+      gravity: ToastGravity.BOTTOM,
+      backgroundColor: Colors.red,
+      toastLength: Toast.LENGTH_LONG
+    );
+  }
+ 
   
   return null;
 }
+
+/*
+  This class will go looking for different platform on the network sending 
+  broadcast and getting an answer for each platform
+*/
+
+Future<List<(InternetAddress, int)>> platformDiscovery() async {
+
+  List<(InternetAddress, int)> ipPort = []; 
+  String waitedAnswer = '{"name": "panduza_platform","version": 1.0}';
+
+  await RawDatagramSocket.bind(InternetAddress.anyIPv4, 63500).then((RawDatagramSocket socket) async {
+    
+    socket.broadcastEnabled = true;
+    socket.send(jsonEncode({"search" : true}).codeUnits, InternetAddress("255.255.255.255"), portLocalDiscovery);
+    socket.listen((e) {
+      Datagram? datagram = socket.receive();
+      if (datagram != null) {
+        String answer = String.fromCharCodes(datagram.data);
+        
+        if(answer == waitedAnswer) {
+          if (!ipPort.contains((datagram.address, datagram.port))) ipPort.add((datagram.address, datagram.port));
+        }
+      }
+    });
+
+    await Future.delayed(const Duration(milliseconds: 10));
+    socket.close();
+  });
+
+  await Future.delayed(const Duration(milliseconds: 10));
+
+  return ipPort;
+}
+
+

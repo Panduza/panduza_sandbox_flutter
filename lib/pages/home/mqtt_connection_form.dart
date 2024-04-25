@@ -1,13 +1,13 @@
 import 'dart:async';
+import 'dart:math';
 // import 'dart:convert';
-
 import 'package:flutter/material.dart';
 // import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
 
-import '../userspace_page.dart';
+import 'package:panduza_sandbox_flutter/data/broker_connection_info.dart';
+import 'package:panduza_sandbox_flutter/pages/userspace_page.dart';
 
-import 'dart:math';
 
 class MqttConnectionForm extends StatefulWidget {
   const MqttConnectionForm({Key? key}) : super(key: key);

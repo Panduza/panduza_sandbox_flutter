@@ -10,20 +10,11 @@ import 'package:panduza_sandbox_flutter/data/device_config.dart';
 // import 'userspace/ic_not_managed.dart';
 // import 'userspace/ic_platform.dart';
 
-import '../data/interface_connection.dart';
+import 'package:panduza_sandbox_flutter/data/interface_connection.dart';
 
 // import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 import '../data/platform_config.dart';
-
-// class BrokerConnectionInfo {
-//   String host;
-//   int port;
-
-//   MqttServerClient client;
-
-//   BrokerConnectionInfo(this.host, this.port, this.client);
-// }
 
 class HuntPage extends StatefulWidget {
   HuntPage(this._interfaceConnection, this._platformConfig, {super.key});

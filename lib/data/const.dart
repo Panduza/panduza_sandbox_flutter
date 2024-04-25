@@ -12,3 +12,6 @@ Color grey = const Color(0xFF1E1E1E);
 // Key to get every connection name (each name is used like a key to get the 
 // information of the connection)
 String connectionKey = "connectionName";
+
+const int portLocalDiscovery = 53035;
+const int portReceiveLocalDiscovery = 63008;
