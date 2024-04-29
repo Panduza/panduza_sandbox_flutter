@@ -3,8 +3,7 @@ import 'package:panduza_sandbox_flutter/forms/add_connection_form.dart';
 
 import 'package:panduza_sandbox_flutter/utils_widgets/appBar.dart';
 
-// Page with the 3 choices of adding connection :
-// with manual input, with discovery or with the cloud
+// Page to add a new connection manually
 
 class ManualConnectionPage extends StatelessWidget {
   const ManualConnectionPage({

@@ -2,18 +2,14 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 
 import 'package:panduza_sandbox_flutter/data/const.dart';
-import 'package:panduza_sandbox_flutter/data/company.dart';
 import 'package:panduza_sandbox_flutter/data/rest_request.dart';
-import 'package:panduza_sandbox_flutter/pages/cloud_config_page.dart';
 
 // Form to add a new manual connection 
 // The user can add on his disk a new setup of connection mqtt
 
-class CloudConfigAuthForm extends StatelessWidget {
+class CloudAuthForm extends StatelessWidget {
 
-  const CloudConfigAuthForm({
-    super.key,
-  });
+  const CloudAuthForm({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -33,17 +29,59 @@ class CloudConfigAuthForm extends StatelessWidget {
               TextField(
                 controller: ctrlUsername,
                 // textAlign: TextAlign.center,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'Username',
+                  labelStyle: Theme.of(context).textTheme.labelSmall,
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(
+                      color: white
+                    )
+                  ),
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(
+                      color: blue
+                    )
+                  ),
                 ),
               ),
+              // Password field to authentificate 
               TextField(
                 controller: ctrlPassword,
                 // textAlign: TextAlign.center,
-                decoration: const InputDecoration(
-                  labelText: 'Password'
+                decoration: InputDecoration(
+                  labelText: 'Password',
+                  labelStyle: Theme.of(context).textTheme.labelSmall,
+                  // Color or the container underline when not field not 
+                  // tap
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(
+                      color: white
+                    )
+                  ),
+                  // Color or the container underline when field has been tap
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(
+                      color: blue
+                    )
+                  ),
                 ),
                 obscureText: true,
+              ),
+              Row(
+                children: <Widget>[
+                  TextButton(
+                    child: Text(
+                      "Create a user",
+                      style: TextStyle(
+                        color: blue
+                      ),
+                    ),
+                    onPressed: () {
+                      // send on web page to create a account or ask to the user to buy
+                      // a new admin account for his organization
+                    },
+                  )
+                ],
               )
             ]
           )
@@ -72,6 +110,7 @@ class CloudConfigAuthForm extends StatelessWidget {
                         String brokerPort = responseObject["broker_port"];
                         String certificat = responseObject["certificat"];
 
+                        /*
                         Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -81,6 +120,7 @@ class CloudConfigAuthForm extends StatelessWidget {
                             )
                           ),
                         );
+                        */
                       } else {
                         // mangage error code 
                         print("error with get broker info request : ${brokerInfoResponse.statusCode}");
