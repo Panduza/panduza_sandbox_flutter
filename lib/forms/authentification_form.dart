@@ -40,6 +40,7 @@ class AuthentificationForm extends StatelessWidget {
                 decoration: const InputDecoration(
                   labelText: 'Username',
                 ),
+                style: Theme.of(context).textTheme.displayMedium
               ),
               TextField(
                 controller: ctrlPassword,
@@ -48,6 +49,7 @@ class AuthentificationForm extends StatelessWidget {
                   labelText: 'Password'
                 ),
                 obscureText: true,
+                style: Theme.of(context).textTheme.displayMedium
               )
             ]
           )

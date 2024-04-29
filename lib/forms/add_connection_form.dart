@@ -23,7 +23,7 @@ class AddConnectionForm extends StatelessWidget {
 
     final ctrlName = TextEditingController();
     final ctrlHostIp = TextEditingController(
-      text: ip
+      text: ip,
     );
     final ctrlPort = TextEditingController(
       text: port
@@ -57,7 +57,8 @@ class AddConnectionForm extends StatelessWidget {
                       color: blue
                     )
                   ),
-                )
+                ),
+                style: Theme.of(context).textTheme.displayMedium
               ),
               TextField(
                 controller: ctrlHostIp,
@@ -77,7 +78,8 @@ class AddConnectionForm extends StatelessWidget {
                       color: blue
                     )
                   ),
-                )
+                ),
+                style: Theme.of(context).textTheme.displayMedium
               ),
               TextField(
                 controller: ctrlPort,
@@ -97,7 +99,8 @@ class AddConnectionForm extends StatelessWidget {
                       color: blue
                     )
                   ),
-                )
+                ),
+                style: Theme.of(context).textTheme.displayMedium
               )
             ]
           )
