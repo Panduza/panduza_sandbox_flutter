@@ -3,15 +3,11 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:mqtt_client/mqtt_client.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:udp/udp.dart';
-import 'package:auto_size_text/auto_size_text.dart';
 
 import 'package:panduza_sandbox_flutter/data/const.dart';
-import 'package:panduza_sandbox_flutter/after_setup_pages/manual_connection_page.dart';
 
 late MqttServerClient _client;
 bool _isConnecting = false;
@@ -174,24 +170,30 @@ Future<List<(InternetAddress, int)>> platformDiscovery() async {
   List<(InternetAddress, int)> ipPort = []; 
   String waitedAnswer = '{"name": "panduza_platform","version": 1.0}';
 
-  RawDatagramSocket socket = await RawDatagramSocket.bind(InternetAddress.anyIPv4, 63500);
-  socket.broadcastEnabled = true;
-    
-  socket.listen((e) {
-    Datagram? datagram = socket.receive();
-    if (datagram != null) {
-      String answer = String.fromCharCodes(datagram.data);
-      
-      // Here send the port of platform and not broker, how to get the port of the broker ? 
-      if(answer == waitedAnswer) {
-        if (!ipPort.contains((datagram.address, datagram.port))) ipPort.add((datagram.address, datagram.port));
-      }
-    }
-  });
+  // Could have some problem with some android phone ?
+  List<NetworkInterface> listInterface = await NetworkInterface.list();
+  
+  for (NetworkInterface interface in listInterface) {
+    for (InternetAddress address in interface.addresses) {
+      RawDatagramSocket socket = await RawDatagramSocket.bind(address.address, 63500);
+      socket.broadcastEnabled = true;
+      socket.listen((e) {
+        Datagram? datagram = socket.receive();
+        if (datagram != null) {
+          String answer = String.fromCharCodes(datagram.data);
+          
+          // Here send the port of platform and not broker, how to get the port of the broker ? 
+          if(answer == waitedAnswer) {
+            if (!ipPort.contains((datagram.address, datagram.port))) ipPort.add((datagram.address, datagram.port));
+          }
+        }
+      });
 
-  socket.send(jsonEncode({"search" : true}).codeUnits, InternetAddress("255.255.255.255"), portLocalDiscovery);
-  await Future.delayed(const Duration(milliseconds: 100));
-  socket.close();
+      socket.send(jsonEncode({"search" : true}).codeUnits, InternetAddress("255.255.255.255"), portLocalDiscovery);
+      await Future.delayed(const Duration(milliseconds: 100));
+      socket.close();
+    }
+  }
 
   return ipPort;
 }
