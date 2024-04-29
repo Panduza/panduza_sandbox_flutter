@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:panduza_sandbox_flutter/setup_pages/choice_cloud_self_managed_page.dart';
 import 'package:panduza_sandbox_flutter/data/const.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'pages/home_page.dart';
 import 'data/const.dart';
 
 
@@ -28,14 +28,45 @@ class PanduzaSandboxApp extends StatelessWidget {
     return MaterialApp(
       title: 'Panduza Sandbox',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: black),
-        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: blue
+        ),
+        scaffoldBackgroundColor: grey,
+        textTheme: TextTheme(
+          bodyMedium: TextStyle(
+            color: white
+          ),
+          bodyLarge: TextStyle(
+            fontSize: 20,
+            color: white
+          ),
+          labelSmall: TextStyle(
+            color: white,
+            fontSize: 14
+          ),
+          labelMedium: TextStyle(
+            color: black
+          ),
+          labelLarge: TextStyle(
+            color: blue
+          )
+          // bodySmall: getClassicTextStyle(),
+          // displayLarge: getClassicTextStyle(),
+          // displayMedium: getClassicTextStyle(),
+          // displaySmall: getClassicTextStyle(),
+          // headlineLarge: getClassicTextStyle(),
+          // headlineMedium: getClassicTextStyle(),
+          // headlineSmall: getClassicTextStyle(),
+          // labelLarge: getClassicTextStyle(),
+          // labelSmall: getClassicTextStyle(),
+          // titleLarge: getClassicTextStyle(),
+          // titleMedium: getClassicTextStyle(),
+          // titleSmall: getClassicTextStyle()
+        ),
+        bottomSheetTheme: BottomSheetThemeData(backgroundColor: grey)
       ),
-      // routes: {
-      //   // '/second': (BuildContext context) => SecondPage(),
-      //   // '/userspace': (BuildContext context) => UserspacePage(),
-      // },
-      home: const HomePage(title: 'Panduza Sandbox'),
+      home: ChoiceCloudSelfManagedPage(),
+      
     );
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:panduza_sandbox_flutter/after_setup_pages/connections_page.dart';
 
 import 'package:panduza_sandbox_flutter/data/const.dart';
 import 'package:panduza_sandbox_flutter/data/utils.dart';
@@ -40,34 +41,64 @@ class AddConnectionForm extends StatelessWidget {
             children: <Widget>[
               TextField(
                 controller: ctrlName,
-                // textAlign: TextAlign.center,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'Platform name',
-                ),
+                  labelStyle: Theme.of(context).textTheme.labelSmall,
+                  // Color or the container underline when not field not 
+                  // tap
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(
+                      color: white
+                    )
+                  ),
+                  // Color or the container underline when field has been tap
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(
+                      color: blue
+                    )
+                  ),
+                )
               ),
               TextField(
                 controller: ctrlHostIp,
-                // textAlign: TextAlign.center,
-                decoration: const InputDecoration(
-                  labelText: 'Broker Hostname'
-                ),
+                decoration: InputDecoration(
+                  labelText: 'Broker Hostname',
+                  labelStyle: Theme.of(context).textTheme.labelSmall,
+                  // Color or the container underline when not field not 
+                  // tap
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(
+                      color: white
+                    )
+                  ),
+                  // Color or the container underline when field has been tap
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(
+                      color: blue
+                    )
+                  ),
+                )
               ),
               TextField(
                 controller: ctrlPort,
-                // textAlign: TextAlign.center,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'Broker Port',
-                ),
-              ),
-              // need to manage the isCloud button
-              /*
-              CheckboxListTile(
-                value: isCloud,
-                onChanged: (value) {
-                  isCloud = false;
-                },
-              ),
-              */
+                  labelStyle: Theme.of(context).textTheme.labelSmall,
+                  // Color or the container underline when not field not 
+                  // tap
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(
+                      color: white
+                    )
+                  ),
+                  // Color or the container underline when field has been tap
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(
+                      color: blue
+                    )
+                  ),
+                )
+              )
             ]
           )
         ),
@@ -97,8 +128,12 @@ class AddConnectionForm extends StatelessWidget {
             // add the connection to the home page
             ElevatedButton(
               onPressed: () async {
+                // add connection info on the disk
                 await addConnection(ctrlName.text, ctrlHostIp.text, ctrlPort.text, isCloud);
-                Navigator.of(context).popUntil((route) => route.isFirst);
+                Navigator.push(
+                  context,  
+                  MaterialPageRoute(builder: (context) => const ConnectionsPage())
+                );
               }, 
               style: ButtonStyle(
                 backgroundColor: MaterialStateProperty.all<Color>(blue)

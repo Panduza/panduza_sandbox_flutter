@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
 
 import 'package:panduza_sandbox_flutter/data/broker_connection_info.dart';
-import 'package:panduza_sandbox_flutter/pages/userspace_page.dart';
+import 'package:panduza_sandbox_flutter/after_setup_pages/userspace_page.dart';
 
 
 class MqttConnectionForm extends StatefulWidget {

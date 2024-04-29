@@ -11,7 +11,7 @@ import 'package:udp/udp.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 
 import 'package:panduza_sandbox_flutter/data/const.dart';
-import 'package:panduza_sandbox_flutter/pages/manual_connection_page.dart';
+import 'package:panduza_sandbox_flutter/after_setup_pages/manual_connection_page.dart';
 
 late MqttServerClient _client;
 bool _isConnecting = false;
@@ -174,26 +174,24 @@ Future<List<(InternetAddress, int)>> platformDiscovery() async {
   List<(InternetAddress, int)> ipPort = []; 
   String waitedAnswer = '{"name": "panduza_platform","version": 1.0}';
 
-  await RawDatagramSocket.bind(InternetAddress.anyIPv4, 63500).then((RawDatagramSocket socket) async {
+  RawDatagramSocket socket = await RawDatagramSocket.bind(InternetAddress.anyIPv4, 63500);
+  socket.broadcastEnabled = true;
     
-    socket.broadcastEnabled = true;
-    socket.send(jsonEncode({"search" : true}).codeUnits, InternetAddress("255.255.255.255"), portLocalDiscovery);
-    socket.listen((e) {
-      Datagram? datagram = socket.receive();
-      if (datagram != null) {
-        String answer = String.fromCharCodes(datagram.data);
-        
-        if(answer == waitedAnswer) {
-          if (!ipPort.contains((datagram.address, datagram.port))) ipPort.add((datagram.address, datagram.port));
-        }
+  socket.listen((e) {
+    Datagram? datagram = socket.receive();
+    if (datagram != null) {
+      String answer = String.fromCharCodes(datagram.data);
+      
+      // Here send the port of platform and not broker, how to get the port of the broker ? 
+      if(answer == waitedAnswer) {
+        if (!ipPort.contains((datagram.address, datagram.port))) ipPort.add((datagram.address, datagram.port));
       }
-    });
-
-    await Future.delayed(const Duration(milliseconds: 10));
-    socket.close();
+    }
   });
 
-  await Future.delayed(const Duration(milliseconds: 10));
+  socket.send(jsonEncode({"search" : true}).codeUnits, InternetAddress("255.255.255.255"), portLocalDiscovery);
+  await Future.delayed(const Duration(milliseconds: 100));
+  socket.close();
 
   return ipPort;
 }
