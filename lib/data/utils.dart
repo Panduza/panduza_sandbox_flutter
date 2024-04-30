@@ -162,7 +162,7 @@ Future<MqttServerClient?> tryConnecting(String host, String portStr, String user
 
 /*
   This class will go looking for different platform on the network sending 
-  broadcast and getting an answer for each platform
+  broadcast  with UTF-8 format and getting an answer for each platform
 */
 
 Future<List<(InternetAddress, int)>> platformDiscovery() async {
@@ -180,8 +180,9 @@ Future<List<(InternetAddress, int)>> platformDiscovery() async {
       socket.listen((e) {
         Datagram? datagram = socket.receive();
         if (datagram != null) {
-          String answer = String.fromCharCodes(datagram.data);
-          
+          // String answer = String.fromCharCodes(datagram.data);
+          String answer = utf8.decode(datagram.data);
+
           // Here send the port of platform and not broker, how to get the port of the broker ? 
           if(answer == waitedAnswer) {
             if (!ipPort.contains((datagram.address, datagram.port))) ipPort.add((datagram.address, datagram.port));
@@ -189,7 +190,8 @@ Future<List<(InternetAddress, int)>> platformDiscovery() async {
         }
       });
 
-      socket.send(jsonEncode({"search" : true}).codeUnits, InternetAddress("255.255.255.255"), portLocalDiscovery);
+      // socket.send(jsonEncode({"search" : true}).codeUnits, InternetAddress("255.255.255.255"), portLocalDiscovery);
+      socket.send(utf8.encode(jsonEncode({"search" : true})), InternetAddress("255.255.255.255"), portLocalDiscovery);
       await Future.delayed(const Duration(milliseconds: 100));
       socket.close();
     }
