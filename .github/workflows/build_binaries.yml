@@ -3,7 +3,7 @@
 # separate terms of service, privacy policy, and support
 # documentation.
 
-name: Dart
+name: Build Binaries 
 
 on:
   push:
@@ -32,5 +32,4 @@ jobs:
         with:
           name: apk
           path: build/app/outputs/flutter-apk/app-release.apk
-          compression-level: 0 # no compression
 
