@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:panduza_sandbox_flutter/after_setup_pages/add_connection_page.dart';
 
 import 'package:panduza_sandbox_flutter/data/const.dart';
+import 'package:panduza_sandbox_flutter/after_setup_pages/connections_page.dart';
+import 'package:panduza_sandbox_flutter/forms/add_connection_form.dart';
 import 'package:panduza_sandbox_flutter/setup_pages/cloud_config_auth_page.dart';
 import 'package:panduza_sandbox_flutter/utils_widgets/appBar.dart';
+import 'package:panduza_sandbox_flutter/utils_widgets/utils_widgets.dart';
 
 // Page to give the choice between use the panduza cloud or 
 // use a broker the user has himself init (self-managed broker)
@@ -22,57 +24,11 @@ class AddCloudOrSelfManaged extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            SizedBox(
-              width: MediaQuery.sizeOf(context).width / 1.1,
-              height: MediaQuery.sizeOf(context).height / 5,
-              child: TextButton(
-                style: ButtonStyle (
-                  backgroundColor: MaterialStateProperty.all<Color>(black)
-                ),
-                onPressed: () {
-                  // Go to cloud Authentification page
-                  Navigator.push(
-                    context, 
-                    MaterialPageRoute(builder: (context) => const CloudAuthPage())
-                  );
-                },
-                child: AutoSizeText(
-                  'Panduza Cloud',
-                  style: TextStyle(
-                    fontSize: 20,
-                    color: white
-                  ),
-                  maxLines: 1,
-                )
-              ),
-            ),
+            getTransitionButton(context, const CloudAuthPage(), panduzaCloudInfo, 'Panduza Cloud'),
             SizedBox(
               height: MediaQuery.sizeOf(context).height / 13
             ),
-            SizedBox(
-              width: MediaQuery.sizeOf(context).width / 1.1,
-              height: MediaQuery.sizeOf(context).height / 5,
-              child: TextButton(
-                style: ButtonStyle (
-                  backgroundColor: MaterialStateProperty.all<Color>(black)
-                ),
-                onPressed: () {
-                  // Go to cloud Local discovery page (with option to activate manual broker info)
-                  Navigator.push(
-                    context, 
-                    MaterialPageRoute(builder: (context) => const AddConnectionPage())
-                  );
-                },
-                child: AutoSizeText(
-                  'Self-Managed Broker',
-                  style: TextStyle(
-                    fontSize: 20,
-                    color: white
-                  ),
-                  maxLines: 1,
-                )
-              ),
-            )
+            getTransitionButton(context, const AddConnectionPage(), selfManagedBrokerInfo, 'Self-Managed Broker')
           ],
         ),
       )

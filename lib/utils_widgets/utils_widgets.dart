@@ -152,8 +152,90 @@ Widget getCloudOrLocalIcon(String isCloud) {
   );
 }
 
-// Connection list display on the home page load from the disk
+// Button to go to another page with info icon 
+Widget getTransitionButton(BuildContext context, Widget page, String pageInfo, String buttonLabel) {
+  return Container(
+    decoration: const BoxDecoration(
+      color: Colors.black,
+      borderRadius: BorderRadius.all(
+        Radius.circular(90)
+      )
+    ),
+    child: SizedBox(
+      width: MediaQuery.sizeOf(context).width / 1.1,
+      height: MediaQuery.sizeOf(context).height / 5,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Expanded(
+            child: SizedBox(
+              width: MediaQuery.sizeOf(context).width / 1.1,
+              height: MediaQuery.sizeOf(context).height / 5,
+              child: ElevatedButton(
+                style: ButtonStyle (
+                  backgroundColor: MaterialStateProperty.all<Color>(black)
+                ),
+                onPressed: () {
+                  // Go to cloud Authentification page
+                  Navigator.push(
+                    context, 
+                    MaterialPageRoute(builder: (context) => page)
+                  );
+                },
+                child: AutoSizeText(
+                  buttonLabel,
+                  style: TextStyle(
+                    fontSize: 20,
+                    color: white
+                  ),
+                  maxLines: 1,
+                )
+              ),
+            )
+          ),
+          SizedBox(
+            width: 50,
+            child: Tooltip(
+              message: pageInfo,
+              child: Icon(
+                Icons.info,
+                color: blue,
+              ),
+            ),
+          )
+        ],
+      )
+    ), 
+  );
+}
 
+// Basic visual of a text field
+Widget getSimpleTextField(BuildContext context, TextEditingController ctrl, 
+    String label) {
+  return TextField(
+    controller: ctrl,
+    decoration: InputDecoration(
+      labelText: label,
+      labelStyle: Theme.of(context).textTheme.labelSmall,
+      // Color or the container underline when not field not 
+      // tap
+      enabledBorder: UnderlineInputBorder(
+        borderSide: BorderSide(
+          color: white
+        )
+      ),
+      // Color or the container underline when field has been tap
+      focusedBorder: UnderlineInputBorder(
+        borderSide: BorderSide(
+          color: blue
+        )
+      ),
+    ),
+    style: Theme.of(context).textTheme.displayMedium
+  );
+}
+
+// Connection list display on the home page load from the disk
 Widget getConnectionsButtonsList(SharedPreferences prefs, List<String> platformNames,
     BuildContext context, State<ConnectionsPage> state) {
   return ListView.separated(
