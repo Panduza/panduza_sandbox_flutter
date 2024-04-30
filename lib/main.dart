@@ -54,7 +54,8 @@ class PanduzaSandboxApp extends StatelessWidget {
           // displayLarge: getClassicTextStyle(),
           displayMedium: TextStyle(
             color: white,
-            fontSize: 18
+            fontSize: 18,
+            height: 2
           ),
           // displaySmall: getClassicTextStyle(),
           // headlineLarge: getClassicTextStyle(),

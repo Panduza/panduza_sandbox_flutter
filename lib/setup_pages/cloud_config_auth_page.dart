@@ -15,7 +15,7 @@ class CloudAuthPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       // bar at the top of the application
-      appBar: getAppBar("Cloud config authentification"),
+      appBar: getAppBar("Cloud authentification"),
       body: const Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
