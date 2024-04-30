@@ -3,6 +3,7 @@ import 'package:panduza_sandbox_flutter/after_setup_pages/connections_page.dart'
 
 import 'package:panduza_sandbox_flutter/data/const.dart';
 import 'package:panduza_sandbox_flutter/data/utils.dart';
+import 'package:panduza_sandbox_flutter/utils_widgets/utils_widgets.dart';
 
 // Form to add a new manual connection 
 // The user can add on his disk a new setup of connection mqtt
@@ -39,69 +40,9 @@ class AddConnectionForm extends StatelessWidget {
           ),
           child: Column(
             children: <Widget>[
-              TextField(
-                controller: ctrlName,
-                decoration: InputDecoration(
-                  labelText: 'Platform name',
-                  labelStyle: Theme.of(context).textTheme.labelSmall,
-                  // Color or the container underline when not field not 
-                  // tap
-                  enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(
-                      color: white
-                    )
-                  ),
-                  // Color or the container underline when field has been tap
-                  focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(
-                      color: blue
-                    )
-                  ),
-                ),
-                style: Theme.of(context).textTheme.displayMedium
-              ),
-              TextField(
-                controller: ctrlHostIp,
-                decoration: InputDecoration(
-                  labelText: 'Broker Hostname',
-                  labelStyle: Theme.of(context).textTheme.labelSmall,
-                  // Color or the container underline when not field not 
-                  // tap
-                  enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(
-                      color: white
-                    )
-                  ),
-                  // Color or the container underline when field has been tap
-                  focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(
-                      color: blue
-                    )
-                  ),
-                ),
-                style: Theme.of(context).textTheme.displayMedium
-              ),
-              TextField(
-                controller: ctrlPort,
-                decoration: InputDecoration(
-                  labelText: 'Broker Port',
-                  labelStyle: Theme.of(context).textTheme.labelSmall,
-                  // Color or the container underline when not field not 
-                  // tap
-                  enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(
-                      color: white
-                    )
-                  ),
-                  // Color or the container underline when field has been tap
-                  focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(
-                      color: blue
-                    )
-                  ),
-                ),
-                style: Theme.of(context).textTheme.displayMedium
-              )
+              getSimpleTextField(context, ctrlName, 'Platform name'),
+              getSimpleTextField(context, ctrlHostIp, 'Broker Hostname'),
+              getSimpleTextField(context, ctrlPort, 'Broker Port'),
             ]
           )
         ),

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'package:panduza_sandbox_flutter/data/const.dart';
 import 'package:panduza_sandbox_flutter/data/rest_request.dart';
+import 'package:panduza_sandbox_flutter/utils_widgets/utils_widgets.dart';
 
 // Form to add a new manual connection 
 // The user can add on his disk a new setup of connection mqtt
@@ -26,47 +27,9 @@ class CloudAuthForm extends StatelessWidget {
           ),
           child: Column(
             children: <Widget>[
-              TextField(
-                controller: ctrlUsername,
-                // textAlign: TextAlign.center,
-                decoration: InputDecoration(
-                  labelText: 'Username',
-                  labelStyle: Theme.of(context).textTheme.labelSmall,
-                  enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(
-                      color: white
-                    )
-                  ),
-                  focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(
-                      color: blue
-                    )
-                  ),
-                ),
-              ),
+              getSimpleTextField(context, ctrlUsername, 'Username'),
               // Password field to authentificate 
-              TextField(
-                controller: ctrlPassword,
-                // textAlign: TextAlign.center,
-                decoration: InputDecoration(
-                  labelText: 'Password',
-                  labelStyle: Theme.of(context).textTheme.labelSmall,
-                  // Color or the container underline when not field not 
-                  // tap
-                  enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(
-                      color: white
-                    )
-                  ),
-                  // Color or the container underline when field has been tap
-                  focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(
-                      color: blue
-                    )
-                  ),
-                ),
-                obscureText: true,
-              ),
+              getSimpleTextField(context, ctrlPassword, 'Password'),
               Row(
                 children: <Widget>[
                   TextButton(

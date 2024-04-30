@@ -8,8 +8,8 @@ import 'package:panduza_sandbox_flutter/utils_widgets/appBar.dart';
 class ManualConnectionPage extends StatelessWidget {
   const ManualConnectionPage({
     super.key,
-    required this.ip, 
-    required this.port, 
+    this.ip = "",  
+    this.port = "", 
   });
 
   final String ip;
