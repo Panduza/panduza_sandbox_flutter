@@ -32,5 +32,5 @@ jobs:
         with:
           name: apk
           path: build/app/outputs/flutter-apk/app-release.apk
-
+          compression-level: 0 # no compression
 
