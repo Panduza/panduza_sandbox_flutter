@@ -7,8 +7,8 @@ import 'package:panduza_sandbox_flutter/data/const.dart';
 import 'package:panduza_sandbox_flutter/utils_widgets/appBar.dart';
 import 'package:panduza_sandbox_flutter/utils_widgets/utils_widgets.dart';
 
-// Page with the 3 choices of adding connection :
-// with manual input, with discovery or with the cloud
+// Page with the 2 choices of adding connection :
+// with manual input, with discovery
 
 class AddConnectionPage extends StatelessWidget {
   const AddConnectionPage({
@@ -20,18 +20,20 @@ class AddConnectionPage extends StatelessWidget {
     return Scaffold(
       // bar at the top of the application
       appBar: getAppBar("Add self-managed broker"),
-      body: Center(
-        child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              getTransitionButton(context, const ManualConnectionPage(), manualAddBrokerInfo, "Manual broker"),
-              SizedBox(
-                height: MediaQuery.sizeOf(context).height / 13
-              ),
-              getTransitionButton(context, const DiscoveryPage(), localDiscoveryInfo, "Local discovery")
-            ],
-        ),
-      ),
+      body: getBasicLayoutDynamic(
+        context,
+        page: const ManualConnectionPage(),
+        title: "Add broker manually",
+        icon:  Icons.keyboard_outlined,
+        buttonLabel: "Add my broker",
+        description: manualAddBrokerInfo,
+
+        page2: const DiscoveryPage(), 
+        title2: "Local discovery broker",
+        icon2: Icons.wifi_find_outlined,
+        buttonLabel2: "Discover my brokers",
+        description2: localDiscoveryInfo
+      )
     );
-  }
+  } 
 }

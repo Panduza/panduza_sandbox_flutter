@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:http/http.dart';
 import 'package:panduza_sandbox_flutter/after_setup_pages/connections_page.dart';
+import 'package:panduza_sandbox_flutter/setup_pages/cloud_config_auth_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:panduza_sandbox_flutter/data/const.dart';
@@ -152,60 +153,207 @@ Widget getCloudOrLocalIcon(String isCloud) {
   );
 }
 
-// Button to go to another page with info icon 
-Widget getTransitionButton(BuildContext context, Widget page, String pageInfo, String buttonLabel) {
-  return Container(
-    decoration: const BoxDecoration(
-      color: Colors.black,
-      borderRadius: BorderRadius.all(
-        Radius.circular(90)
-      )
-    ),
-    child: SizedBox(
-      width: MediaQuery.sizeOf(context).width / 1.1,
-      height: MediaQuery.sizeOf(context).height / 5,
+// Get the layout of button when user has a big screen
+Widget getBasicLayoutDynamic(BuildContext context, {required Widget page, required String title, 
+    required IconData icon, required String buttonLabel, required String description, required Widget page2, 
+    required String title2, required IconData icon2, required String buttonLabel2, 
+    required String description2}) {
+
+  double width = 300;
+  double height = 300;
+  double iconSize = 60;
+
+  if (MediaQuery.sizeOf(context).width > 700 && MediaQuery.sizeOf(context).height > 300) {
+    width = 300;
+    height = 300;
+    iconSize = 120;
+  } else {
+    width = 250;
+    height = 200;
+    iconSize = 60;
+  }
+
+  if (width == 300 && height == 300 && iconSize == 120) {
+    return Center(
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: <Widget>[
-          Expanded(
-            child: SizedBox(
-              width: MediaQuery.sizeOf(context).width / 1.1,
-              height: MediaQuery.sizeOf(context).height / 5,
-              child: ElevatedButton(
-                style: ButtonStyle (
-                  backgroundColor: MaterialStateProperty.all<Color>(black)
-                ),
-                onPressed: () {
-                  // Go to cloud Authentification page
-                  Navigator.push(
-                    context, 
-                    MaterialPageRoute(builder: (context) => page)
-                  );
-                },
-                child: AutoSizeText(
-                  buttonLabel,
-                  style: TextStyle(
-                    fontSize: 20,
-                    color: white
-                  ),
-                  maxLines: 1,
-                )
-              ),
-            )
-          ),
-          SizedBox(
-            width: 50,
-            child: Tooltip(
-              message: pageInfo,
-              child: Icon(
-                Icons.info,
-                color: blue,
-              ),
+          // get the button to go to the login page of cloud 
+          // with info icon to get the information giving details
+          // on what the cloud can currently offer 
+          getTransitionButton(
+            context,
+            page,
+            // "Panduza Cloud",
+            title,
+            Icon(
+              icon,
+              color: white,
+              size: 120,
             ),
+            buttonLabel,
+            description,
+            width,
+            height,
+            titleFontSize: 24,
+            descriptionFontSize: 14
+          ),
+          const SizedBox(
+            height: 30
+          ),
+          // get the button to go to the page to add a self managed
+          // broker or if a connection already exist go to the connections page 
+          // with a info icon to precise what is a self managed broker 
+          getTransitionButton(
+            context,
+            page2, 
+            // "Self-Managed Broker",
+            title2,
+            Icon(
+              icon2,
+              color: white,
+              size: 120,
+            ),
+            buttonLabel2,
+            description2,
+            width,
+            height,
+            titleFontSize: 24,
+            descriptionFontSize: 14
           )
         ],
+      ),
+    );
+  }
+
+  return Center(
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        // get the button to go to the login page of cloud 
+        // with info icon to get the information giving details
+        // on what the cloud can currently offer 
+        getTransitionButton(
+          context,
+          page,
+          // "Panduza Cloud",
+          title,
+          Icon(
+            icon,
+            color: white,
+            size: 60,
+          ),
+          buttonLabel,
+          description,
+          width,
+          height,
+          titleFontSize: 18,
+          descriptionFontSize: 12
+        ),
+        const SizedBox(
+          height: 30
+        ),
+        // get the button to go to the page to add a self managed
+        // broker or if a connection already exist go to the connections page 
+        // with a info icon to precise what is a self managed broker 
+        getTransitionButton(
+          context,
+          page2, 
+          // "Self-Managed Broker",
+          title2,
+          Icon(
+            icon2,
+            color: white,
+            size: 60,
+          ),
+          buttonLabel2,
+          description2,
+          width,
+          height,
+          titleFontSize: 18,
+          descriptionFontSize: 12
+        )
+      ],
+    ),
+  );
+}
+
+// Button to go to another page 
+Widget getTransitionButton(BuildContext context, Widget page, String title, Icon icon,
+    String buttonLabel, String description, double width, double height, {
+      double titleFontSize = 24, double descriptionFontSize = 14
+    }) {
+  return Container (
+    // height: MediaQuery.sizeOf(context).height / 2,
+    // width: MediaQuery.sizeOf(context).width / 3,
+    width: width,
+    height: height,
+    decoration: BoxDecoration(
+      color: black,
+      borderRadius: const BorderRadius.all(
+        Radius.circular(12)
       )
-    ), 
+    ),
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        const SizedBox(
+          height: 10,
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: <Widget>[
+            const SizedBox(
+              width: 20
+            ),
+            Text(
+              // "Self-Managed Broker",
+              title,
+              style: TextStyle(
+                fontSize: titleFontSize,
+                color: white
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(
+          height: 10,
+        ),
+        icon,
+        AutoSizeText(
+          description,
+          style: TextStyle(
+            fontSize: descriptionFontSize,
+            color: white
+          ),
+          maxLines: 1,
+        ),
+        const SizedBox(
+          height: 15,
+        ),
+        FilledButton(
+          onPressed: () {
+            Navigator.push(
+              context, 
+              MaterialPageRoute(builder: (context) => page)
+            );
+          },
+          style: ButtonStyle(
+            backgroundColor: MaterialStateProperty.all<Color>(blue)
+          ),
+          child: Text(
+            // 'Append',
+            buttonLabel,
+            style: TextStyle(
+              color: black
+            ),
+          ),
+        ),
+        const SizedBox(
+          height: 10,
+        ),
+      ],
+    ),
   );
 }
 
@@ -303,6 +451,8 @@ Widget getConnectionsButtonsList(SharedPreferences prefs, List<String> platformN
                   ).then((value) {
                     client.disconnect();
                   });
+                } else {
+                  showMyDialogError(context, "Connection to the broker failed");
                 }
               });
             }

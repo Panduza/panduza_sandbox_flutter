@@ -17,20 +17,23 @@ class AddCloudOrSelfManaged extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       // bar at the top of the application
       appBar: getAppBar("Add self-mangaged broker or use cloud ?"),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            getTransitionButton(context, const CloudAuthPage(), panduzaCloudInfo, 'Panduza Cloud'),
-            SizedBox(
-              height: MediaQuery.sizeOf(context).height / 13
-            ),
-            getTransitionButton(context, const AddConnectionPage(), selfManagedBrokerInfo, 'Self-Managed Broker')
-          ],
-        ),
+      body: getBasicLayoutDynamic(
+        context,
+        page: const CloudAuthPage(),
+        title: "Panduza Cloud",
+        icon: Icons.cloud_outlined,
+        buttonLabel: "Connect",
+        description: panduzaCloudInfo,
+
+        page2: const AddConnectionPage(), 
+        title2: "Self-Managed Broker",
+        icon2: Icons.broadcast_on_personal_outlined,
+        buttonLabel2: "Append",
+        description2: selfManagedBrokerInfo
       )
     );
   }
