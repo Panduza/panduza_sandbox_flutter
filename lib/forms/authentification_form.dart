@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:panduza_sandbox_flutter/data/const.dart';
 import 'package:panduza_sandbox_flutter/data/utils.dart';
 import 'package:panduza_sandbox_flutter/data/broker_connection_info.dart';
-import 'package:panduza_sandbox_flutter/pages/userspace_page.dart';
+import 'package:panduza_sandbox_flutter/after_setup_pages/userspace_page.dart';
 
 // Form to add a new manual connection 
 // The user can add on his disk a new setup of connection mqtt
@@ -40,6 +40,7 @@ class AuthentificationForm extends StatelessWidget {
                 decoration: const InputDecoration(
                   labelText: 'Username',
                 ),
+                style: Theme.of(context).textTheme.displayMedium
               ),
               TextField(
                 controller: ctrlPassword,
@@ -48,6 +49,7 @@ class AuthentificationForm extends StatelessWidget {
                   labelText: 'Password'
                 ),
                 obscureText: true,
+                style: Theme.of(context).textTheme.displayMedium
               )
             ]
           )
@@ -86,9 +88,7 @@ class AuthentificationForm extends StatelessWidget {
               ),
               child: Text(
                 'CONNECT',
-                style: TextStyle(
-                  color: black
-                ),
+                style: Theme.of(context).textTheme.labelMedium
               ),
             )
           ],

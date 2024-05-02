@@ -15,3 +15,9 @@ String connectionKey = "connectionName";
 
 const int portLocalDiscovery = 53035;
 const int portReceiveLocalDiscovery = 63008;
+
+// String of info panduza cloud and self managed broker
+const String panduzaCloudInfo = "Use the power of Panduza Cloud";
+const String selfManagedBrokerInfo = "Append a connection to your own broker";
+const String localDiscoveryInfo = "Discover your brokers usings local platform";
+const String manualAddBrokerInfo = "Enter your own broker info";

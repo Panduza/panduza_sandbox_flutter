@@ -4,7 +4,7 @@ import '../../data/interface_connection.dart';
 import 'dart:convert';
 import 'templates.dart';
 
-import '../../pages/platform_page.dart';
+import '../after_setup_pages/platform_page.dart';
 
 class IcPlatform extends StatefulWidget {
   IcPlatform(this._interfaceConnection);
