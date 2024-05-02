@@ -3,15 +3,11 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:mqtt_client/mqtt_client.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:udp/udp.dart';
-import 'package:auto_size_text/auto_size_text.dart';
 
 import 'package:panduza_sandbox_flutter/data/const.dart';
-import 'package:panduza_sandbox_flutter/pages/manual_connection_page.dart';
 
 late MqttServerClient _client;
 bool _isConnecting = false;
@@ -19,9 +15,50 @@ final _chars =
     'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
 final Random _rnd = Random();
 
+// Check If any connection already with this same name in the preferences (data on the disk)
+Future<bool> checkIfConnectionNameExist(String newConnectionName) async {
+  SharedPreferences pref = await SharedPreferences.getInstance();
 
-Future<SharedPreferences> getPreferences() async {
-  return await SharedPreferences.getInstance();
+  // if any connection can't have a another connection with same name
+  List<String>? connections = pref.getStringList(connectionKey);
+  if (connections == null) {
+    return false;
+  }
+
+  if (connections.contains(newConnectionName)) {
+    return true;
+  }
+
+  return false;
+}
+
+
+// Check If any connection with the same ip/port already exist in the preferences 
+// (data on the disk)
+Future<bool> checkIfPortIpExist(String hostIp, String port) async {
+  SharedPreferences pref = await SharedPreferences.getInstance();
+
+  List<String>? connections = pref.getStringList(connectionKey);
+
+  // if any connection can't have a another connection with same ip/port
+  if (connections == null) {
+    return false;
+  }
+
+  // Look for every connection if there is one with the same ip/port already existing
+  for (String connectionName in connections) {
+    List<String>? infoConnection = pref.getStringList(connectionName);
+    // the information of the connection is supposed always exist while 
+    // his name is stocked in the connection names list
+    if (infoConnection == null) {
+      continue;
+    }
+    if (infoConnection[1] == hostIp && infoConnection[2] == port) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 // Add a connection on the disk if the name hasn't been used
@@ -38,9 +75,6 @@ Future<void> addConnection(String name, String hostIp,
     } else {
       pref.setStringList(name, [name, hostIp, port, "0"]);
     }
-    
-
-    // print(pref.containsKey(connectionKey));
 
     if (pref.containsKey(connectionKey) == false) {
       await pref.setStringList(connectionKey, [name]);
@@ -164,9 +198,35 @@ Future<MqttServerClient?> tryConnecting(String host, String portStr, String user
   return null;
 }
 
+// If user mistake show a pop up to describe his mistake with 
+// a okay button to make it dissapear
+void showMyDialogError(BuildContext context, String textError) {
+  showDialog(
+    context: context, 
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text(textError),
+        actions: <Widget>[
+          Center(
+            child: TextButton(
+              style: TextButton.styleFrom(
+                textStyle: Theme.of(context).textTheme.labelLarge,
+              ),
+              child: const Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          )
+        ],
+      );
+    }
+  );
+}
+
 /*
   This class will go looking for different platform on the network sending 
-  broadcast and getting an answer for each platform
+  broadcast  with UTF-8 format and getting an answer for each platform
 */
 
 Future<List<(InternetAddress, int)>> platformDiscovery() async {
@@ -174,26 +234,36 @@ Future<List<(InternetAddress, int)>> platformDiscovery() async {
   List<(InternetAddress, int)> ipPort = []; 
   String waitedAnswer = '{"name": "panduza_platform","version": 1.0}';
 
-  await RawDatagramSocket.bind(InternetAddress.anyIPv4, 63500).then((RawDatagramSocket socket) async {
-    
-    socket.broadcastEnabled = true;
-    socket.send(jsonEncode({"search" : true}).codeUnits, InternetAddress("255.255.255.255"), portLocalDiscovery);
-    socket.listen((e) {
-      Datagram? datagram = socket.receive();
-      if (datagram != null) {
-        String answer = String.fromCharCodes(datagram.data);
-        
-        if(answer == waitedAnswer) {
-          if (!ipPort.contains((datagram.address, datagram.port))) ipPort.add((datagram.address, datagram.port));
+  // Could have some problem with some android phone ?
+  List<NetworkInterface> listInterface = await NetworkInterface.list();
+  
+  for (NetworkInterface interface in listInterface) {
+    for (InternetAddress address in interface.addresses) {
+      RawDatagramSocket socket = await RawDatagramSocket.bind(address.address, 63500);
+      socket.broadcastEnabled = true;
+      socket.listen((e) {
+        Datagram? datagram = socket.receive();
+        if (datagram != null) {
+          // String answer = String.fromCharCodes(datagram.data);
+          String answer = utf8.decode(datagram.data);
+
+          // Here send the port of platform and not broker, how to get the port of the broker ? 
+          if(answer == waitedAnswer) {
+            if (!ipPort.contains((datagram.address, datagram.port))) ipPort.add((datagram.address, datagram.port));
+          }
         }
+      });
+
+      try {
+        socket.send(utf8.encode(jsonEncode({"search" : true})), InternetAddress("255.255.255.255"), portLocalDiscovery);
+      } on SocketException catch(e) {
+        print("Local discovery on ${e.address}:${e.port} failed, error code = ${e.osError?.errorCode}, ${e.osError?.message}");
       }
-    });
-
-    await Future.delayed(const Duration(milliseconds: 10));
-    socket.close();
-  });
-
-  await Future.delayed(const Duration(milliseconds: 10));
+      
+      await Future.delayed(const Duration(milliseconds: 100));
+      socket.close();
+    }
+  }
 
   return ipPort;
 }

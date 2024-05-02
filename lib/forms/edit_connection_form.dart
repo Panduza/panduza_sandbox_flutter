@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:panduza_sandbox_flutter/pages/home_page.dart';
 
 import 'package:panduza_sandbox_flutter/data/const.dart';
 import 'package:panduza_sandbox_flutter/data/utils.dart';
+import 'package:panduza_sandbox_flutter/utils_widgets/utils_widgets.dart';
 
 // Form to edit a existing connection
 
@@ -39,37 +39,9 @@ class EditConnectionForm extends StatelessWidget {
           ),
           child: Column(
             children: <Widget>[
-              TextField(
-                controller: ctrlName,
-                // textAlign: TextAlign.center,
-                decoration: const InputDecoration(
-                  labelText: 'Platform name',
-                ),
-                
-              ),
-              TextField(
-                controller: ctrlHostIp,
-                // textAlign: TextAlign.center,
-                decoration: const InputDecoration(
-                  labelText: 'Broker Hostname'
-                ),
-              ),
-              TextField(
-                controller: ctrlPort,
-                // textAlign: TextAlign.center,
-                decoration: const InputDecoration(
-                  labelText: 'Broker Port',
-                ),
-              ),
-              // need to manage the isCloud button
-              /*
-              CheckboxListTile(
-                value: isCloud,
-                onChanged: (value) {
-                  isCloud = false;
-                },
-              ),
-              */
+              getSimpleTextField(context, ctrlName, 'Connection Name'),
+              getSimpleTextField(context, ctrlHostIp, 'Broker Hostname'),
+              getSimpleTextField(context, ctrlPort, 'Broker Port'),
             ]
           )
         ),

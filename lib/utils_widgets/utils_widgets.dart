@@ -3,15 +3,18 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:http/http.dart';
+import 'package:panduza_sandbox_flutter/after_setup_pages/connections_page.dart';
+import 'package:panduza_sandbox_flutter/setup_pages/cloud_config_auth_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:panduza_sandbox_flutter/data/const.dart';
-import 'package:panduza_sandbox_flutter/pages/edit_page.dart';
-import 'package:panduza_sandbox_flutter/pages/home_page.dart';
-import 'package:panduza_sandbox_flutter/pages/manual_connection_page.dart';
-import 'package:panduza_sandbox_flutter/pages/first_user_creation_page.dart';
+import 'package:panduza_sandbox_flutter/data/broker_connection_info.dart';
+import 'package:panduza_sandbox_flutter/after_setup_pages/userspace_page.dart';
+import 'package:panduza_sandbox_flutter/after_setup_pages/edit_page.dart';
+import 'package:panduza_sandbox_flutter/after_setup_pages/manual_connection_page.dart';
+import 'package:panduza_sandbox_flutter/data/utils.dart';
 import 'package:panduza_sandbox_flutter/data/rest_request.dart';
-import 'package:panduza_sandbox_flutter/pages/authentification_page.dart';
+import 'package:panduza_sandbox_flutter/setup_pages/authentification_page.dart';
 
 // on the home page content of each connection button 
 // displaying the name, the host ip and the port 
@@ -36,9 +39,6 @@ Widget getConnectionButton(SharedPreferences prefs, List<String> platformNames,
         ),
         AutoSizeText(
           '${(prefs.getStringList(platformNames[index]) as List<String>)[1]}',
-          style: TextStyle(
-            color: white
-          ),
           maxLines: 1,
         ),
         const SizedBox(
@@ -46,9 +46,6 @@ Widget getConnectionButton(SharedPreferences prefs, List<String> platformNames,
         ),
         AutoSizeText(
           '${(prefs.getStringList(platformNames[index]) as List<String>)[2]}',
-          style: TextStyle(
-            color: white
-          ),
           maxLines: 1,
         )
       ],
@@ -60,7 +57,7 @@ Widget getConnectionButton(SharedPreferences prefs, List<String> platformNames,
 // Icon to edit a connection on the home page
 
 Widget getEditConnectionButton(SharedPreferences prefs, List<String> platformNames,
-    int index, BuildContext context, State<HomePage> state){
+    int index, BuildContext context, State<ConnectionsPage> state){
   return IconButton(
     onPressed: () async {
       await Navigator.push(
@@ -89,7 +86,7 @@ Widget getEditConnectionButton(SharedPreferences prefs, List<String> platformNam
 // (on the home page)
 
 Widget getDeleteConnectionButton(SharedPreferences prefs, List<String> platformNames,
-    int index, BuildContext context, State<HomePage> state) {
+    int index, BuildContext context, State<ConnectionsPage> state) {
   return IconButton(
     onPressed: () {
       showDialog(
@@ -156,10 +153,239 @@ Widget getCloudOrLocalIcon(String isCloud) {
   );
 }
 
-// Connection list display on the home page load from the disk
+// Get the layout of button when user has a big screen
+Widget getBasicLayoutDynamic(BuildContext context, {required Widget page, required String title, 
+    required IconData icon, required String buttonLabel, required String description, required Widget page2, 
+    required String title2, required IconData icon2, required String buttonLabel2, 
+    required String description2}) {
 
+  double width = 300;
+  double height = 300;
+  double iconSize = 60;
+
+  if (MediaQuery.sizeOf(context).width > 700 && MediaQuery.sizeOf(context).height > 300) {
+    width = 300;
+    height = 300;
+    iconSize = 120;
+  } else {
+    width = 250;
+    height = 200;
+    iconSize = 60;
+  }
+
+  if (width == 300 && height == 300 && iconSize == 120) {
+    return Center(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: <Widget>[
+          // get the button to go to the login page of cloud 
+          // with info icon to get the information giving details
+          // on what the cloud can currently offer 
+          getTransitionButton(
+            context,
+            page,
+            // "Panduza Cloud",
+            title,
+            Icon(
+              icon,
+              color: white,
+              size: 120,
+            ),
+            buttonLabel,
+            description,
+            width,
+            height,
+            titleFontSize: 24,
+            descriptionFontSize: 14
+          ),
+          const SizedBox(
+            height: 30
+          ),
+          // get the button to go to the page to add a self managed
+          // broker or if a connection already exist go to the connections page 
+          // with a info icon to precise what is a self managed broker 
+          getTransitionButton(
+            context,
+            page2, 
+            // "Self-Managed Broker",
+            title2,
+            Icon(
+              icon2,
+              color: white,
+              size: 120,
+            ),
+            buttonLabel2,
+            description2,
+            width,
+            height,
+            titleFontSize: 24,
+            descriptionFontSize: 14
+          )
+        ],
+      ),
+    );
+  }
+
+  return Center(
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        // get the button to go to the login page of cloud 
+        // with info icon to get the information giving details
+        // on what the cloud can currently offer 
+        getTransitionButton(
+          context,
+          page,
+          // "Panduza Cloud",
+          title,
+          Icon(
+            icon,
+            color: white,
+            size: 60,
+          ),
+          buttonLabel,
+          description,
+          width,
+          height,
+          titleFontSize: 18,
+          descriptionFontSize: 12
+        ),
+        const SizedBox(
+          height: 30
+        ),
+        // get the button to go to the page to add a self managed
+        // broker or if a connection already exist go to the connections page 
+        // with a info icon to precise what is a self managed broker 
+        getTransitionButton(
+          context,
+          page2, 
+          // "Self-Managed Broker",
+          title2,
+          Icon(
+            icon2,
+            color: white,
+            size: 60,
+          ),
+          buttonLabel2,
+          description2,
+          width,
+          height,
+          titleFontSize: 18,
+          descriptionFontSize: 12
+        )
+      ],
+    ),
+  );
+}
+
+// Button to go to another page 
+Widget getTransitionButton(BuildContext context, Widget page, String title, Icon icon,
+    String buttonLabel, String description, double width, double height, {
+      double titleFontSize = 24, double descriptionFontSize = 14
+    }) {
+  return Container (
+    // height: MediaQuery.sizeOf(context).height / 2,
+    // width: MediaQuery.sizeOf(context).width / 3,
+    width: width,
+    height: height,
+    decoration: BoxDecoration(
+      color: black,
+      borderRadius: const BorderRadius.all(
+        Radius.circular(12)
+      )
+    ),
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        const SizedBox(
+          height: 10,
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: <Widget>[
+            const SizedBox(
+              width: 20
+            ),
+            Text(
+              // "Self-Managed Broker",
+              title,
+              style: TextStyle(
+                fontSize: titleFontSize,
+                color: white
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(
+          height: 10,
+        ),
+        icon,
+        AutoSizeText(
+          description,
+          style: TextStyle(
+            fontSize: descriptionFontSize,
+            color: white
+          ),
+          maxLines: 1,
+        ),
+        const SizedBox(
+          height: 15,
+        ),
+        FilledButton(
+          onPressed: () {
+            Navigator.push(
+              context, 
+              MaterialPageRoute(builder: (context) => page)
+            );
+          },
+          style: ButtonStyle(
+            backgroundColor: MaterialStateProperty.all<Color>(blue)
+          ),
+          child: Text(
+            // 'Append',
+            buttonLabel,
+            style: TextStyle(
+              color: black
+            ),
+          ),
+        ),
+        const SizedBox(
+          height: 10,
+        ),
+      ],
+    ),
+  );
+}
+
+// Basic visual of a text field
+Widget getSimpleTextField(BuildContext context, TextEditingController ctrl, 
+    String label) {
+  return TextField(
+    controller: ctrl,
+    decoration: InputDecoration(
+      labelText: label,
+      labelStyle: Theme.of(context).textTheme.labelSmall,
+      // Color or the container underline when not field not 
+      // tap
+      enabledBorder: UnderlineInputBorder(
+        borderSide: BorderSide(
+          color: white
+        )
+      ),
+      // Color or the container underline when field has been tap
+      focusedBorder: UnderlineInputBorder(
+        borderSide: BorderSide(
+          color: blue
+        )
+      ),
+    ),
+    style: Theme.of(context).textTheme.displayMedium
+  );
+}
+
+// Connection list display on the home page load from the disk
 Widget getConnectionsButtonsList(SharedPreferences prefs, List<String> platformNames,
-    BuildContext context, State<HomePage> state) {
+    BuildContext context, State<ConnectionsPage> state) {
   return ListView.separated(
     padding: const EdgeInsets.all(20),
     itemCount: platformNames.length,
@@ -171,7 +397,7 @@ Widget getConnectionsButtonsList(SharedPreferences prefs, List<String> platformN
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10),
-              color: grey,
+              color: black,
             ),
             child: Row (
               children: <Widget>[
@@ -208,32 +434,25 @@ Widget getConnectionsButtonsList(SharedPreferences prefs, List<String> platformN
                 ),
               );
             } else {
-              // check if first account has been created, if it's true then go to the authentification
-              // page else go to the page of creation of the first admin account
-              firstAccountExist().then((response) {
-                bool fistAccountExist = json.decode(response.body)["first_account_exist"];
-
-                if (fistAccountExist) {
-                  // Go to authentification page with connection information of the broker
+              // If local just permit to user to go on the broker directly
+              tryConnecting(host, port, "", "").then((client) {
+                if (client != null) {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => AuthentificationPage(
-                        hostIp: host, 
-                        port: port
+                      builder: (context) => UserspacePage(
+                        broker_connection_info: BrokerConnectionInfo(
+                          host, 
+                          int.parse(port), 
+                          client
+                        ),
                       )
                     ),
-                  );
+                  ).then((value) {
+                    client.disconnect();
+                  });
                 } else {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => FirstUserCreationPage(
-                        hostIp: host, 
-                        port: port
-                      )
-                    ),
-                  );
+                  showMyDialogError(context, "Connection to the broker failed");
                 }
               });
             }
@@ -245,72 +464,3 @@ Widget getConnectionsButtonsList(SharedPreferences prefs, List<String> platformN
   );
 }
 
-// Button list of connection in the local discovery page
-
-Widget localDiscoveryConnections(List<(InternetAddress, int)> platformsIpsPorts, bool isLoading) {
-
-  if (isLoading) {
-    return Center(
-      child: CircularProgressIndicator(
-        color: blue,
-      )
-    );
-  } 
-
-  return ListView.separated(
-    padding: const EdgeInsets.all(40),
-    itemCount: platformsIpsPorts.length,
-    itemBuilder: (BuildContext context, int index) {
-      return MouseRegion(
-        cursor: SystemMouseCursors.click,
-        child: GestureDetector(
-          child: Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-              color: grey,
-            ),
-            child: Center(
-              
-              child: Column (
-                children: <Widget>[
-                  AutoSizeText(
-                    // '${platformsIpsPorts[index].$1.host}',
-                    "local",
-                    style: TextStyle(
-                      color: blue
-                    ),
-                  ),
-                  AutoSizeText(
-                    '${platformsIpsPorts[index].$1.address}',
-                    style: TextStyle(
-                      color: white
-                    ),
-                  ),
-                  AutoSizeText(
-                    '1883',
-                    style: TextStyle(
-                      color: white
-                    ),
-                  )
-                ],
-              )
-            ),
-          ),
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => ManualConnectionPage(
-                  ip: platformsIpsPorts[index].$1.address,
-                  port: "1883"
-                ),
-              ),
-            );
-          },
-        ),
-      );
-    },
-    separatorBuilder: (context, index) => const Divider(),
-  );
-}
