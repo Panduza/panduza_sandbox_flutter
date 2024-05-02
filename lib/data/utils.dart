@@ -15,9 +15,50 @@ final _chars =
     'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
 final Random _rnd = Random();
 
+// Check If any connection already with this same name in the preferences (data on the disk)
+Future<bool> checkIfConnectionNameExist(String newConnectionName) async {
+  SharedPreferences pref = await SharedPreferences.getInstance();
 
-Future<SharedPreferences> getPreferences() async {
-  return await SharedPreferences.getInstance();
+  // if any connection can't have a another connection with same name
+  List<String>? connections = pref.getStringList(connectionKey);
+  if (connections == null) {
+    return false;
+  }
+
+  if (connections.contains(newConnectionName)) {
+    return true;
+  }
+
+  return false;
+}
+
+
+// Check If any connection with the same ip/port already exist in the preferences 
+// (data on the disk)
+Future<bool> checkIfPortIpExist(String hostIp, String port) async {
+  SharedPreferences pref = await SharedPreferences.getInstance();
+
+  List<String>? connections = pref.getStringList(connectionKey);
+
+  // if any connection can't have a another connection with same ip/port
+  if (connections == null) {
+    return false;
+  }
+
+  // Look for every connection if there is one with the same ip/port already existing
+  for (String connectionName in connections) {
+    List<String>? infoConnection = pref.getStringList(connectionName);
+    // the information of the connection is supposed always exist while 
+    // his name is stocked in the connection names list
+    if (infoConnection == null) {
+      continue;
+    }
+    if (infoConnection[1] == hostIp && infoConnection[2] == port) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 // Add a connection on the disk if the name hasn't been used
@@ -34,9 +75,6 @@ Future<void> addConnection(String name, String hostIp,
     } else {
       pref.setStringList(name, [name, hostIp, port, "0"]);
     }
-    
-
-    // print(pref.containsKey(connectionKey));
 
     if (pref.containsKey(connectionKey) == false) {
       await pref.setStringList(connectionKey, [name]);
@@ -160,6 +198,32 @@ Future<MqttServerClient?> tryConnecting(String host, String portStr, String user
   return null;
 }
 
+// If user mistake show a pop up to describe his mistake with 
+// a okay button to make it dissapear
+void showMyDialogError(BuildContext context, String textError) {
+  showDialog(
+    context: context, 
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text(textError),
+        actions: <Widget>[
+          Center(
+            child: TextButton(
+              style: TextButton.styleFrom(
+                textStyle: Theme.of(context).textTheme.labelLarge,
+              ),
+              child: const Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          )
+        ],
+      );
+    }
+  );
+}
+
 /*
   This class will go looking for different platform on the network sending 
   broadcast  with UTF-8 format and getting an answer for each platform
@@ -190,8 +254,12 @@ Future<List<(InternetAddress, int)>> platformDiscovery() async {
         }
       });
 
-      // socket.send(jsonEncode({"search" : true}).codeUnits, InternetAddress("255.255.255.255"), portLocalDiscovery);
-      socket.send(utf8.encode(jsonEncode({"search" : true})), InternetAddress("255.255.255.255"), portLocalDiscovery);
+      try {
+        socket.send(utf8.encode(jsonEncode({"search" : true})), InternetAddress("255.255.255.255"), portLocalDiscovery);
+      } on SocketException catch(e) {
+        print("Local discovery on ${e.address}:${e.port} failed, error code = ${e.osError?.errorCode}, ${e.osError?.message}");
+      }
+      
       await Future.delayed(const Duration(milliseconds: 100));
       socket.close();
     }

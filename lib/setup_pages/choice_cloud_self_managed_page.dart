@@ -14,71 +14,75 @@ import 'package:panduza_sandbox_flutter/utils_widgets/appBar.dart';
 
 class ChoiceCloudSelfManagedPage extends StatelessWidget {
 
-  late final SharedPreferences _prefs;
-  late final _prefsFuture = SharedPreferences.getInstance().then((v) => _prefs = v);
-
-  ChoiceCloudSelfManagedPage({
+  const ChoiceCloudSelfManagedPage({
     super.key,
+    required this.prefs 
   });
+
+  final SharedPreferences prefs;
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      // bar at the top of the application
-      appBar: getAppBar("Use Self-Managed broker or Cloud ?"),
-      body: FutureBuilder(
-        future: _prefsFuture,
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            if (!(_prefs.containsKey(connectionKey))) {
-              // If any connection already created send on the first add connection page 
-              // when self-managed broker button tap 
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    // get the button to go to the login page of cloud 
-                    // with info icon to get the information giving details
-                    // on what the cloud can currently offer 
-                    getTransitionButton(context, const CloudAuthPage(), panduzaCloudInfo, 'Panduza Cloud'),
-                    SizedBox(
-                      height: MediaQuery.sizeOf(context).height / 13
-                    ),
-                    // get the button to go to the page to add a self managed
-                    // broker or if a connection already exist go to the connections page 
-                    // with a info icon to precise what is a self managed broker 
-                    getTransitionButton(context, const AddConnectionPage(), selfManagedBrokerInfo, 'Self-Managed Broker')
-                  ],
-                ),
-              );
-            } else {
-              // If a connection has already been created send on the connections page
-              // (the user can see the already add connection) when self-managed broker button tap
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    // get the button to go to the login page of cloud 
-                    // with info icon to get the information giving details
-                    // on what the cloud can currently offer 
-                    getTransitionButton(context, const CloudAuthPage(), panduzaCloudInfo, 'Panduza Cloud'),
-                    SizedBox(
-                      height: MediaQuery.sizeOf(context).height / 13
-                    ),
-                    // get the button to go to the page to add a self managed
-                    // broker or if a connection already exist go to the connections page 
-                    // with a info icon to precise what is a self managed broker 
-                    getTransitionButton(context, const ConnectionsPage(), selfManagedBrokerInfo, 'Self-Managed Broker')
-                  ],
-                ),
-              );
-            }
-          } else {
-            // return bar progression
-            return const SizedBox.shrink();
-          }
-        }
-      )
-    );
+
+    if (!(prefs.containsKey(connectionKey))) {
+      return Scaffold(
+        // bar at the top of the application
+        appBar: getAppBar("Use Self-Managed broker or Cloud ?"),
+        // If a connection has already been created send on the connections page
+        // (the user can see the already add connection) when self-managed broker button tap
+        
+        // get the button to go to the login page of cloud 
+        // with info icon to get the information giving details
+        // on what the cloud can currently offer 
+
+        // get the button to go to the page to add a self managed
+        // broker or if a connection already exist go to the connections page 
+        // with a info icon to precise what is a self managed broker 
+        body:  getBasicLayoutDynamic(
+          context,
+          page: const CloudAuthPage(),
+          title: "Panduza Cloud",
+          icon: Icons.cloud_outlined,
+          buttonLabel: "Connect",
+          description: panduzaCloudInfo,
+
+          page2: const AddConnectionPage(), 
+          title2: "Self-Managed Broker",
+          icon2: Icons.broadcast_on_personal_outlined,
+          buttonLabel2: "Append",
+          description2: selfManagedBrokerInfo
+        ),
+      );
+    } else {
+
+      // If a connection has already been created send on the connections page
+      // (the user can see the already add connection) when self-managed broker button tap
+
+      // get the button to go to the login page of cloud 
+      // with info icon to get the information giving details
+      // on what the cloud can currently offer 
+
+      // get the button to go to the page to add a self managed
+      // broker or if a connection already exist go to the connections page 
+      // with a info icon to precise what is a self managed broker 
+      return Scaffold(
+        // bar at the top of the application
+        appBar: getAppBar("Use Self-Managed broker or Cloud ?"),
+        body: getBasicLayoutDynamic(
+          context,
+          page: const CloudAuthPage(),
+          title: "Panduza Cloud",
+          icon: Icons.cloud_outlined,
+          buttonLabel: "Connect",
+          description: panduzaCloudInfo,
+
+          page2: const ConnectionsPage(), 
+          title2: "Self-Managed Broker",
+          icon2: Icons.broadcast_on_personal_outlined,
+          buttonLabel2: "Append",
+          description2: selfManagedBrokerInfo
+        ),
+      );
+    }
   }
 }

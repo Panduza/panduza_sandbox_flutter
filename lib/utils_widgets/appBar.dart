@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:panduza_sandbox_flutter/after_setup_pages/connections_page.dart';
 import 'package:panduza_sandbox_flutter/data/const.dart';
 import 'package:flutter/material.dart';
@@ -12,7 +13,7 @@ PreferredSizeWidget? getAppBar(String title) {
     // color of hamburger button
     iconTheme: IconThemeData(color: white),
     backgroundColor: black,
-    title: Text(
+    title: AutoSizeText(
       title,
       style: TextStyle(
         color: blue,
@@ -43,7 +44,7 @@ PreferredSizeWidget? getAppBarUserSpace(String title, BuildContext context) {
     // color of hamburger button
     iconTheme: IconThemeData(color: white),
     backgroundColor: black,
-    title: Text(
+    title: AutoSizeText(
       title,
       style: TextStyle(
         color: blue,
@@ -80,7 +81,7 @@ PreferredSizeWidget? getConnectionsAppBar(String title, BuildContext context) {
     // color of hamburger button
     iconTheme: IconThemeData(color: white),
     backgroundColor: black,
-    title: Text(
+    title: AutoSizeText(
       title,
       style: TextStyle(
         color: blue,
@@ -97,7 +98,7 @@ PreferredSizeWidget? getConnectionsAppBar(String title, BuildContext context) {
           );
         }, 
         icon: Icon(
-          Icons.cloud,
+          Icons.cloud_outlined,
           color: blue,
         ),
       ),

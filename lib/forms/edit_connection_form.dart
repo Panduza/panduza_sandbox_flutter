@@ -39,7 +39,7 @@ class EditConnectionForm extends StatelessWidget {
           ),
           child: Column(
             children: <Widget>[
-              getSimpleTextField(context, ctrlName, 'Platform name'),
+              getSimpleTextField(context, ctrlName, 'Connection Name'),
               getSimpleTextField(context, ctrlHostIp, 'Broker Hostname'),
               getSimpleTextField(context, ctrlPort, 'Broker Port'),
             ]

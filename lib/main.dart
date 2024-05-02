@@ -13,14 +13,21 @@ import 'data/const.dart';
 // ============================================================================
 // Main enter point
 void main() async {
-  // prefs = await SharedPreferences.getInstance();
-  runApp(const PanduzaSandboxApp());
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  runApp(PanduzaSandboxApp(
+    prefs: prefs,
+  ));
 }
 
 // ============================================================================
 // App Object
 class PanduzaSandboxApp extends StatelessWidget {
-  const PanduzaSandboxApp({super.key});
+  const PanduzaSandboxApp({
+    super.key,
+    required this.prefs
+  });
+
+  final SharedPreferences prefs;
 
   // This widget is the root of your application.
   @override
@@ -69,8 +76,9 @@ class PanduzaSandboxApp extends StatelessWidget {
         ),
         bottomSheetTheme: BottomSheetThemeData(backgroundColor: grey)
       ),
-      home: ChoiceCloudSelfManagedPage(),
-      
+      home: ChoiceCloudSelfManagedPage(
+        prefs: prefs,
+      ),
     );
   }
 }
