@@ -15,6 +15,27 @@ final _chars =
     'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
 final Random _rnd = Random();
 
+
+// remove the connection of disk, 
+// first the direct entry of this connection 
+// then remove it from the directory (connectionKey)
+// if there no more connection remove the entry of the
+// directory (connectionKey)
+Future<void> removeConnection(String connectionName, String hostIp, String port) async {
+
+  SharedPreferences pref = await SharedPreferences.getInstance();
+
+  List<String> platformNames = pref.getStringList(connectionKey) as List<String>;
+
+  int indexToRemove = platformNames.indexOf(connectionName);
+  await pref.remove(connectionName);
+
+  platformNames.remove(platformNames[indexToRemove]);
+  await pref.setStringList(connectionKey, platformNames);
+
+  if (platformNames.isEmpty) await pref.remove(connectionKey);
+}
+
 // Check If any connection already with this same name in the preferences (data on the disk)
 Future<bool> checkIfConnectionNameExist(String newConnectionName) async {
   SharedPreferences pref = await SharedPreferences.getInstance();
@@ -91,7 +112,6 @@ Future<void> addConnection(String name, String hostIp,
 }
 
 // Edit the existing connection having this name on the disk
-
 Future<void> editConnection(String oldName, String newName, String hostIp, 
   String port, bool isCloud) async {
 
@@ -223,6 +243,42 @@ void showMyDialogError(BuildContext context, String textError) {
     }
   );
 }
+
+// If any field is empty show a error 
+Future<bool> checkIfConnectionValid(BuildContext context, String name, String hostIp, String port) async {
+
+  if (name.isEmpty || hostIp.isEmpty || port.isEmpty) {
+    showMyDialogError(context, "A field is empty, you need to fill them all");
+    return false;
+  }
+  
+  // Check if the port is a number 
+  if (int.tryParse(port) == null) {
+    showMyDialogError(context, "Port need to be a number");
+    return false;
+  }
+
+  // Check if the port has a value of uint16
+  if (int.parse(port) < 0 || int.parse(port) > 65535) {
+    showMyDialogError(context, "Port need to a correct value (0 to 65535)");
+    return false;
+  }
+
+  // Check If any connection already with this same name
+  if (await checkIfConnectionNameExist(name)) {
+    showMyDialogError(context, "This connection name already exist");
+    return false;
+  }
+
+  // Check If any connection with the same ip/port already exist
+  if (await checkIfPortIpExist(hostIp, port)) {
+    showMyDialogError(context, "The ip/port combination is already in use for another connection");
+    return false;
+  }
+
+  return true;
+}
+
 
 /*
   This class will go looking for different platform on the network sending 

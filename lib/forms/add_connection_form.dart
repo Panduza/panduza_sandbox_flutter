@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:panduza_sandbox_flutter/after_setup_pages/connections_page.dart';
 
@@ -74,36 +76,16 @@ class AddConnectionForm extends StatelessWidget {
               onPressed: () async {
                 // Check if the format is nearly valid
 
-                // If any field is empty show a error 
-                if (ctrlName.text.isEmpty || ctrlHostIp.text.isEmpty || ctrlPort.text.isEmpty) {
-                  showMyDialogError(context, "A field is empty, you need to fill them all");
-                  return;
-                }
+                bool isValid = await checkIfConnectionValid(context, ctrlName.text, ctrlHostIp.text, ctrlPort.text);
 
-                // Check if the port is a number 
-                if (int.tryParse(ctrlPort.text) == null) {
-                  showMyDialogError(context, "Port need to be a number");
-                  return;
+                if (isValid) {
+                   // add connection info on the disk
+                  await addConnection(ctrlName.text, ctrlHostIp.text, ctrlPort.text, isCloud);
+                  Navigator.push(
+                    context,  
+                    MaterialPageRoute(builder: (context) => const ConnectionsPage())
+                  );
                 }
-
-                // Check If any connection already with this same name
-                if (await checkIfConnectionNameExist(ctrlName.text)) {
-                  showMyDialogError(context, "This connection name already exist");
-                  return;
-                }
-
-                // Check If any connection with the same ip/port already exist
-                if (await checkIfPortIpExist(ctrlHostIp.text, ctrlPort.text)) {
-                  showMyDialogError(context, "The ip/port combination is already in use for another connection");
-                  return;
-                }
-
-                // add connection info on the disk
-                await addConnection(ctrlName.text, ctrlHostIp.text, ctrlPort.text, isCloud);
-                Navigator.push(
-                  context,  
-                  MaterialPageRoute(builder: (context) => const ConnectionsPage())
-                );
               }, 
               style: ButtonStyle(
                 backgroundColor: MaterialStateProperty.all<Color>(blue)

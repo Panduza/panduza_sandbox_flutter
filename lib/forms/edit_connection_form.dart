@@ -71,9 +71,17 @@ class EditConnectionForm extends StatelessWidget {
             // add the connection to the home page
             ElevatedButton(
               onPressed: () async {
-                await editConnection(platformName, ctrlName.text, ctrlHostIp.text, ctrlPort.text, isCloud);
-                if (!context.mounted) return;
-                Navigator.pop(context);
+                // check if connection valid
+                // remove connection to check if with edit a another connection exist with the same name or ip/port
+                await removeConnection(platformName, hostIp, port);
+                bool isValid = await checkIfConnectionValid(context, ctrlName.text, ctrlHostIp.text, ctrlPort.text);
+                if (isValid) {
+                  await addConnection(ctrlName.text, ctrlHostIp.text, ctrlPort.text, isCloud);
+                  if (!context.mounted) return;
+                  Navigator.pop(context);
+                } else {
+                  await addConnection(platformName, hostIp, port, isCloud);
+                }
               }, 
               style: ButtonStyle(
                 backgroundColor: MaterialStateProperty.all<Color>(blue)
