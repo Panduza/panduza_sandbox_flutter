@@ -106,13 +106,16 @@ Widget getDeleteConnectionButton(SharedPreferences prefs, List<String> platformN
                   // then remove it from the directory (connectionKey)
                   // if there no more connection remove the entry of the
                   // directory (connectionKey)
+                  List<String> platformNames = prefs.getStringList(connectionKey) as List<String>;
 
+                  // platformNames.indexOf(element)
                   prefs.remove(platformNames[index]);
 
                   platformNames.remove(platformNames[index]);
                   prefs.setStringList(connectionKey, platformNames);
 
                   if (platformNames.isEmpty) prefs.remove(connectionKey);
+                  
                   state.setState(() {});
                   Navigator.of(context).pop();
                 },
@@ -284,8 +287,6 @@ Widget getTransitionButton(BuildContext context, Widget page, String title, Icon
       double titleFontSize = 24, double descriptionFontSize = 14
     }) {
   return Container (
-    // height: MediaQuery.sizeOf(context).height / 2,
-    // width: MediaQuery.sizeOf(context).width / 3,
     width: width,
     height: height,
     decoration: BoxDecoration(
