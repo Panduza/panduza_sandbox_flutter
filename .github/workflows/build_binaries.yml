@@ -7,7 +7,7 @@ name: Build Binaries
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "7-inject-version-number-with-workflow" ]
   pull_request:
     branches: [ "main" ]
 
@@ -23,8 +23,10 @@ jobs:
         with:
           flutter-version: 3.19.0
       - run: flutter pub get
-     # - run: flutter test
-      - run: flutter build apk
+      # - run: flutter test
+      # - run: flutter build apk
+      - name: Build linux version
+        run: flutter build linux --release
       - run: flutter build appbundle
 
       - name: Upload APK
