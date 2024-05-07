@@ -24,7 +24,7 @@ jobs:
         run: echo "today=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
       
       - name: echo build name 
-        run: echo "${{ github.run_id }}_${{ env.today }}"
+        run: echo "${{ github.sha }}_${{ env.today }}"
       
 
   # build_apk:
