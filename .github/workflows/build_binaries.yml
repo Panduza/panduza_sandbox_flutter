@@ -22,7 +22,7 @@ jobs:
 
       - name: Get current date
         id: date
-        run: echo "today={$(date +'%Y-%m-%d')}" >> $GITHUB_ENV
+        run: echo "today=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
 
       - name: Echo date
         run: echo "${{ github.ref_name }} - ${{ env.today }}"
