@@ -25,7 +25,7 @@ jobs:
         run: echo "today={$(date +'%Y-%m-%d')}" >> $GITHUB_ENV
 
       - name: Echo date
-        run: echo ${{ env.today }}
+        run: echo "${{ github.ref_name }} - ${{ env.today }}"
 
   # build_apk:
   #   runs-on: ubuntu-latest
