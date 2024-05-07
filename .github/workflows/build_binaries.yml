@@ -48,6 +48,11 @@ jobs:
         with:
           channel: stable
       - run: flutter build windows
+      - name: Upload Windows version
+        uses: actions/upload-artifact@v4
+        with:
+          name: Windows version
+          path: build/windows/x64/runner/Release
           
   build_linux:
     runs-on: ubuntu-latest
