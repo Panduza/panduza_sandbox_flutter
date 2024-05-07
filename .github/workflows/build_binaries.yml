@@ -16,9 +16,11 @@ jobs:
   echo_date:
     runs-on: ubuntu-latest
     steps:
-      - name: Print branch name and date
+      - name: Print branch name
         #run: echo $TAG_NAME
         run: echo ${{ github.ref_name }}
+      - name: Print date
+        run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
 
   # build_apk:
   #   runs-on: ubuntu-latest
