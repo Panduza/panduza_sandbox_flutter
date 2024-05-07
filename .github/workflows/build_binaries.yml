@@ -18,7 +18,7 @@ jobs:
     steps:
       - name: Print branch name and date
         #run: echo $TAG_NAME
-        run: echo tag
+        run: echo ${{ github.ref_name }}
 
   # build_apk:
   #   runs-on: ubuntu-latest
