@@ -3,6 +3,9 @@
 # separate terms of service, privacy policy, and support
 # documentation.
 
+# If branch, build name will be the branch name and the date of the day 
+# Else if tag, build name will be tag name
+
 name: Build Binaries 
 
 on:
@@ -12,79 +15,79 @@ on:
     branches: [ "main" ]
 
 jobs:
-
-  echo_date:
+  build_apk:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Print branch name
-        #run: echo $TAG_NAME
-        run: echo ${{ github.ref_name }}
 
       - name: Get current date
         id: date
         run: echo "today=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
 
-      - name: Echo date
-        run: echo "${{ github.ref_name }} - ${{ env.today }}"
+      - name: Clone repository
+        uses: actions/checkout@v4
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.19.0
+      # - name: Get date variable
+      #  run : $NOW=& Get-Date -format yyyy-MM-dd
+      #    echo "NOW=$NOW" >> $env:GITHUB_ENV
+      - run: flutter pub get
+      # - run: flutter test
+      - run: flutter build apk --build-name ${{ github.ref_name }}_${{ env.today }}
+      # - name: Build linux version
+      #  run: flutter build linux --release
+      - run: flutter build appbundle --build-name ${{ github.ref_name }}_${{ env.today }}
 
-  # build_apk:
-  #   runs-on: ubuntu-latest
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: apk
+          path: build/app/outputs/flutter-apk/app-release.apk
 
-  #   steps:
-  #     - name: Clone repository
-  #       uses: actions/checkout@v4
-  #     - name: Set up Flutter
-  #       uses: subosito/flutter-action@v2
-  #       with:
-  #         flutter-version: 3.19.0
-  #     # - name: Get date variable
-  #     #  run : $NOW=& Get-Date -format yyyy-MM-dd
-  #     #    echo "NOW=$NOW" >> $env:GITHUB_ENV
-  #     - run: flutter pub get
-  #     # - run: flutter test
-  #     - run: flutter build apk --build-number 1
-  #     # - name: Build linux version
-  #     #  run: flutter build linux --release
-  #     - run: flutter build appbundle --build-number 1
+  build_windows:
+    runs-on: windows-latest
+    steps:
 
-  #     - name: Upload APK
-  #       uses: actions/upload-artifact@v4
-  #       with:
-  #         name: apk
-  #         path: build/app/outputs/flutter-apk/app-release.apk
+      - name: Get current date
+        id: date
+        run: echo "today=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
 
-  # build_windows:
-  #   runs-on: windows-latest
-  #   steps:
-  #     - name: Clone repository
-  #       uses: actions/checkout@v4
-  #     - name: Set up Flutter
-  #       uses: subosito/flutter-action@v2
-  #       with:
-  #         channel: stable
-  #     - run: flutter build windows --build-number 1
-  #     - name: Upload Windows version
-  #       uses: actions/upload-artifact@v4
-  #       with:
-  #         name: Windows version
-  #         path: build/windows/x64/runner/Release
+      - name: Clone repository
+        uses: actions/checkout@v4
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+      - run: flutter build windows --build-name ${{ github.ref_name }}_${{ env.today }}
+      - name: Upload Windows version
+        uses: actions/upload-artifact@v4
+        with:
+          name: Windows version
+          path: build/windows/x64/runner/Release
           
-  # build_linux:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Clone repository
-  #       uses: actions/checkout@v4
-  #     - name: Set up Flutter
-  #       uses: subosito/flutter-action@v2
-  #       with:
-  #         channel: stable
-  #     - run: |
-  #         sudo apt-get update -y
-  #         sudo apt-get install -y ninja-build libgtk-3-dev
-  #     - run: flutter pub get
-  #     - run: flutter build linux --release
-  #     - name: Upload Linux version
-  #       uses: actions/upload-artifact@v4
-  #       with:
-  #         name: Linux version
-  #         path: build/linux/x64/release/bundle
+  build_linux:
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get current date
+        id: date
+        run: echo "today=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
+
+      - name: Clone repository
+        uses: actions/checkout@v4
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+      - run: |
+          sudo apt-get update -y
+          sudo apt-get install -y ninja-build libgtk-3-dev
+      - run: flutter pub get
+      - run: flutter build linux --release --build-name ${{ github.ref_name }}_${{ env.today }}
+      - name: Upload Linux version
+        uses: actions/upload-artifact@v4
+        with:
+          name: Linux version
+          path: build/linux/x64/release/bundle
