@@ -27,10 +27,10 @@ jobs:
       #    echo "NOW=$NOW" >> $env:GITHUB_ENV
       - run: flutter pub get
       # - run: flutter test
-      - run: flutter build apk
+      - run: flutter build apk --build-number 1
       # - name: Build linux version
       #  run: flutter build linux --release
-      - run: flutter build appbundle
+      - run: flutter build appbundle --build-number 1
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
@@ -47,7 +47,7 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: stable
-      - run: flutter build windows
+      - run: flutter build windows --build-number 1
       - name: Upload Windows version
         uses: actions/upload-artifact@v4
         with:
@@ -67,7 +67,7 @@ jobs:
           sudo apt-get update -y
           sudo apt-get install -y ninja-build libgtk-3-dev
       - run: flutter pub get
-      - run: flutter build linux --release
+      - run: flutter build linux --release --build-number 1
       - name: Upload Linux version
         uses: actions/upload-artifact@v4
         with:
