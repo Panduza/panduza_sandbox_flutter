@@ -15,10 +15,10 @@ jobs:
 
   echo_date:
     runs-on: ubuntu-latest
-
     steps:
       - name: Print branch name and date
-        run: echo $TAG_NAME
+        #run: echo $TAG_NAME
+        run: echo tag
 
   # build_apk:
   #   runs-on: ubuntu-latest
