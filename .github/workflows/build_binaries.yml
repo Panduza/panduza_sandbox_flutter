@@ -9,10 +9,12 @@
 name: Build Binaries 
 
 on:
+  release:
+    types: [published]
+
   push:
     branches: [ "main", "7-inject-version-number-with-workflow" ]
-    tags:
-      - '**'
+
   pull_request:
     branches: [ "main" ]
 
