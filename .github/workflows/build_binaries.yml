@@ -34,7 +34,7 @@ jobs:
 
       - name: Get current date
         id: date
-        run: echo "today=$(date +'%Y.%m.%d.%H')" >> $GITHUB_ENV
+        run: echo "today=$(date +'%Y.%m.%d0%H')" >> $GITHUB_ENV
 
       - name: Clone repository
         uses: actions/checkout@v4
@@ -51,8 +51,8 @@ jobs:
       # - name: Build linux version
       #  run: flutter build linux --release
       # - run: flutter build appbundle --build-name_${{ env.today }}
-      - run: flutter build apk --build-name 2024.5.13
-      - run: flutter build appbundle --build name 2024.5.13
+      - run: flutter build apk --build-name 2024.5.13.4
+      - run: flutter build appbundle --build-name 2024.3.4.8
       
       - name: Upload APK
         uses: actions/upload-artifact@v4
