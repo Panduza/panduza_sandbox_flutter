@@ -6,6 +6,14 @@
 # If branch, build name will be the branch name and the date of the day 
 # Else if tag, build name will be tag name
 
+# Create an apk of flutter sandbox application when creating a new tag, pushing 
+# on main branch or making a pull request. This apk will have a build name (the one 
+# a normal user can see) equal to the date of the day at the format year.month.day.hour
+# if it comes from a push on main or a pull request, if the actions come from pushing of 
+# a tag then it will simply take the name of the tag (tag name must respect format precise
+# in the specs : content/docs/sandbox-app/specifications/naming_rules/index.md)
+
+
 name: Build Binaries 
 
 on:
@@ -39,9 +47,9 @@ jobs:
         with:
           flutter-version: 3.19.0
       - run: flutter pub get
-      # - run: flutter test
-      # - name: Build linux version
-      #  run: flutter build linux --release
+
+      # If build from tag will use the tag name like build name with these 2 steps
+
       - name: build apk with tag 
         if: startsWith(github.ref, 'refs/tags/')
         run: flutter build apk --build-name ${{ steps.get_version.outputs.VERSION }}
@@ -49,6 +57,9 @@ jobs:
       - name: build appbundle with tag
         if: startsWith(github.ref, 'refs/tags/')
         run: flutter build appbundle --build-name ${{ steps.get_version.outputs.VERSION }}
+
+      # If build from branch will use the date of the day at the format year.month.day.hour
+      # like build name with these two next steps
 
       - name: build apk with branch
         if: (!startsWith(github.ref, 'refs/tags/'))
