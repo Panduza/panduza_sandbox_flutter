@@ -19,10 +19,11 @@ on:
 
 jobs:
 
-  echo_build_name:
+  build_apk:
     runs-on: ubuntu-latest
-    steps: 
-      
+
+    steps:
+
       - name: Get the version
         id: get_version
         run: echo ::set-output name=VERSION::$(echo $GITHUB_REF | cut -d / -f 3)
@@ -30,40 +31,35 @@ jobs:
       - name: Get current date
         id: date
         run: echo "today=$(date +'%Y.%m.%d.%H')" >> $GITHUB_ENV
-      
-      - name: if push tags
+
+      - name: Clone repository
+        uses: actions/checkout@v4
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.19.0
+      - run: flutter pub get
+      # - run: flutter test
+      # - name: Build linux version
+      #  run: flutter build linux --release
+      - name: build apk with tag 
         if: startsWith(github.ref, 'refs/tags/')
-        run: echo ${{ steps.get_version.outputs.VERSION }}
+        run: flutter build apk --build-name ${{ steps.get_version.outputs.VERSION }}
 
-      - name: if other
+      - name: build appbundle with tag
+        if: startsWith(github.ref, 'refs/tags/')
+        run: flutter build appbundle --build-name ${{ steps.get_version.outputs.VERSION }}
+
+      - name: build apk with branch
         if: (!startsWith(github.ref, 'refs/tags/'))
-        run: echo ${{ github.event_name }}
+        run: flutter build appbundle --build-name ${{ env.today }}
+
+      - name: build apk with branch
+        if: (!startsWith(github.ref, 'refs/tags/'))
+        run: flutter build appbundle --build-name ${{ env.today }}
       
-
-  # build_apk:
-  #   runs-on: ubuntu-latest
-
-  #   steps:
-
-  #     - name: Get current date
-  #       id: date
-  #       run: echo "today=$(date +'%Y.%m.%d.%H')" >> $GITHUB_ENV
-
-  #     - name: Clone repository
-  #       uses: actions/checkout@v4
-  #     - name: Set up Flutter
-  #       uses: subosito/flutter-action@v2
-  #       with:
-  #         flutter-version: 3.19.0
-  #     - run: flutter pub get
-  #     # - run: flutter test
-  #     # - name: Build linux version
-  #     #  run: flutter build linux --release
-  #     - run: flutter build apk --build-name ${{ env.today }}
-  #     - run: flutter build appbundle --build-name ${{ env.today }}
-      
-  #     - name: Upload APK
-  #       uses: actions/upload-artifact@v4
-  #       with:
-  #         name: apk
-  #         path: build/app/outputs/flutter-apk/app-release.apk
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: apk
+          path: build/app/outputs/flutter-apk/app-release.apk
