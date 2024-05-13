@@ -27,7 +27,7 @@ jobs:
         run: echo ::set-output name=VERSION::$(echo $GITHUB_REF | cut -d / -f 3)
       
       - name: Print tag name
-        run: echo {{ steps.get_version.outputs.VERSION }}
+        run: echo ${{ steps.get_version.outputs.VERSION }}
       
 
   # build_apk:
