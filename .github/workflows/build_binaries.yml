@@ -31,7 +31,7 @@ jobs:
         run: echo ${{ steps.get_version.outputs.VERSION }}
 
       - name: Print event type
-        run: echo ${{ github.event.action }}
+        run: echo ${{ github.event_name }}
       
 
   # build_apk:
