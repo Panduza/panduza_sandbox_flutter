@@ -16,15 +16,15 @@ on:
 
 jobs:
 
-  echo_build_name:
-    runs-on: ubuntu-latest
-    steps: 
-      - name: Get current date
-        id: date
-        run: echo "today=$(date +'%Y.%m.%d.%H')" >> $GITHUB_ENV
+  # echo_build_name:
+  #   runs-on: ubuntu-latest
+  #   steps: 
+  #     - name: Get current date
+  #       id: date
+  #       run: echo "today=$(date +'%Y.%m.%d.%H')" >> $GITHUB_ENV
       
-      - name: echo build name 
-        run: echo "${{ env.today }}"
+  #     - name: echo build name 
+  #       run: echo "${{ env.today }}"
       
 
   build_apk:
@@ -51,8 +51,8 @@ jobs:
       # - name: Build linux version
       #  run: flutter build linux --release
       # - run: flutter build appbundle --build-name_${{ env.today }}
-      - run: flutter build apk
-      - run: flutter build appbundle
+      - run: flutter build apk --build-name 2024.5.13.8
+      - run: flutter build appbundle --build name 2024.5.13.8
       
       - name: Upload APK
         uses: actions/upload-artifact@v4
