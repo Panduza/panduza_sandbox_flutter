@@ -31,16 +31,12 @@ jobs:
         id: date
         run: echo "today=$(date +'%Y.%m.%d.%H')" >> $GITHUB_ENV
       
-      - name: Print tag name
-        if: 
-        run: echo ${{ steps.get_version.outputs.VERSION }}
-      
       - name: if push tags
         if: startsWith(github.ref, 'refs/tags/')
         run: echo ${{ steps.get_version.outputs.VERSION }}
 
       - name: if other
-        # if: !startsWith(github.ref, 'refs/tags/')
+        if: (!startsWith(github.ref, 'refs/tags/'))
         run: echo ${{ github.event_name }}
       
 
