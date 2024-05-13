@@ -51,8 +51,8 @@ jobs:
       # - name: Build linux version
       #  run: flutter build linux --release
       # - run: flutter build appbundle --build-name_${{ env.today }}
-      - run: flutter build apk --build-name 2024.5.13.8
-      - run: flutter build appbundle --build name 2024.5.13.8
+      - run: flutter build apk --build-name 2024.5.13
+      - run: flutter build appbundle --build name 2024.5.13
       
       - name: Upload APK
         uses: actions/upload-artifact@v4
