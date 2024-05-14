@@ -13,6 +13,7 @@ import 'data/const.dart';
 // ============================================================================
 // Main enter point
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   SharedPreferences prefs = await SharedPreferences.getInstance();
   runApp(PanduzaSandboxApp(
     prefs: prefs,
