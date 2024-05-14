@@ -75,7 +75,7 @@ jobs:
         
       - name: build apk with branch
         if: (!startsWith(github.ref, 'refs/tags/'))
-        run: flutter build appbundle
+        run: flutter build apk
       
       - name: Upload APK
         uses: actions/upload-artifact@v4
