@@ -18,7 +18,7 @@ name: Build Binaries
  
 on:
   push:
-    branches: [ "main",  "7-inject-version-number-with-workflow" ]
+    branches: [ "main",  "15-apk-not-generated" ]
     tags:
       - '*'
  
