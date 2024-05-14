@@ -18,7 +18,7 @@ name: Build Binaries
  
 on:
   push:
-    branches: [ "main", "15-apk-not-generated" ]
+    branches: [ "main" ]
     tags:
       - '*'
  
@@ -60,48 +60,38 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         run: flutter build appbundle --build-name ${{ env.name }}
  
-      # - name: change apk name with tag name
-      #   if: startsWith(github.ref, 'refs/tags/')
-      #   run: mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/${{env.name}}.apk
+      - name: change apk name with tag name
+        if: startsWith(github.ref, 'refs/tags/')
+        run: mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/${{env.name}}.apk
  
-      # - name: Upload APK
-      #   if: startsWith(github.ref, 'refs/tags/')
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: apk
-      #     path: build/app/outputs/flutter-apk/${{env.name}}.apk
+      - name: Upload APK
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: actions/upload-artifact@v4
+        with:
+          name: apk
+          path: build/app/outputs/flutter-apk/${{env.name}}.apk
  
       # If build from branch will use the date of the day at the format year.month.day.hour
       # like build name with these two next steps
  
-      # - name: build apk with branch
-      #   if: (!startsWith(github.ref, 'refs/tags/'))
-      #   run: flutter build apk --build-name ${{ env.today }}
- 
-      # - name: build apk with branch
-      #   if: (!startsWith(github.ref, 'refs/tags/'))
-      #   run: flutter build appbundle --build-name ${{ env.today }}
-
       - name: build apk with branch
         if: (!startsWith(github.ref, 'refs/tags/'))
-      #  run: flutter build apk --build-name 0.0.0
-        run: flutter build apk --no-shrink
+        run: flutter build apk --build-name ${{ env.today }}
  
       - name: build apk with branch
         if: (!startsWith(github.ref, 'refs/tags/'))
-      #  run: flutter build appbundle --build-name 0.0.0
-        run: flutter build apk --no-shrink
+        run: flutter build appbundle --build-name ${{ env.today }}
  
-      # - name: change apk name with branch
-      #   if: (!startsWith(github.ref, 'refs/tags/'))
-      #   run: mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/${{env.today}}.apk
+      - name: change apk name with branch
+        if: (!startsWith(github.ref, 'refs/tags/'))
+        run: mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/${{env.today}}.apk
  
-      # - name: Upload APK
-      #   if: (!startsWith(github.ref, 'refs/tags/'))
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: apk
-      #     path: build/app/outputs/flutter-apk/${{env.today}}.apk
+      - name: Upload APK
+        if: (!startsWith(github.ref, 'refs/tags/'))
+        uses: actions/upload-artifact@v4
+        with:
+          name: apk
+          path: build/app/outputs/flutter-apk/${{env.today}}.apk
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
