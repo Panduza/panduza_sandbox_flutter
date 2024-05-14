@@ -50,24 +50,32 @@ jobs:
 
       # If build from tag will use the tag name like build name with these 2 steps
 
-      - name: build apk with tag 
-        if: startsWith(github.ref, 'refs/tags/')
-        run: flutter build apk --build-name ${{ steps.get_version.outputs.VERSION }}
+      # - name: build apk with tag 
+      #   if: startsWith(github.ref, 'refs/tags/')
+      #   run: flutter build apk --build-name ${{ steps.get_version.outputs.VERSION }}
 
-      - name: build appbundle with tag
-        if: startsWith(github.ref, 'refs/tags/')
-        run: flutter build appbundle --build-name ${{ steps.get_version.outputs.VERSION }}
+      # - name: build appbundle with tag
+      #   if: startsWith(github.ref, 'refs/tags/')
+      #   run: flutter build appbundle --build-name ${{ steps.get_version.outputs.VERSION }}
 
       # If build from branch will use the date of the day at the format year.month.day.hour
       # like build name with these two next steps
 
-      - name: build apk with branch
-        if: (!startsWith(github.ref, 'refs/tags/'))
-        run: flutter build appbundle --build-name ${{ env.today }}
+      # - name: build apk with branch
+      #   if: (!startsWith(github.ref, 'refs/tags/'))
+      #   run: flutter build appbundle --build-name ${{ env.today }}
+
+      # - name: build apk with branch
+      #   if: (!startsWith(github.ref, 'refs/tags/'))
+      #   run: flutter build appbundle --build-name ${{ env.today }}
 
       - name: build apk with branch
         if: (!startsWith(github.ref, 'refs/tags/'))
-        run: flutter build appbundle --build-name ${{ env.today }}
+        run: flutter build appbundle
+        
+      - name: build apk with branch
+        if: (!startsWith(github.ref, 'refs/tags/'))
+        run: flutter build appbundle
       
       - name: Upload APK
         uses: actions/upload-artifact@v4
