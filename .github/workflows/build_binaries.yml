@@ -18,7 +18,7 @@ name: Build Binaries
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "18-apk-stuck-on-splash-screen" ]
     tags:
       - '*'
 
