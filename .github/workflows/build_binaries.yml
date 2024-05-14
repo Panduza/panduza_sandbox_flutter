@@ -18,7 +18,7 @@ name: Build Binaries
  
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "15-apk-not-generated" ]
     tags:
       - '*'
  
