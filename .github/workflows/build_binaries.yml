@@ -2,83 +2,93 @@
 # They are provided by a third-party and are governed by
 # separate terms of service, privacy policy, and support
 # documentation.
-
-# If branch, build name will be the branch name and the date of the day 
+ 
+# If branch, build name will be the branch name and the date of the day
 # Else if tag, build name will be tag name
-
-# Create an apk of flutter sandbox application when creating a new tag, pushing 
-# on main branch or making a pull request. This apk will have a build name (the one 
+ 
+# Create an apk of flutter sandbox application when creating a new tag, pushing
+# on main branch or making a pull request. This apk will have a build name (the one
 # a normal user can see) equal to the date of the day at the format year.month.day.hour
-# if it comes from a push on main or a pull request, if the actions come from pushing of 
+# if it comes from a push on main or a pull request, if the actions come from pushing of
 # a tag then it will simply take the name of the tag (tag name must respect format precise
 # in the specs : content/docs/sandbox-app/specifications/naming_rules/index.md)
-
-
-name: Build Binaries 
-
+ 
+ 
+name: Build Binaries
+ 
 on:
   push:
     branches: [ "main" ]
     tags:
       - '*'
-
+ 
   pull_request:
     branches: [ "main" ]
-
+ 
 jobs:
-
+ 
   build_apk:
     runs-on: ubuntu-latest
-
+ 
     steps:
-
-      - name: Get the version
-        id: get_version
-        run: echo ::set-output name=VERSION::$(echo $GITHUB_REF | cut -d / -f 3)
-
+ 
+      - name: Get tag name
+        id: tag_name
+        run: echo "name=$(echo $GITHUB_REF | cut -d / -f 3)" >> $GITHUB_ENV
+ 
       - name: Get current date
         id: date
         run: echo "today=$(date +'%Y.%m.%d.%H')" >> $GITHUB_ENV
-
+ 
       - name: Clone repository
         uses: actions/checkout@v4
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: 3.19.0
-      - run: flutter pub get
 
+      - run: flutter clean
+      - run: flutter pub get
+ 
       # If build from tag will use the tag name like build name with these 2 steps
 
-      # - name: build apk with tag 
-      #   if: startsWith(github.ref, 'refs/tags/')
-      #   run: flutter build apk --build-name ${{ steps.get_version.outputs.VERSION }}
-
-      # - name: build appbundle with tag
-      #   if: startsWith(github.ref, 'refs/tags/')
-      #   run: flutter build appbundle --build-name ${{ steps.get_version.outputs.VERSION }}
-
-      # If build from branch will use the date of the day at the format year.month.day.hour
-      # like build name with these two next steps
-
-      # - name: build apk with branch
-      #   if: (!startsWith(github.ref, 'refs/tags/'))
-      #   run: flutter build appbundle --build-name ${{ env.today }}
-
-      # - name: build apk with branch
-      #   if: (!startsWith(github.ref, 'refs/tags/'))
-      #   run: flutter build appbundle --build-name ${{ env.today }}
-
-      - name: build apk with branch
-        if: (!startsWith(github.ref, 'refs/tags/'))
-        run: flutter build appbundle
-        
-      - name: build apk with branch
-        if: (!startsWith(github.ref, 'refs/tags/'))
-        run: flutter build apk
-      
+      - name: build apk with tag
+        if: startsWith(github.ref, 'refs/tags/')
+        run: flutter build apk --build-name ${{ env.name }}
+ 
+      - name: build appbundle with tag
+        if: startsWith(github.ref, 'refs/tags/')
+        run: flutter build appbundle --build-name ${{ env.name }}
+ 
+      - name: change apk name with tag name
+        if: startsWith(github.ref, 'refs/tags/')
+        run: mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/${{env.name}}.apk
+ 
       - name: Upload APK
+        if: startsWith(github.ref, 'refs/tags/')
         uses: actions/upload-artifact@v4
         with:
           name: apk
-          path: build/app/outputs/flutter-apk/app-release.apk
+          path: build/app/outputs/flutter-apk/${{env.name}}.apk
+ 
+      # If build from branch will use the date of the day at the format year.month.day.hour
+      # like build name with these two next steps
+ 
+      - name: build apk with branch
+        if: (!startsWith(github.ref, 'refs/tags/'))
+        run: flutter build apk --build-name ${{ env.today }}
+ 
+      - name: build apk with branch
+        if: (!startsWith(github.ref, 'refs/tags/'))
+        run: flutter build appbundle --build-name ${{ env.today }}
+ 
+      - name: change apk name with branch
+        if: (!startsWith(github.ref, 'refs/tags/'))
+        run: mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/${{env.today}}.apk
+ 
+      - name: Upload APK
+        if: (!startsWith(github.ref, 'refs/tags/'))
+        uses: actions/upload-artifact@v4
+        with:
+          name: apk
+          path: build/app/outputs/flutter-apk/${{env.today}}.apk
