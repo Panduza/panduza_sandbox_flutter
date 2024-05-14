@@ -92,9 +92,3 @@ jobs:
         with:
           name: apk
           path: build/app/outputs/flutter-apk/${{env.today}}.apk
-
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: apk
-          path: build/app/outputs/flutter-apk/app-release.apk
