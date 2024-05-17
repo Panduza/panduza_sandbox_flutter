@@ -23,7 +23,7 @@ PreferredSizeWidget? getAppBar(String title) {
     // TO DO : Change to logo2 
     actions: <Widget>[
       IconButton(
-        icon: Image.asset('assets/logo_1024.png'),
+        icon: Image.asset('assets/logo_circle_black_blue_1024.png'),
         /*            
         icon: SvgPicture.asset(
           '../../assets/icons/logo2.svg'
@@ -54,7 +54,7 @@ PreferredSizeWidget? getAppBarUserSpace(String title, BuildContext context) {
     // TO DO : Change to logo2 
     actions: <Widget>[
       IconButton(
-        icon: Image.asset('assets/logo_1024.png'),
+        icon: Image.asset('assets/logo_circle_black_blue_1024.png'),
         /*            
         icon: SvgPicture.asset(
           '../../assets/icons/logo2.svg'
@@ -103,7 +103,7 @@ PreferredSizeWidget? getConnectionsAppBar(String title, BuildContext context) {
         ),
       ),
       IconButton(
-        icon: Image.asset('assets/logo_1024.png'),
+        icon: Image.asset('assets/logo_circle_black_blue_1024.png'),
         /*            
         icon: SvgPicture.asset(
           '../../assets/icons/logo2.svg'

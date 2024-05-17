@@ -12,18 +12,18 @@ Widget getDrawer(BuildContext context) {
     backgroundColor: white,
     child: Column(
       children: [
-        // Need to change logo to pass to the new final version
-        IconButton(
-          icon: Image.asset('assets/logo_1024.png'),
-          /*            
-          icon: SvgPicture.asset(
-            '../../assets/icons/logo2.svg'
+        const SizedBox(
+          height: 10,
+        ),
+        SizedBox(
+          height: 200,
+          width: 200,
+          child: IconButton(
+            icon: Image.asset('assets/logo_circle_black_blue_1024.png'),
+            onPressed: () {
+              return;
+            }, 
           ),
-          */
-          iconSize: 10,
-          onPressed: () {
-            return;
-          }, 
         ),
         const SizedBox(
           height: 10,
