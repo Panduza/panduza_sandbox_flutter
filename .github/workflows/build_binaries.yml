@@ -18,7 +18,7 @@ name: Build Binaries
  
 on:
   push:
-    branches: [ "main", "13-apply-new-logo-to-android-build" ]
+    branches: [ "main" ]
     tags:
       - '*'
  
