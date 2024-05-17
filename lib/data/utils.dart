@@ -288,7 +288,6 @@ Future<bool> checkIfConnectionValid(BuildContext context, String name, String ho
 Future<List<(InternetAddress, int)>> platformDiscovery() async {
 
   List<(InternetAddress, int)> ipPort = []; 
-  String waitedAnswer = '{"name": "panduza_platform","version": 1.0}';
 
   // Could have some problem with some android phone ?
   List<NetworkInterface> listInterface = await NetworkInterface.list();
@@ -304,9 +303,7 @@ Future<List<(InternetAddress, int)>> platformDiscovery() async {
           String answer = utf8.decode(datagram.data);
 
           // Here send the port of platform and not broker, how to get the port of the broker ? 
-          if(answer == waitedAnswer) {
-            if (!ipPort.contains((datagram.address, datagram.port))) ipPort.add((datagram.address, datagram.port));
-          }
+          if (!ipPort.contains((datagram.address, datagram.port))) ipPort.add((datagram.address, datagram.port));
         }
       });
 
