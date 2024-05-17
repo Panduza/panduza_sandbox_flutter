@@ -22,11 +22,11 @@ class DiscoveryPage extends StatefulWidget {
 
 class _DiscoveryPageState extends State<DiscoveryPage> {
 
-  List<(InternetAddress, int)> platformsIpsPorts = [];
+  List<(InternetAddress, int, String)> platformsIpsPorts = [];
   bool isLoading = false;
 
   // List of button of local platform detected 
-  Widget localDiscoveryConnections(List<(InternetAddress, int)> platformsIpsPorts, bool isLoading) {
+  Widget localDiscoveryConnections(List<(InternetAddress, int, String)> platformsIpsPorts, bool isLoading) {
 
     if (isLoading) {
       return Center(
@@ -53,8 +53,7 @@ class _DiscoveryPageState extends State<DiscoveryPage> {
                 child: Column (
                   children: <Widget>[
                     AutoSizeText(
-                      // '${platformsIpsPorts[index].$1.host}',
-                      "local",
+                      platformsIpsPorts[index].$3,
                       style: TextStyle(
                         color: blue
                       ),
@@ -74,6 +73,7 @@ class _DiscoveryPageState extends State<DiscoveryPage> {
                 context,
                 MaterialPageRoute(
                   builder: (context) => ManualConnectionPage(
+                    name: platformsIpsPorts[index].$3,
                     ip: platformsIpsPorts[index].$1.address,
                     port: "1883"
                   ),
