@@ -49,6 +49,7 @@ jobs:
 
       - run: flutter clean
       - run: flutter pub get
+      - run: flutter pub run flutter_launcher_icons
  
       # If build from tag will use the tag name like build name with these 2 steps
 
