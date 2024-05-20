@@ -8,10 +8,12 @@ import 'package:panduza_sandbox_flutter/utils_widgets/appBar.dart';
 class ManualConnectionPage extends StatelessWidget {
   const ManualConnectionPage({
     super.key,
+    this.name = "",
     this.ip = "",  
     this.port = "", 
   });
 
+  final String name;
   final String ip;
   final String port;
 
@@ -25,6 +27,7 @@ class ManualConnectionPage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             AddConnectionForm(
+              name: name,
               ip: ip, 
               port: port
             )

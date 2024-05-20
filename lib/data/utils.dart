@@ -285,9 +285,9 @@ Future<bool> checkIfConnectionValid(BuildContext context, String name, String ho
   broadcast  with UTF-8 format and getting an answer for each platform
 */
 
-Future<List<(InternetAddress, int)>> platformDiscovery() async {
+Future<List<(InternetAddress, int, String)>> platformDiscovery() async {
 
-  List<(InternetAddress, int)> ipPort = []; 
+  List<(InternetAddress, int, String)> ipPort = []; 
   String waitedAnswer = '{"name": "panduza_platform","version": 1.0}';
 
   // Could have some problem with some android phone ?
@@ -300,12 +300,15 @@ Future<List<(InternetAddress, int)>> platformDiscovery() async {
       socket.listen((e) {
         Datagram? datagram = socket.receive();
         if (datagram != null) {
-          // String answer = String.fromCharCodes(datagram.data);
           String answer = utf8.decode(datagram.data);
+          
+          Map<String, dynamic> answerMap = jsonDecode(answer);
+          String? platformName = answerMap["name"];
 
-          // Here send the port of platform and not broker, how to get the port of the broker ? 
-          if(answer == waitedAnswer) {
-            if (!ipPort.contains((datagram.address, datagram.port))) ipPort.add((datagram.address, datagram.port));
+          // if platform name is not given in the answer payload do not add this platform 
+          if (platformName != null) {
+            // Get addr, port and platform name
+            if (!ipPort.contains((datagram.address, datagram.port))) ipPort.add((datagram.address, datagram.port, platformName));
           }
         }
       });

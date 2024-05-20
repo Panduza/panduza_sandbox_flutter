@@ -11,10 +11,12 @@ class ManualConnectionPage extends StatelessWidget {
   
   const ManualConnectionPage({
     super.key,
+    required this.name,
     required this.ip,
     required this.port
   });
 
+  final String name;
   final String ip;
   final String port;
 
@@ -28,6 +30,7 @@ class ManualConnectionPage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             AddConnectionForm(
+              name: name,
               ip: ip,
               port: port,
             )
