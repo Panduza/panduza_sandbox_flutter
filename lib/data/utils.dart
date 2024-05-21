@@ -315,7 +315,7 @@ Future<List<(String, int, String)>> platformDiscovery() async {
             if (platformName != null && brokerAddr != null && brokerPort != null) {
               // Get addr, port and platform name
               // if (!ipPort.contains((datagram.address, datagram.port, platformName))) ipPort.add((datagram.address, datagram.port, platformName));
-              if (!ipPort.contains((brokerAddr, brokerPort, platformName))) ipPort.add((brokerAddr, brokerPort, platformName));
+              if (!ipPort.contains((datagram.address.address, brokerPort, platformName))) ipPort.add((datagram.address.address, brokerPort, platformName));
             }
           } 
 
