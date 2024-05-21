@@ -301,7 +301,7 @@ Future<List<(InternetAddress, int, String)>> platformDiscovery() async {
         Datagram? datagram = socket.receive();
         if (datagram != null) {
           String answer = utf8.decode(datagram.data);
-          
+      
           Map<String, dynamic> answerMap = jsonDecode(answer);
           String? platformName = answerMap["name"];
 
