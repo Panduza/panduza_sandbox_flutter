@@ -285,10 +285,9 @@ Future<bool> checkIfConnectionValid(BuildContext context, String name, String ho
   broadcast  with UTF-8 format and getting an answer for each platform
 */
 
-Future<List<(InternetAddress, int, String)>> platformDiscovery() async {
+Future<List<(String, int, String)>> platformDiscovery() async {
 
-  List<(InternetAddress, int, String)> ipPort = []; 
-  String waitedAnswer = '{"name": "panduza_platform","version": 1.0}';
+  List<(String, int, String)> ipPort = []; 
 
   // Could have some problem with some android phone ?
   List<NetworkInterface> listInterface = await NetworkInterface.list();
@@ -303,13 +302,24 @@ Future<List<(InternetAddress, int, String)>> platformDiscovery() async {
           String answer = utf8.decode(datagram.data);
       
           Map<String, dynamic> answerMap = jsonDecode(answer);
-          String? platformName = answerMap["name"];
 
-          // if platform name is not given in the answer payload do not add this platform 
-          if (platformName != null) {
-            // Get addr, port and platform name
-            if (!ipPort.contains((datagram.address, datagram.port))) ipPort.add((datagram.address, datagram.port, platformName));
-          }
+          Map<String, dynamic>? brokerInfo = answerMap["broker"];
+           Map<String, dynamic>? platformInfo = answerMap["platform"];
+          
+          if (brokerInfo != null && platformInfo != null) {
+            String? brokerAddr = brokerInfo["addr"];
+            int? brokerPort = brokerInfo["port"];
+            String? platformName = platformInfo["name"];
+
+            // if platform name is not given in the answer payload do not add this platform 
+            if (platformName != null && brokerAddr != null && brokerPort != null) {
+              // Get addr, port and platform name
+              // if (!ipPort.contains((datagram.address, datagram.port, platformName))) ipPort.add((datagram.address, datagram.port, platformName));
+              if (!ipPort.contains((datagram.address.address, brokerPort, platformName))) ipPort.add((datagram.address.address, brokerPort, platformName));
+            }
+          } 
+
+          
         }
       });
 
@@ -326,5 +336,3 @@ Future<List<(InternetAddress, int, String)>> platformDiscovery() async {
 
   return ipPort;
 }
-
-
