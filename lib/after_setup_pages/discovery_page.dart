@@ -22,11 +22,11 @@ class DiscoveryPage extends StatefulWidget {
 
 class _DiscoveryPageState extends State<DiscoveryPage> {
 
-  List<(InternetAddress, int, String)> platformsIpsPorts = [];
+  List<(String, int, String)> platformsIpsPorts = [];
   bool isLoading = false;
 
   // List of button of local platform detected 
-  Widget localDiscoveryConnections(List<(InternetAddress, int, String)> platformsIpsPorts, bool isLoading) {
+  Widget localDiscoveryConnections(List<(String, int, String)> platformsIpsPorts, bool isLoading) {
 
     if (isLoading) {
       return Center(
@@ -59,10 +59,10 @@ class _DiscoveryPageState extends State<DiscoveryPage> {
                       ),
                     ),
                     AutoSizeText(
-                      platformsIpsPorts[index].$1.address
+                      platformsIpsPorts[index].$1
                     ),
-                    const AutoSizeText(
-                      '1883'
+                    AutoSizeText(
+                      platformsIpsPorts[index].$2.toString()
                     )
                   ],
                 )
@@ -74,8 +74,8 @@ class _DiscoveryPageState extends State<DiscoveryPage> {
                 MaterialPageRoute(
                   builder: (context) => ManualConnectionPage(
                     name: platformsIpsPorts[index].$3,
-                    ip: platformsIpsPorts[index].$1.address,
-                    port: "1883"
+                    ip: platformsIpsPorts[index].$1,
+                    port: platformsIpsPorts[index].$2.toString()
                   ),
                 ),
               );
@@ -94,7 +94,7 @@ class _DiscoveryPageState extends State<DiscoveryPage> {
     platformDiscovery().then(
       (value) {
         platformsIpsPorts = value;
-        platformsIpsPorts.sort((a, b) => a.$1.host.compareTo(b.$1.host));
+        platformsIpsPorts.sort((a, b) => a.$3.compareTo(b.$3));
         setState(() {});
       }
     );
@@ -121,7 +121,7 @@ class _DiscoveryPageState extends State<DiscoveryPage> {
                 platformDiscovery().then(
                   (value) {
                     platformsIpsPorts = value;
-                    platformsIpsPorts.sort((a, b) => a.$1.host.compareTo(b.$1.host));
+                    platformsIpsPorts.sort((a, b) => a.$3.compareTo(b.$3));
                     setState(() {});
                   }
                 );
