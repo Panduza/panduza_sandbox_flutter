@@ -14,17 +14,21 @@ class AddConnectionForm extends StatelessWidget {
 
   const AddConnectionForm({
     super.key,
+    required this.name,
     required this.ip,
     required this.port,
   });
 
+  final String name;
   final String ip;
   final String port;
 
   @override
   Widget build(BuildContext context) {
 
-    final ctrlName = TextEditingController();
+    final ctrlName = TextEditingController(
+      text: name
+    );
     final ctrlHostIp = TextEditingController(
       text: ip,
     );
