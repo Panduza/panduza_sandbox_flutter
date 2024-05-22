@@ -95,6 +95,7 @@ class _IcRelayState extends State<IcRelay> {
   /// When Switch tap send a mqtt request to the platform
   ///
   void Function(bool)? enableValueSwitchOnChanged() {
+    
     if (_enableValueReq != _enableValueEff) {
       return null;
     } else {
@@ -107,18 +108,16 @@ class _IcRelayState extends State<IcRelay> {
   /// Publish a request to make the relay take the value of the switch widget
   ///
   void enableValueToggleRequest() {
-    
     if (_enableValueEff == null) {
       return;
     }
-    
     bool target = _enableValueEff! ? false : true;
 
     MqttClientPayloadBuilder builder = MqttClientPayloadBuilder();
 
     // Example JSON object
     Map<String, dynamic> data = {
-      "enable": {"value": target}
+      "state": {"open": target}
     };
 
     // Convert JSON object to string
@@ -149,10 +148,7 @@ class _IcRelayState extends State<IcRelay> {
             cardHeadLine(widget._interfaceConnection),
             Switch(
               value: _enableValueEff!,
-              onChanged: (event) {
-                enableValueSwitchOnChanged();
-                setState(() {});
-              },
+              onChanged: enableValueSwitchOnChanged(),
               activeColor: blue,
             ),
             /*
