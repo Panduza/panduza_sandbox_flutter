@@ -34,6 +34,7 @@ class _IcBpcState extends State<IcBpc> {
 
     //
     if (c[0].topic.startsWith(widget._interfaceConnection.topic)) {
+      print(c[0].topic);
       if (!c[0].topic.endsWith('/info')) {
         final recMess = c![0].payload as MqttPublishMessage;
 
@@ -41,7 +42,7 @@ class _IcBpcState extends State<IcBpc> {
             MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
 
         var jsonObject = json.decode(pt);
-
+        
         print(jsonObject);
 
         // Map<String, dynamic> updateAtts = Map.from(_attsEffective);
@@ -50,7 +51,6 @@ class _IcBpcState extends State<IcBpc> {
           for (MapEntry<String, dynamic> atts in jsonObject.entries) {
             for (MapEntry<String, dynamic> field in atts.value.entries) {
               print('${atts.key} ${field.key} => ${field.value}');
-
               switch (atts.key) {
                 case "enable":
                   if (field.key == "value") {

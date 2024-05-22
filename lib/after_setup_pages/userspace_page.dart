@@ -12,6 +12,7 @@ import 'package:panduza_sandbox_flutter/userspace_widgets/ic_not_managed.dart';
 // import '../widgets/interface_control/icw_bpc.dart';
 
 import 'package:panduza_sandbox_flutter/data/interface_connection.dart';
+import 'package:panduza_sandbox_flutter/userspace_widgets/ic_relay.dart';
 import 'package:panduza_sandbox_flutter/utils_widgets/appBar.dart';
 import 'package:panduza_sandbox_flutter/data/broker_connection_info.dart';
 
@@ -77,7 +78,7 @@ class _UserspacePageState extends State<UserspacePage> {
         // print(message.toString());
 
         // pza/*/atts/info
-
+        print(c[0].topic);
         if (c![0].topic.startsWith("pza") & c![0].topic.endsWith("atts/info")) {
           final recMess = c![0].payload as MqttPublishMessage;
 
@@ -147,6 +148,8 @@ class _UserspacePageState extends State<UserspacePage> {
         return IcPlatform(ic);
       case "powermeter":
         return IcPowermeter(ic);
+      case "relay":
+        return IcRelay(ic);
       default:
         print("!!!! $type");
         return IcNotManaged(ic);
