@@ -52,7 +52,10 @@ class _IcRelayState extends State<IcRelay> {
 
               if (field.key == "open") {
                 _enableValueEff = field.value;
-                _enableValueReq ??= _enableValueEff;
+                
+                if (_enableValueEff != null) {
+                  _enableValueReq = _enableValueEff;
+                }
               }
             }
           }
