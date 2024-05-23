@@ -15,7 +15,6 @@ final _chars =
     'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
 final Random _rnd = Random();
 
-
 // remove the connection of disk, 
 // first the direct entry of this connection 
 // then remove it from the directory (connectionKey)
@@ -329,7 +328,7 @@ Future<List<(String, int, String)>> platformDiscovery() async {
         print("Local discovery on ${e.address}:${e.port} failed, error code = ${e.osError?.errorCode}, ${e.osError?.message}");
       }
       
-      await Future.delayed(const Duration(milliseconds: 100));
+      await Future.delayed(const Duration(milliseconds: 400));
       socket.close();
     }
   }
