@@ -52,7 +52,7 @@ class _IcRelayState extends State<IcRelay> {
 
               if (field.key == "open") {
                 _enableValueEff = field.value;
-                
+
                 if (_enableValueEff != null) {
                   _enableValueReq = _enableValueEff;
                 }
@@ -68,21 +68,26 @@ class _IcRelayState extends State<IcRelay> {
 
   /// Initialize MQTT Subscriptions
   ///
-  void initializeMqttSubscription() async {
+  void initializeMqttSubscription() async { 
+
+    // Here listen is too slow to completely start so sometimes subscribe
+    // happens before and so 1 message can be skip making button freeze 
+    // because first state is not detected (and the application see it like 
+    // interface is not connected)
 
     widget._interfaceConnection.client.updates!.listen(onMqttMessage);
 
+    await Future.delayed(const Duration(milliseconds: 400));
 
     String attsTopic = "${widget._interfaceConnection.topic}/atts/#";
     // print(attsTopic);
     Subscription? sub = widget._interfaceConnection.client
         .subscribe(attsTopic, MqttQos.atLeastOnce);
+  }
 
-    // if (sub != null) {
-    //   print("coool !!");
-    // } else {
-    //   print("nullllll");
-    // }
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   /// Perform MQTT Subscriptions at the start of the component
