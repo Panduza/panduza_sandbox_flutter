@@ -26,15 +26,15 @@ class _IcRelayState extends State<IcRelay> {
   ///
   ///
   void onMqttMessage(List<MqttReceivedMessage<MqttMessage>> c) {
-    print("============");
-    print('Received ${c[0].topic} from ${widget._interfaceConnection.topic} ');
+    // print("============");
+    // print('Received ${c[0].topic} from ${widget._interfaceConnection.topic} ');
     
-    print(widget._interfaceConnection.topic);
+    // print(widget._interfaceConnection.topic);
 
     if (c[0].topic.startsWith(widget._interfaceConnection.topic)) {
-      print("test = ${c[0].topic}");
+      // print("test = ${c[0].topic}");
       if (!c[0].topic.endsWith('/info')) {
-        print("success = ${c[0].topic}");
+        // print("success = ${c[0].topic}");
         final recMess = c![0].payload as MqttPublishMessage;
 
         final pt =
@@ -42,7 +42,7 @@ class _IcRelayState extends State<IcRelay> {
 
         var jsonObject = json.decode(pt);
 
-        print(jsonObject);
+        // print(jsonObject);
 
         // Map<String, dynamic> updateAtts = Map.from(_attsEffective);
 
