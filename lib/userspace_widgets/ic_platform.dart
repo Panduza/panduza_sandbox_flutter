@@ -25,10 +25,10 @@ class _IcPlatformState extends State<IcPlatform> {
   }
 
   void _handleButtonPress() {
-    print(_value);
+    // print(_value);
 
     if (_value == 'fake psu') {
-      print(widget._interfaceConnection.topic);
+      // print(widget._interfaceConnection.topic);
 
       // /cmds/set
       Map<String, dynamic> content = {

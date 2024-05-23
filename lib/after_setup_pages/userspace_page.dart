@@ -78,7 +78,7 @@ class _UserspacePageState extends State<UserspacePage> {
         // print(message.toString());
 
         // pza/*/atts/info
-        print(c[0].topic);
+        // print(c[0].topic);
         if (c![0].topic.startsWith("pza") & c![0].topic.endsWith("atts/info")) {
           final recMess = c![0].payload as MqttPublishMessage;
 
@@ -96,7 +96,16 @@ class _UserspacePageState extends State<UserspacePage> {
           if (!interfaceAlreadyRegistered(ic)) {
             if (ic.getType() != "device") {
               setState(() {
-                interfaces = [...interfaces, ic];
+                // sort interface by device name and 
+                interfaces.add(ic);
+                interfaces.sort((a, b) {
+                  var compareResult = a.getDeviceName().compareTo(b.getDeviceName());
+                  if (compareResult == 0) {
+                    compareResult = a .getInterfaceName().compareTo(b.getInterfaceName());
+                  }
+                  return compareResult;
+                });
+                // interfaces = [...interfaces, ic];
               });
             }
           }
@@ -138,7 +147,7 @@ class _UserspacePageState extends State<UserspacePage> {
 
     final ic = interfaces[index];
     final type = ic.info["type"];
-
+    
     switch (type) {
       case "blc":
         return IcBlc(ic);
