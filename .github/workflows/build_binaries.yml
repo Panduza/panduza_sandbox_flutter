@@ -18,7 +18,7 @@ name: Build Binaries
  
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "40-add-windows-build-to-workflow" ]
     tags:
       - '*'
  
@@ -50,7 +50,7 @@ jobs:
       - run: flutter clean
       - run: flutter pub get
       - run: flutter pub run flutter_launcher_icons
- 
+
       # If build from tag will use the tag name like build name with these 2 steps
 
       - name: build apk with tag
@@ -93,3 +93,35 @@ jobs:
         with:
           name: apk
           path: build/app/outputs/flutter-apk/${{env.today}}.apk
+
+  # build and upload windows app with default name
+    
+  build_windows_app:
+
+    runs-on: windows-latest
+
+    steps:
+      
+      # Get flutter and setup
+
+      - name: Clone repository
+        uses: actions/checkout@v4
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.19.0
+
+      - run: flutter clean
+      - run: flutter pub get
+      - run: flutter pub run flutter_launcher_icons
+
+      # Build windows app + upload
+
+      - name: build windows app
+        run: flutter build windows
+
+      - name: Upload windows app
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows_app
+          path: build\windows\x64\runner\Release
