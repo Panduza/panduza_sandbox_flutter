@@ -18,7 +18,7 @@ name: Build Binaries
  
 on:
   push:
-    branches: [ "main", "40-add-windows-build-to-workflow" ]
+    branches: [ "main" ]
     tags:
       - '*'
  
