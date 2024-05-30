@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:panduza_sandbox_flutter/after_setup_pages/test_video.dart';
 
 import 'package:panduza_sandbox_flutter/data/const.dart';
 import 'package:panduza_sandbox_flutter/data/utils.dart';
@@ -68,7 +69,7 @@ class AuthentificationForm extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => UserspacePage(
+                        builder: (context) => VideoPlayerScreen(
                           broker_connection_info: BrokerConnectionInfo(
                             ip, 
                             int.parse(port), 

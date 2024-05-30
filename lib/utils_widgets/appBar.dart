@@ -3,7 +3,6 @@ import 'package:panduza_sandbox_flutter/after_setup_pages/connections_page.dart'
 import 'package:panduza_sandbox_flutter/data/const.dart';
 import 'package:flutter/material.dart';
 
-import 'package:panduza_sandbox_flutter/data/const.dart';
 import 'package:panduza_sandbox_flutter/setup_pages/cloud_config_auth_page.dart';
 
 // bar at the top of the application on nearly every page
@@ -19,16 +18,9 @@ PreferredSizeWidget? getAppBar(String title) {
         color: blue,
       ),
     ),
-    // Panduza logo
-    // TO DO : Change to logo2 
     actions: <Widget>[
       IconButton(
         icon: Image.asset('assets/logo_circle_black_blue_1024.png'),
-        /*            
-        icon: SvgPicture.asset(
-          '../../assets/icons/logo2.svg'
-        ),
-        */
         iconSize: 50,
         onPressed: () {
           return;
@@ -50,16 +42,9 @@ PreferredSizeWidget? getAppBarUserSpace(String title, BuildContext context) {
         color: blue,
       ),
     ),
-    // Panduza logo
-    // TO DO : Change to logo2 
     actions: <Widget>[
       IconButton(
         icon: Image.asset('assets/logo_circle_black_blue_1024.png'),
-        /*            
-        icon: SvgPicture.asset(
-          '../../assets/icons/logo2.svg'
-        ),
-        */
         iconSize: 50,
         onPressed: () {
           return;
@@ -87,8 +72,6 @@ PreferredSizeWidget? getConnectionsAppBar(String title, BuildContext context) {
         color: blue,
       ),
     ),
-    // Panduza logo
-    // TO DO : Change to logo2 
     actions: <Widget>[
       IconButton(
         onPressed: () {
@@ -104,11 +87,6 @@ PreferredSizeWidget? getConnectionsAppBar(String title, BuildContext context) {
       ),
       IconButton(
         icon: Image.asset('assets/logo_circle_black_blue_1024.png'),
-        /*            
-        icon: SvgPicture.asset(
-          '../../assets/icons/logo2.svg'
-        ),
-        */
         iconSize: 50,
         onPressed: () {
           return;
