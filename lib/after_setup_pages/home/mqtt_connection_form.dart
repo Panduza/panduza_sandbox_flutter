@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 // import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
+import 'package:panduza_sandbox_flutter/after_setup_pages/test_video.dart';
 
 import 'package:panduza_sandbox_flutter/data/broker_connection_info.dart';
 import 'package:panduza_sandbox_flutter/after_setup_pages/userspace_page.dart';
@@ -117,7 +118,7 @@ class _MqttConnectionFormState extends State<MqttConnectionForm> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => UserspacePage(
+                      builder: (context) => VideoPlayerScreen(
                             broker_connection_info: BrokerConnectionInfo(
                                 getHost(), getPort(), _client),
                           )),

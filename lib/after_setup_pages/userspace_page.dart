@@ -79,7 +79,7 @@ class _UserspacePageState extends State<UserspacePage> {
         // print(message.toString());
 
         // pza/*/atts/info
-        // print(c[0].topic);
+        print(c![0].topic);
         if (c![0].topic.startsWith("pza") & c![0].topic.endsWith("atts/info")) {
           final recMess = c![0].payload as MqttPublishMessage;
 

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:http/http.dart';
 import 'package:panduza_sandbox_flutter/after_setup_pages/connections_page.dart';
+import 'package:panduza_sandbox_flutter/after_setup_pages/test_video.dart';
 import 'package:panduza_sandbox_flutter/setup_pages/cloud_config_auth_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -441,7 +442,7 @@ Widget getConnectionsButtonsList(SharedPreferences prefs, List<String> platformN
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => UserspacePage(
+                      builder: (context) => VideoPlayerScreen(
                         broker_connection_info: BrokerConnectionInfo(
                           host, 
                           int.parse(port), 
