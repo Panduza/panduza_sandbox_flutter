@@ -3,7 +3,9 @@ import 'dart:convert';
 
 // import '../widgets/interface_control/icw_bpc.dart';
 import 'package:mqtt_client/mqtt_client.dart';
+import 'package:panduza_sandbox_flutter/data/const.dart';
 import 'package:panduza_sandbox_flutter/data/device_config.dart';
+import 'package:panduza_sandbox_flutter/utils_widgets/appBar.dart';
 // import 'package:mqtt_client/mqtt_server_client.dart';
 
 // import 'userspace/ic_bpc.dart';
@@ -111,32 +113,38 @@ class _DevicePageState extends State<DevicePage> {
       // final int columns = (width / 300.0).round();
 
       return Scaffold(
-          appBar: AppBar(
-            title: Text('Device ${_config.name}'),
-          ),
-          body: Column(children: [
+        appBar: getAppBar('Device ${_config.name}'),
+        body: Column(
+          children: [
+            const SizedBox(
+              height: 20,
+            ),
             TextField(
               controller: _nameController,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                border: const OutlineInputBorder(),
                 labelText: 'Name',
+                labelStyle: TextStyle(
+                  color: white
+                )
               ),
               onChanged: (value) => {_config.name = value},
             ),
             DropdownButton<String>(
-                items: _availableRefList!
-                    .map<DropdownMenuItem<String>>((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
-                value: _config.ref,
-                onChanged: (String? value) {
-                  setState(() {
-                    _config.ref = value!;
-                  });
-                }),
+              items: _availableRefList!
+                  .map<DropdownMenuItem<String>>((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value),
+                );
+              }).toList(),
+              value: _config.ref,
+              onChanged: (String? value) {
+                setState(() {
+                  _config.ref = value!;
+                });
+              }
+            ),
             propertyWidget(),
             ElevatedButton(
               onPressed: () {
@@ -144,7 +152,9 @@ class _DevicePageState extends State<DevicePage> {
               },
               child: const Text("Apply"),
             )
-          ]));
+          ]
+        )
+      );
     }
   }
 }
