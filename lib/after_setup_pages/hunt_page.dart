@@ -174,6 +174,7 @@ class _HuntPageState extends State<HuntPage> {
             const Text('Hunt'),
             ElevatedButton(
               onPressed: () {
+                print(widget._platformConfig.devices);
                 widget._platformConfig.devices.insert(
                   0,
                   DeviceConfig(

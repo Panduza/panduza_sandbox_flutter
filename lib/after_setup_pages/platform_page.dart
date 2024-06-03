@@ -87,10 +87,12 @@ class _PlatformPageState extends State<PlatformPage> {
         var jsonObject = json.decode(pt);
 
         if (jsonObject.containsKey("devices")) {
-          Map<dynamic, dynamic> store = jsonObject["devices"]["store"];
-          setState(() {
-            _deviceStore = store;
-          });
+          if (jsonObject.containsKey("store")) {
+            Map<dynamic, dynamic> store = jsonObject["devices"]["store"];
+            setState(() {
+              _deviceStore = store;
+            });
+          }
         }
       }
 
@@ -161,15 +163,16 @@ class _PlatformPageState extends State<PlatformPage> {
   @override
   void initState() {
     super.initState();
-    
+
     // subscribe to info and atts ?
+    _platformConfig.devices = [];
     Future.delayed(const Duration(milliseconds: 1), initializeMqttSubscription);
   }
 
   @override
   Widget build(BuildContext context) {
     print("!!!!!!!!!!! ${_platformConfig.devices.length}");
-
+    
     return Scaffold(
       appBar: getAppBar("Platform"),
       body: Center(
