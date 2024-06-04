@@ -74,7 +74,6 @@ class _IcBlcState extends State<IcBlc> {
               switch (atts.key) {
                 case "mode":
                   if (field.key == "value") {
-                    print("ARGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG");
                     bool sync = false;
                     if (_modeValueEff == _modeValueReq ||
                         _modeValueReq == null) {
