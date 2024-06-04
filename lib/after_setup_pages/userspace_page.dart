@@ -13,6 +13,7 @@ import 'package:panduza_sandbox_flutter/userspace_widgets/ic_not_managed.dart';
 
 import 'package:panduza_sandbox_flutter/data/interface_connection.dart';
 import 'package:panduza_sandbox_flutter/userspace_widgets/ic_relay.dart';
+import 'package:panduza_sandbox_flutter/userspace_widgets/ic_thermometer.dart';
 import 'package:panduza_sandbox_flutter/utils_widgets/appBar.dart';
 import 'package:panduza_sandbox_flutter/data/broker_connection_info.dart';
 
@@ -157,6 +158,8 @@ class _UserspacePageState extends State<UserspacePage> {
         return IcPlatform(ic);
       case "powermeter":
         return IcPowermeter(ic);
+      case "thermometer":
+        return IcThermometer(ic);
       case "relay":
         return IcRelay(ic);
       default:
