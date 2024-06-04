@@ -3,6 +3,8 @@ import 'dart:convert';
 
 // import '../widgets/interface_control/icw_bpc.dart';
 import 'package:mqtt_client/mqtt_client.dart';
+import 'package:panduza_sandbox_flutter/data/const.dart';
+import 'package:panduza_sandbox_flutter/utils_widgets/appBar.dart';
 // import 'package:mqtt_client/mqtt_server_client.dart';
 
 // import 'userspace/ic_bpc.dart';
@@ -85,10 +87,12 @@ class _PlatformPageState extends State<PlatformPage> {
         var jsonObject = json.decode(pt);
 
         if (jsonObject.containsKey("devices")) {
-          Map<dynamic, dynamic> store = jsonObject["devices"]["store"];
-          setState(() {
-            _deviceStore = store;
-          });
+          if (jsonObject.containsKey("store")) {
+            Map<dynamic, dynamic> store = jsonObject["devices"]["store"];
+            setState(() {
+              _deviceStore = store;
+            });
+          }
         }
       }
 
@@ -133,20 +137,23 @@ class _PlatformPageState extends State<PlatformPage> {
     List<Widget> items = [];
     for (var device in _platformConfig.devices) {
       // device.
-      items.add(ListTile(
-        title: Text(device.name),
-        subtitle: Text(device.ref),
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) =>
-                    DevicePage(_deviceStore, _platformConfig, device)),
-          ).then((value) {
-            setState(() {});
-          });
-        },
-      ));
+      items.add(
+        ListTile(
+          textColor: white,
+          title: Text(device.name),
+          subtitle: Text(device.ref),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) =>
+                      DevicePage(_deviceStore, _platformConfig, device)),
+            ).then((value) {
+              setState(() {});
+            });
+          },
+        )
+      );
     }
     return items;
   }
@@ -158,45 +165,55 @@ class _PlatformPageState extends State<PlatformPage> {
     super.initState();
 
     // subscribe to info and atts ?
+    _platformConfig.devices = [];
     Future.delayed(const Duration(milliseconds: 1), initializeMqttSubscription);
   }
 
   @override
   Widget build(BuildContext context) {
     print("!!!!!!!!!!! ${_platformConfig.devices.length}");
-
+    
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Platform'),
-      ),
+      appBar: getAppBar("Platform"),
       body: Center(
         child: Column(
           // mainAxisAlignment: MainAxisAlignment.center,
 
           children: [
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => HuntPage(
-                          widget._interfaceConnection, _platformConfig)),
-                ).then((value) {
-                  // print(" !!!!!!!!!!! ^^^^ ");
-                  setState(() {});
-                });
-              },
-              style: ElevatedButton.styleFrom(
-                elevation: 0,
-                // backgroundColor: Colors.green, // Green background
-                // foregroundColor: Colors.white, // White foreground
-              ),
-              child: const Text("New Device"),
+            const SizedBox(
+              height: 30,
             ),
-            ElevatedButton(
-              onPressed: sendConfigToPlatform,
-              style: ElevatedButton.styleFrom(elevation: 0),
-              child: const Text("Push Config"),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => HuntPage(
+                          widget._interfaceConnection, 
+                          _platformConfig
+                        )
+                      ),
+                    ).then((value) {
+                      // print(" !!!!!!!!!!! ^^^^ ");
+                      setState(() {});
+                    });
+                  },
+                  style: ElevatedButton.styleFrom(
+                    elevation: 0,
+                    // backgroundColor: Colors.green, // Green background
+                    // foregroundColor: Colors.white, // White foreground
+                  ),
+                  child: const Text("New Device"),
+                ),
+                ElevatedButton(
+                  onPressed: sendConfigToPlatform,
+                  style: ElevatedButton.styleFrom(elevation: 0),
+                  child: const Text("Push Config"),
+                ),
+              ],
             ),
             // Text("!!! ${_platformConfig.devices.length}"),
             SizedBox(
