@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:panduza_sandbox_flutter/data/const.dart';
 import 'templates.dart';
 import '../../data/interface_connection.dart';
 
@@ -246,7 +247,11 @@ class _IcBpcState extends State<IcBpc> {
           //   ],
           // ),
           Text(
-              'Voltage : ${double.parse(_voltageValueReq!.toStringAsFixed(2))}V'),
+            'Voltage : ${double.parse(_voltageValueReq!.toStringAsFixed(2))}V',
+            style: TextStyle(
+              color: black
+            ),
+          ),
           Slider(
             value: _voltageValueReq!,
             onChanged: (value) {
@@ -258,7 +263,11 @@ class _IcBpcState extends State<IcBpc> {
             // max: _attsEffective["voltage"]["max"],
           ),
           Text(
-              'Current : ${double.parse(_currentValueReq!.toStringAsFixed(2))}V'),
+            'Current : ${double.parse(_currentValueReq!.toStringAsFixed(2))}V',
+            style: TextStyle(
+              color: black
+            ),
+          ),
           Slider(
             value: _currentValueReq!,
             onChanged: (value) {

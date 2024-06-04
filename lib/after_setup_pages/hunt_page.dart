@@ -24,7 +24,7 @@ class HuntPage extends StatefulWidget {
   PlatformConfig _platformConfig;
 
   @override
-  _HuntPageState createState() => _HuntPageState();
+  State<HuntPage> createState() => _HuntPageState();
 }
 
 class _HuntPageState extends State<HuntPage> {
@@ -169,25 +169,33 @@ class _HuntPageState extends State<HuntPage> {
 
     return Scaffold(
       appBar: AppBar(
-          title: Row(children: [
-        Text('hunt'),
-        ElevatedButton(
-          onPressed: () {
-            widget._platformConfig.devices.insert(
-                0,
-                DeviceConfig(
-                    ref: "Panduza.FakeBps", settings: {}, name: "empty"));
-            // print(widget._platformConfig.devices.length);
-            Navigator.pop(context, true);
-          },
-          // style: ElevatedButton.styleFrom(
-          //   elevation: 0,
-          //   backgroundColor: Colors.green, // Green background
-          //   foregroundColor: Colors.white, // White foreground
-          // ),
-          child: const Text("Empty"),
-        ),
-      ])),
+        title: Row(
+          children: [
+            const Text('Hunt'),
+            ElevatedButton(
+              onPressed: () {
+                print(widget._platformConfig.devices);
+                widget._platformConfig.devices.insert(
+                  0,
+                  DeviceConfig(
+                    ref: "panduza.fake_power_supply", 
+                    settings: {}, 
+                    name: "empty"
+                  )
+                );
+                // print(widget._platformConfig.devices.length);
+                Navigator.pop(context, true);
+              },
+              // style: ElevatedButton.styleFrom(
+              //   elevation: 0,
+              //   backgroundColor: Colors.green, // Green background
+              //   foregroundColor: Colors.white, // White foreground
+              // ),
+              child: const Text("Empty"),
+            ),
+          ]
+        )
+      ),
       body: GridView.count(
           primary: false,
           padding: const EdgeInsets.all(20),
