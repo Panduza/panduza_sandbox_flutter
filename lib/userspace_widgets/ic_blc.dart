@@ -309,6 +309,27 @@ class _IcBlcState extends State<IcBlc> {
     }
   }
 
+  void Function()? cancelPowerCurrentRequest() {
+    if (_powerValueEff == _powerValueReq &&
+        _currentValueReq == _currentValueEff &&
+        _modeValueReq == _modeValueEff) {
+      return null;
+    } else {
+      return () {
+        if (_powerValueEff != _powerValueReq) {
+          _powerValueReq = _powerValueEff;
+        }
+        if (_currentValueEff != _currentValueReq) {
+          _currentValueReq = _currentValueEff;
+        }
+        if (_modeValueEff != _modeValueReq) {
+          _modeValueReq = _modeValueEff;
+        }
+        setState(() {});
+      };
+    }
+  }
+
   void enableValueToggleRequest() {
     if (_enableValueEff == null) {
       return;
@@ -410,8 +431,11 @@ class _IcBlcState extends State<IcBlc> {
             ),
             Row(
               children: [
+                const SizedBox(
+                  width: 10,
+                ),
                 OutlinedButton(
-                  onPressed: applyPowerCurrentRequest(),
+                  onPressed: cancelPowerCurrentRequest(),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: Colors.red,
                     side: BorderSide(
@@ -420,7 +444,13 @@ class _IcBlcState extends State<IcBlc> {
                           : Colors.grey,
                     ),
                   ),
-                  child: const Text("Cancel"),
+                  // child: const Text("Cancel"),
+                  child: const Icon(
+                    Icons.arrow_back,
+                  ),
+                ),
+                const SizedBox(
+                  width: 10,
                 ),
                 ElevatedButton(
                   onPressed: applyPowerCurrentRequest(),

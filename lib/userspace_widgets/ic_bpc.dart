@@ -192,6 +192,25 @@ class _IcBpcState extends State<IcBpc> {
     }
   }
 
+  
+  void Function()? cancelPowerCurrentRequest() {
+    if (_voltageValueReq == _voltageValueEff &&
+        _currentValueReq == _currentValueEff 
+      ) {
+      return null;
+    } else {
+      return () {
+        if (_voltageValueReq != _voltageValueEff) {
+          _voltageValueReq = _voltageValueEff;
+        }
+        if (_currentValueEff != _currentValueReq) {
+          _currentValueReq = _currentValueEff;
+        }
+        setState(() {});
+      };
+    }
+  }
+
   void enableValueToggleRequest() {
     if (_enableValueEff == null) {
       return;
@@ -230,22 +249,6 @@ class _IcBpcState extends State<IcBpc> {
           child: Column(
         children: [
           cardHeadLine(widget._interfaceConnection),
-          // Column(
-          //   children: [
-          //     TextFormField(
-          //       decoration: InputDecoration(
-          //         border: OutlineInputBorder(),
-          //       ),
-          //       // controller: sliderController,
-          //     ),
-          //     TextFormField(
-          //       decoration: InputDecoration(
-          //         border: OutlineInputBorder(),
-          //       ),
-          //       // controller: sliderController,
-          //     ),
-          //   ],
-          // ),
           Text(
             'Voltage : ${double.parse(_voltageValueReq!.toStringAsFixed(2))}V',
             style: TextStyle(
@@ -259,8 +262,6 @@ class _IcBpcState extends State<IcBpc> {
                 _voltageValueReq = value;
               });
             },
-            // min: _attsEffective["voltage"]["min"],
-            // max: _attsEffective["voltage"]["max"],
           ),
           Text(
             'Current : ${double.parse(_currentValueReq!.toStringAsFixed(2))}V',
@@ -280,8 +281,11 @@ class _IcBpcState extends State<IcBpc> {
           ),
           Row(
             children: [
+              const SizedBox(
+                width: 10,
+              ),
               OutlinedButton(
-                onPressed: applyVoltageCurrentRequest(),
+                onPressed: cancelPowerCurrentRequest(),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: Colors.red,
                   side: BorderSide(
@@ -290,7 +294,12 @@ class _IcBpcState extends State<IcBpc> {
                         : Colors.grey,
                   ),
                 ),
-                child: const Text("Cancel"),
+                child: const Icon(
+                  Icons.arrow_back
+                ),
+              ),
+              const SizedBox(
+                width: 10,
               ),
               ElevatedButton(
                 onPressed: applyVoltageCurrentRequest(),
