@@ -14,18 +14,10 @@ class IcPowermeter extends StatefulWidget {
   final InterfaceConnection _interfaceConnection;
 
   @override
-  _IcPowermeterState createState() => _IcPowermeterState();
+  State<IcPowermeter> createState() => _IcPowermeterState();
 }
 
 class _IcPowermeterState extends State<IcPowermeter> {
-  // bool? _enableValueReq;
-  // bool? _enableValueEff;
-
-  // double? _voltageValueReq;
-  // double? _voltageValueEff;
-
-  // double? _currentValueReq;
-  // double? _currentValueEff;
 
   double _value = 0;
 
@@ -46,8 +38,6 @@ class _IcPowermeterState extends State<IcPowermeter> {
         var jsonObject = json.decode(pt);
 
         print(jsonObject);
-
-        // Map<String, dynamic> updateAtts = Map.from(_attsEffective);
 
         setState(() {
           for (MapEntry<String, dynamic> atts in jsonObject.entries) {
@@ -70,44 +60,9 @@ class _IcPowermeterState extends State<IcPowermeter> {
                   }
                   break;
               }
-
-              //   case "voltage":
-              //     if (field.key == "value") {
-              //       // print("pokkk !! ${field.value.runtimeType}");
-              //       switch (field.value.runtimeType) {
-              //         case int:
-              //           _voltageValueEff = field.value.toDouble();
-              //         case double:
-              //           _voltageValueEff = field.value;
-              //       }
-              //       _voltageValueReq ??= _voltageValueEff;
-              //     }
-              //     break;
-
-              //   case "current":
-              //     if (field.key == "value") {
-              //       // print("pokkk !! ${field.value.runtimeType}");
-              //       switch (field.value.runtimeType) {
-              //         case int:
-              //           _currentValueEff = field.value.toDouble();
-              //         case double:
-              //           _currentValueEff = field.value;
-              //       }
-              //       _currentValueReq ??= _currentValueEff;
-              //     }
-              //     break;
-              // }
             }
           }
         });
-        // print(updateAtts);
-
-        // setState(() {
-        //   _attsEffective = updateAtts;
-        // });
-        // _attsEffective
-
-        // print(jsonObject.runtimeType);
       }
     } else {
       // print('not good:');
