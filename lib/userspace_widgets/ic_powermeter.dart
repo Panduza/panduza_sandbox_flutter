@@ -70,33 +70,6 @@ class _IcPowermeterState extends State<IcPowermeter> {
                   }
                   break;
               }
-
-              //   case "voltage":
-              //     if (field.key == "value") {
-              //       // print("pokkk !! ${field.value.runtimeType}");
-              //       switch (field.value.runtimeType) {
-              //         case int:
-              //           _voltageValueEff = field.value.toDouble();
-              //         case double:
-              //           _voltageValueEff = field.value;
-              //       }
-              //       _voltageValueReq ??= _voltageValueEff;
-              //     }
-              //     break;
-
-              //   case "current":
-              //     if (field.key == "value") {
-              //       // print("pokkk !! ${field.value.runtimeType}");
-              //       switch (field.value.runtimeType) {
-              //         case int:
-              //           _currentValueEff = field.value.toDouble();
-              //         case double:
-              //           _currentValueEff = field.value;
-              //       }
-              //       _currentValueReq ??= _currentValueEff;
-              //     }
-              //     break;
-              // }
             }
           }
         });
