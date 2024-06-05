@@ -15,7 +15,7 @@ class IcThermometer extends StatefulWidget {
   final InterfaceConnection _interfaceConnection;
 
   @override
-  _IcThermometerState createState() => _IcThermometerState();
+  State<IcThermometer> createState() => _IcThermometerState();
 }
 
 class _IcThermometerState extends State<IcThermometer> {
@@ -39,26 +39,23 @@ class _IcThermometerState extends State<IcThermometer> {
         var jsonObject = json.decode(pt);
 
         print(jsonObject);
-
-        // Map<String, dynamic> updateAtts = Map.from(_attsEffective);
-
       
         for (MapEntry<String, dynamic> atts in jsonObject.entries) {
           for (MapEntry<String, dynamic> field in atts.value.entries) {
             print('${atts.key} ${field.key} => ${field.value}');
 
             switch (atts.key) {
-              case "temperature":
+              case "measure":
                 if (field.key == "value") {
-                  double update_val = 0;
+                  double updateVal = 0;
                   switch (field.value.runtimeType) {
                     case int:
-                      update_val = field.value.toDouble();
+                      updateVal = field.value.toDouble();
                     case double:
-                      update_val = field.value;
+                      updateVal = field.value;
                   }
                   setState(() {
-                    _value = update_val;
+                    _value = updateVal;
                   });
                 }
 
