@@ -45,6 +45,8 @@ dependencies:
   auto_size_text: ^3.0.0
   fluttertoast: ^8.2.4
   http: ^1.2.1
+  yuv_to_png: ^0.0.2
+  yuv_converter: ^0.0.2
 
 dev_dependencies:
   flutter_test:
