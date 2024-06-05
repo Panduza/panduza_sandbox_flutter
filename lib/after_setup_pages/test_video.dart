@@ -99,6 +99,7 @@
 // Windows version
 
 
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
@@ -109,6 +110,7 @@ import 'package:image/image.dart' as I;
 
 import 'package:panduza_sandbox_flutter/data/interface_connection.dart';
 import 'package:panduza_sandbox_flutter/data/broker_connection_info.dart';
+import 'package:panduza_sandbox_flutter/utils_widgets/appBar.dart';
 
 
 
@@ -127,10 +129,75 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
 
   int imageCount = 0;
 
+  // Video Stream 
+
+  StreamController<Uint8List> streamVideoController = StreamController<Uint8List>();
+
+  // init the receving of frame on some topic (maybe add some topic) 
+
+  void initFrameRecevingMqtt() {
+    Future.delayed(Duration(milliseconds: 1), () {
+      
+      widget.broker_connection_info.client
+          .subscribe('test/frame', MqttQos.atLeastOnce);
+
+      MqttClientPayloadBuilder builder = MqttClientPayloadBuilder();
+      builder.addString('*');
+      final payload = builder.payload;
+      widget.broker_connection_info.client
+        .publishMessage('test', MqttQos.atLeastOnce, payload!);
+
+      widget.broker_connection_info.client.updates!
+        .listen((List<MqttReceivedMessage<MqttMessage>> c) {
+
+      // print(c![0].topic);
+      if (c![0].topic.startsWith("test/frame")) {
+        final recMess = c![0].payload as MqttPublishMessage;
+
+        // print(recMess.payload.message);
+        var frameMjpeg = recMess.payload.message;
+
+        // print("pif");
+        var imageBytes = Uint8List.view(frameMjpeg.buffer, 0, frameMjpeg.length);
+        streamVideoController.add(imageBytes);
+
+        /*
+        I.Image? img2 = I.decodeImage(imageBytes);
+        
+        if (img2 != null) {
+          
+          File("C:\\Users\\UF205DAL\\Pictures\\test\\$imageCount.png").writeAsBytes(I.encodePng(img2));
+          imageCount++;
+          print("Image storing success");
+
+          // FlutterFFmpeg ffmpegClient = FlutterFFmpeg();
+
+          // // Decode a input from type mjpeg
+          // // ffmpeg -i input.mov -c:v mjpeg -q:v 3 -an output.mov
+          // // "ffmpeg -i $imageBytes -c:v mjpeg -q:v 3 -an C:\\Users\\UF205DAL\\Pictures\\test\\output.mov"
+  
+          // ffmpegClient.execute("-framerate 7 -start_number 49 -i  C:\\Users\\UF205DAL\\Pictures\\test\\%d.png -c:v libx264 -r 30 -pix_fmt yuv420p C:\\Users\\UF205DAL\\Pictures\\test\video.mp4").then(
+          //   (code) {
+          //     if (code == 0) {
+          //       print("success");
+          //     } else {
+          //       print("failure with code : $code");
+          //     }
+          //   }
+          // );
+        }
+        */
+      }
+    });
+  });
+
+  }
+
+
+
   @override
   void initState() {
     super.initState();
-
 
     // FlutterFFmpeg ffmpegClient = FlutterFFmpeg();
 
@@ -209,111 +276,25 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
     //       print(c![0].topic);
     //       print(pt);
     //     }
-    //     // final payload =
-    //     // MqttPublishPayload.bytesToStringAsString(message.);
+    //   }
+    // );
 
-    //     // print('Received message:$payload from topic: ${c[0].topic}>');
-
-    //     // sort and put in my map
-        
-    //   });
+    // Using win video player Controller
+    
+    // controller = WinVideoPlayerController.file(File("C:\\Users\\UF205DAL\\panduza_sandbox_flutter\\assets\\WIN_20240527_15_37_55_Pro.mp4"));
+    // controller.initialize().then((value) {
+    //   if (controller.value.isInitialized) {
+    //     controller.play();
+    //     setState(() {});
+    //   } else {
+    //     log("video file load failed");
+    //   }
     // });
-
     
-    widget.broker_connection_info.client
-          .subscribe('test/frame', MqttQos.atLeastOnce);
 
-    MqttClientPayloadBuilder builder = MqttClientPayloadBuilder();
-    builder.addString('*');
-    final payload = builder.payload;
-    widget.broker_connection_info.client
-        .publishMessage('test', MqttQos.atLeastOnce, payload!);
-
-    Future.delayed(Duration(milliseconds: 1), () async {
-      // Run your async function here
-      // await myAsyncFunction();
-
-      widget.broker_connection_info.client.updates!
-          .listen((List<MqttReceivedMessage<MqttMessage>> c) {
-        // final MqttMessage message = c[0].payload;
-
-        // print('Received  from userspace from topic: ${c[0].topic}>');
-
-        // final string = binascii.b2a_base64(bytearray(data)).decode('utf-8');
-        // print(message.toString());
-
-        // pza/*/atts/info
-        print(c![0].topic);
-        if (c![0].topic.startsWith("test/frame")) {
-          final recMess = c![0].payload as MqttPublishMessage;
-
-          // print(recMess.payload.message);
-          var frameMjpeg = recMess.payload.message;
-
-          var imageBytes = Uint8List.view(frameMjpeg.buffer, 0, frameMjpeg.length);
-          I.Image? img2 = I.decodeImage(imageBytes);
-
-          
-          
-          if (img2 != null) {
-            
-            File("C:\\Users\\UF205DAL\\Pictures\\test\\$imageCount.png").writeAsBytes(I.encodePng(img2));
-            imageCount++;
-            print("Image storing success");
-
-            // FlutterFFmpeg ffmpegClient = FlutterFFmpeg();
-
-            // // Decode a input from type mjpeg
-            // // ffmpeg -i input.mov -c:v mjpeg -q:v 3 -an output.mov
-            // // "ffmpeg -i $imageBytes -c:v mjpeg -q:v 3 -an C:\\Users\\UF205DAL\\Pictures\\test\\output.mov"
+    // Using stream and jpeg
     
-            // ffmpegClient.execute("-framerate 7 -start_number 49 -i  C:\\Users\\UF205DAL\\Pictures\\test\\%d.png -c:v libx264 -r 30 -pix_fmt yuv420p C:\\Users\\UF205DAL\\Pictures\\test\video.mp4").then(
-            //   (code) {
-            //     if (code == 0) {
-            //       print("success");
-            //     } else {
-            //       print("failure with code : $code");
-            //     }
-            //   }
-            // );
-          }
-          // Image.
-
-          // final pt =
-          //     MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
-
-          // var jsonObject = json.decode(pt);
-
-          // print(c![0].topic);
-          // print(jsonObject);
-          /*
-          if (!interfaceAlreadyRegistered(ic)) {
-            if (ic.getType() != "device") {
-              setState(() {
-                // sort interface by device name and 
-                interfaces.add(ic);
-                interfaces.sort((a, b) {
-                  var compareResult = a.getDeviceName().compareTo(b.getDeviceName());
-                  if (compareResult == 0) {
-                    compareResult = a .getInterfaceName().compareTo(b.getInterfaceName());
-                  }
-                  return compareResult;
-                });
-                // interfaces = [...interfaces, ic];
-              });
-            }
-          }
-          */
-        }
-        // final payload =
-        // MqttPublishPayload.bytesToStringAsString(message.);
-
-        // print('Received message:$payload from topic: ${c[0].topic}>');
-
-        // sort and put in my map
-        
-      });
-    });
+   
   }
 
   @override
@@ -324,29 +305,46 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      // home: Scaffold(
-      //   appBar: getAppBar('video_player_win example app'),
-      //   body: Stack(children: [
-      //     WinVideoPlayer(controller),
-      //     Positioned(
-      //       bottom: 0,
-      //       child: Column(children: [
-      //         ValueListenableBuilder(
-      //           valueListenable: controller,
-      //           builder: ((context, value, child) {
-      //             int minute = controller.value.position.inMinutes;
-      //             int second = controller.value.position.inSeconds % 60;
-      //             return Text("$minute:$second", style: Theme.of(context).textTheme.headline6!.copyWith(color: Colors.white, backgroundColor: Colors.black54));
-      //           }),
-      //         ),
-      //         ElevatedButton(onPressed: () => controller.play(), child: const Text("Play")),
-      //         ElevatedButton(onPressed: () => controller.pause(), child: const Text("Pause")),
-      //         ElevatedButton(onPressed: () => controller.seekTo(Duration(milliseconds: controller.value.position.inMilliseconds+ 10*1000)), child: const Text("Forward")),
-      //       ])),
-      //   ]),
-      // ),
-      home: Container(),
+    return Scaffold(
+      appBar: getAppBar('video_player_win example app'),
+
+      // Using win video controller
+
+      // body: Stack(children: [
+      //   WinVideoPlayer(controller),
+      //   Positioned(
+      //     bottom: 0,
+      //     child: Column(children: [
+      //       ValueListenableBuilder(
+      //         valueListenable: controller,
+      //         builder: ((context, value, child) {
+      //           int minute = controller.value.position.inMinutes;
+      //           int second = controller.value.position.inSeconds % 60;
+      //           return Text("$minute:$second", style: Theme.of(context).textTheme.headline6!.copyWith(color: Colors.white, backgroundColor: Colors.black54));
+      //         }),
+      //       ),
+      //       ElevatedButton(onPressed: () => controller.play(), child: const Text("Play")),
+      //       ElevatedButton(onPressed: () => controller.pause(), child: const Text("Pause")),
+      //       ElevatedButton(onPressed: () => controller.seekTo(Duration(milliseconds: controller.value.position.inMilliseconds+ 10*1000)), child: const Text("Forward")),
+      //     ])),
+      // ]),
+
+      // Using mjpeg
+      body: StreamBuilder(
+        stream: streamVideoController.stream,
+        builder: (BuildContext context, AsyncSnapshot snapshot) {
+          if (snapshot.hasData) {
+            // print("paf");
+            var imageData = Uint8List.fromList(snapshot.data);
+            return Image.memory(
+              imageData,
+              gaplessPlayback: true,
+            );
+          } else {
+            return Container();
+          }
+        },
+      )  
     );
   }
 }
