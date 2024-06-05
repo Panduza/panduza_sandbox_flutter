@@ -8,6 +8,7 @@ import 'package:panduza_sandbox_flutter/userspace_widgets/ic_bpc.dart';
 import 'package:panduza_sandbox_flutter/userspace_widgets/ic_platform.dart';
 import 'package:panduza_sandbox_flutter/userspace_widgets/ic_powermeter.dart';
 import 'package:panduza_sandbox_flutter/userspace_widgets/ic_not_managed.dart';
+import 'package:panduza_sandbox_flutter/userspace_widgets/ic_video.dart';
 
 // import '../widgets/interface_control/icw_bpc.dart';
 
@@ -23,7 +24,7 @@ class UserspacePage extends StatefulWidget {
   final BrokerConnectionInfo broker_connection_info;
 
   @override
-  _UserspacePageState createState() => _UserspacePageState();
+  State<UserspacePage> createState() => _UserspacePageState();
 }
 
 class _UserspacePageState extends State<UserspacePage> {
@@ -79,7 +80,7 @@ class _UserspacePageState extends State<UserspacePage> {
         // print(message.toString());
 
         // pza/*/atts/info
-        print(c![0].topic);
+        // print(c![0].topic);
         if (c![0].topic.startsWith("pza") & c![0].topic.endsWith("atts/info")) {
           final recMess = c![0].payload as MqttPublishMessage;
 
@@ -92,8 +93,11 @@ class _UserspacePageState extends State<UserspacePage> {
 
           var jsonObject = json.decode(pt);
 
+          // print(jsonObject);
+
           InterfaceConnection ic = InterfaceConnection(
               widget.broker_connection_info.client, topic, jsonObject["info"]);
+          
           if (!interfaceAlreadyRegistered(ic)) {
             if (ic.getType() != "device") {
               setState(() {
@@ -162,6 +166,8 @@ class _UserspacePageState extends State<UserspacePage> {
         return IcThermometer(ic);
       case "relay":
         return IcRelay(ic);
+      case "video":
+        return IcVideo(ic);
       default:
         print("!!!! $type");
         return IcNotManaged(ic);

@@ -442,7 +442,7 @@ Widget getConnectionsButtonsList(SharedPreferences prefs, List<String> platformN
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => VideoPlayerScreen(
+                      builder: (context) => UserspacePage(
                         broker_connection_info: BrokerConnectionInfo(
                           host, 
                           int.parse(port), 
