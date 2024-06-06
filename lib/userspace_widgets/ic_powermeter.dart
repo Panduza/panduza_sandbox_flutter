@@ -116,7 +116,7 @@ class _IcPowermeterState extends State<IcPowermeter> {
       children: [
         cardHeadLine(widget._interfaceConnection),
         Text(
-          "${_value.toString()} °C",
+          "${_value.toString()} W",
           style: TextStyle(
             color: black
           ),
