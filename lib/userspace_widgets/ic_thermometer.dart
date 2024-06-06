@@ -22,8 +22,9 @@ class _IcThermometerState extends State<IcThermometer> {
 
   double _value = 0;
 
-  ///
-  ///
+  /// Init each value of the thermometer, here just the measure 
+  /// temperature
+  /// 
   void onMqttMessage(List<MqttReceivedMessage<MqttMessage>> c) {
     print("============");
     print('Received ${c[0].topic} from ${widget._interfaceConnection.topic} ');
@@ -105,6 +106,8 @@ class _IcThermometerState extends State<IcThermometer> {
     super.dispose();
   }
 
+  /// Appearance of the widget 
+  ///
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -123,12 +126,20 @@ class _IcThermometerState extends State<IcThermometer> {
             SizedBox(
               width: 100,
               child: TextField(
+                textDirection: TextDirection.rtl,
                 controller: _freqController,
                 keyboardType: TextInputType.number,
                 inputFormatters: <TextInputFormatter>[
                   FilteringTextInputFormatter.digitsOnly
                 ],
+                style: TextStyle(
+                  color: black,
+                  fontSize: 16
+                ),
               )
+            ),
+            const SizedBox(
+              width: 10,
             ),
             Text(
               "read per sec",
@@ -137,7 +148,10 @@ class _IcThermometerState extends State<IcThermometer> {
               ),
             ),
           ],
-        )
+        ),
+        const SizedBox(
+          height: 10,
+        ),
       ],
     ));
   }
