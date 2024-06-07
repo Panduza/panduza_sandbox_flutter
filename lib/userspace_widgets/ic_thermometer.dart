@@ -9,21 +9,21 @@ import 'dart:convert';
 // import '../widgets/interface_control/icw_bpc.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 
-class IcPowermeter extends StatefulWidget {
-  const IcPowermeter(this._interfaceConnection, {super.key});
+class IcThermometer extends StatefulWidget {
+  const IcThermometer(this._interfaceConnection, {super.key});
 
   final InterfaceConnection _interfaceConnection;
 
   @override
-  State<IcPowermeter> createState() => _IcPowermeterState();
+  State<IcThermometer> createState() => _IcThermometerState();
 }
 
-class _IcPowermeterState extends State<IcPowermeter> {
+class _IcThermometerState extends State<IcThermometer> {
 
   double _value = 0;
 
-  /// Init each value of the powermeter, here just the measure 
-  /// powermeter
+  /// Init each value of the thermometer, here just the measure 
+  /// temperature
   /// 
   void onMqttMessage(List<MqttReceivedMessage<MqttMessage>> c) {
     print("============");
@@ -40,31 +40,34 @@ class _IcPowermeterState extends State<IcPowermeter> {
         var jsonObject = json.decode(pt);
 
         print(jsonObject);
+      
+        for (MapEntry<String, dynamic> atts in jsonObject.entries) {
+          for (MapEntry<String, dynamic> field in atts.value.entries) {
+            print('${atts.key} ${field.key} => ${field.value}');
 
-        setState(() {
-          for (MapEntry<String, dynamic> atts in jsonObject.entries) {
-            for (MapEntry<String, dynamic> field in atts.value.entries) {
-              print('${atts.key} ${field.key} => ${field.value}');
-
-              switch (atts.key) {
-                case "measure":
-                  if (field.key == "value") {
-                    double update_val = 0;
-                    switch (field.value.runtimeType) {
-                      case int:
-                        update_val = field.value.toDouble();
-                      case double:
-                        update_val = field.value;
-                    }
-                    setState(() {
-                      _value = update_val;
-                    });
+            switch (atts.key) {
+              case "measure":
+                if (field.key == "value") {
+                  double updateVal = 0;
+                  switch (field.value.runtimeType) {
+                    case int:
+                      updateVal = field.value.toDouble();
+                    case double:
+                      updateVal = field.value;
                   }
-                  break;
-              }
+                  setState(() {
+                    _value = updateVal;
+                  });
+                }
+
+                if (field.key == "decimals") {
+
+                }
+                break;
             }
           }
-        });
+        }
+        
       }
     } else {
       // print('not good:');
@@ -103,7 +106,7 @@ class _IcPowermeterState extends State<IcPowermeter> {
     super.dispose();
   }
 
-  /// Appearance of the powermeter widget
+  /// Appearance of the widget 
   ///
   @override
   Widget build(BuildContext context) {
@@ -113,7 +116,7 @@ class _IcPowermeterState extends State<IcPowermeter> {
       children: [
         cardHeadLine(widget._interfaceConnection),
         Text(
-          "${_value.toString()} W",
+          "${_value.toString()} °C",
           style: TextStyle(
             color: black
           ),
