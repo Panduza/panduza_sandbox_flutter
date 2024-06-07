@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:panduza_sandbox_flutter/data/const.dart';
 import 'templates.dart';
 import '../../data/interface_connection.dart';
 
@@ -45,11 +48,13 @@ class _IcBlcState extends State<IcBlc> {
   String? _modeValueReq;
   String? _modeValueEff;
 
+  StreamSubscription<List<MqttReceivedMessage<MqttMessage>>>? mqttSubscription;
+
   ///
   ///
   void onMqttMessage(List<MqttReceivedMessage<MqttMessage>> c) {
-    print("============");
-    print('Received ${c[0].topic} from ${widget._interfaceConnection.topic} ');
+    // print("============");
+    // print('Received ${c[0].topic} from ${widget._interfaceConnection.topic} ');
 
     //
     if (c[0].topic.startsWith(widget._interfaceConnection.topic)) {
@@ -61,14 +66,14 @@ class _IcBlcState extends State<IcBlc> {
 
         var jsonObject = json.decode(pt);
 
-        print(jsonObject);
+        // print(jsonObject);
 
         // Map<String, dynamic> updateAtts = Map.from(_attsEffective);
 
         setState(() {
           for (MapEntry<String, dynamic> atts in jsonObject.entries) {
             for (MapEntry<String, dynamic> field in atts.value.entries) {
-              print('${atts.key} ${field.key} => ${field.value}');
+              // print('${atts.key} ${field.key} => ${field.value}');
 
               switch (atts.key) {
                 case "mode":
@@ -84,6 +89,7 @@ class _IcBlcState extends State<IcBlc> {
                       _modeValueReq = _modeValueEff;
                     }
                   }
+
                   break;
 
                 case "enable":
@@ -99,17 +105,18 @@ class _IcBlcState extends State<IcBlc> {
                       _enableValueReq = _enableValueEff;
                     }
                   }
+
                   break;
 
                 case "power":
                   if (field.key == "value") {
-                    // print("pokkk !! ${field.value.runtimeType}");
-
                     bool sync = false;
                     if (_powerValueEff == _powerValueReq ||
                         _powerValueReq == null) {
                       sync = true;
                     }
+
+                    
 
                     switch (field.value.runtimeType) {
                       case int:
@@ -129,9 +136,14 @@ class _IcBlcState extends State<IcBlc> {
                     _powerMax = value_to_double(field.value);
                   }
                   if (field.key == "decimals") {
-                    _powerDecimals = field.value;
+                    switch (field.value.runtimeType) {
+                      case int:
+                        _powerDecimals = field.value;
+                      case double:
+                        _powerDecimals = (field.value as double).toInt();
+                    }
                   }
-
+                  
                   break;
 
                 case "current":
@@ -161,7 +173,12 @@ class _IcBlcState extends State<IcBlc> {
                     _currentMax = value_to_double(field.value);
                   }
                   if (field.key == "decimals") {
-                    _currentDecimals = field.value;
+                    switch (field.value.runtimeType) {
+                      case int:
+                        _currentDecimals = field.value;
+                      case double:
+                        _currentDecimals = (field.value as double).toInt();
+                    }
                   }
 
                   break;
@@ -186,7 +203,7 @@ class _IcBlcState extends State<IcBlc> {
   /// Initialize MQTT Subscriptions
   ///
   void initializeMqttSubscription() async {
-    widget._interfaceConnection.client.updates!.listen(onMqttMessage);
+    mqttSubscription = widget._interfaceConnection.client.updates!.listen(onMqttMessage);
 
     String attsTopic = "${widget._interfaceConnection.topic}/atts/#";
     // print(attsTopic);
@@ -212,6 +229,7 @@ class _IcBlcState extends State<IcBlc> {
 
   @override
   void dispose() {
+    mqttSubscription!.cancel();
     super.dispose();
   }
 
@@ -291,6 +309,27 @@ class _IcBlcState extends State<IcBlc> {
     }
   }
 
+  void Function()? cancelPowerCurrentRequest() {
+    if (_powerValueEff == _powerValueReq &&
+        _currentValueReq == _currentValueEff &&
+        _modeValueReq == _modeValueEff) {
+      return null;
+    } else {
+      return () {
+        if (_powerValueEff != _powerValueReq) {
+          _powerValueReq = _powerValueEff;
+        }
+        if (_currentValueEff != _currentValueReq) {
+          _currentValueReq = _currentValueEff;
+        }
+        if (_modeValueEff != _modeValueReq) {
+          _modeValueReq = _modeValueEff;
+        }
+        setState(() {});
+      };
+    }
+  }
+
   void enableValueToggleRequest() {
     if (_enableValueEff == null) {
       return;
@@ -322,95 +361,125 @@ class _IcBlcState extends State<IcBlc> {
 
   @override
   Widget build(BuildContext context) {
-    print("decimals $_currentDecimals");
 
     if (_enableValueEff != null &&
         _powerValueReq != null &&
         _currentValueReq != null &&
         _modeValueReq != null) {
       return Card(
-          child: Column(
-        children: [
-          cardHeadLine(widget._interfaceConnection),
-          DropdownButton<String>(
+        child: Column(
+          children: [
+            cardHeadLine(widget._interfaceConnection),
+            DropdownButton<String>(
               items: const [
                 DropdownMenuItem<String>(
                   value: "constant_power",
-                  child: Text("constant_power"),
+                  child: Text("power mode"),
                 ),
                 DropdownMenuItem<String>(
                   value: "constant_current",
-                  child: Text("constant_current"),
-                )
+                  child: Text("current mode"),
+                ),
+                DropdownMenuItem<String>(
+                  value: "no_regulation",
+                  child: Text("No regulation mode"),
+                ),
               ],
               value: _modeValueReq!,
               onChanged: (String? value) {
                 setState(() {
                   _modeValueReq = value!;
                 });
-              }),
-          Text(
-              'Power : ${double.parse(_powerValueReq!.toStringAsFixed(_powerDecimals))}W'),
-          Slider(
-            value: _powerValueReq!,
-            onChanged: (value) {
-              setState(() {
-                _powerValueReq =
-                    double.parse((value).toStringAsFixed(_powerDecimals));
-              });
-            },
-            min: _powerMin,
-            max: _powerMax,
-          ),
-          Text(
-              'Current : ${double.parse(_currentValueReq!.toStringAsFixed(_currentDecimals))}A'),
-          Slider(
-            value: _currentValueReq!,
-            onChanged: (value) {
-              setState(() {
-                _currentValueReq =
-                    double.parse((value).toStringAsFixed(_currentDecimals));
-              });
-            },
-            min: _currentMin,
-            max: _currentMax,
-          ),
-          Row(
-            children: [
-              OutlinedButton(
-                onPressed: applyPowerCurrentRequest(),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: Colors.red,
-                  side: BorderSide(
-                    color: (applyPowerCurrentRequest() != null)
-                        ? Colors.red
-                        : Colors.grey,
+              }
+            ),
+            const SizedBox(
+              height: 20,
+            ),
+            Text(
+              'Power : ${double.parse(_powerValueReq!.toStringAsFixed(_powerDecimals))}W',
+              style: TextStyle(
+                color: black
+              ),
+            ),
+            Slider(
+              value: _powerValueReq!,
+              onChanged: (value) {
+                setState(() {
+                  _powerValueReq =
+                      double.parse((value).toStringAsFixed(_powerDecimals));
+                });
+              },
+              min: _powerMin,
+              max: _powerMax,
+            ),
+            Text(
+              'Current : ${double.parse(_currentValueReq!.toStringAsFixed(_currentDecimals))}A',
+              style: TextStyle(
+                color: black
+              ),
+            ),
+            Slider(
+              value: _currentValueReq!,
+              onChanged: (value) {
+                setState(() {
+                  _currentValueReq =
+                      double.parse((value).toStringAsFixed(_currentDecimals));
+                });
+              },
+              min: _currentMin,
+              max: _currentMax,
+            ),
+            Row(
+              children: [
+                const SizedBox(
+                  width: 10,
+                ),
+                OutlinedButton(
+                  onPressed: cancelPowerCurrentRequest(),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: Colors.red,
+                    side: BorderSide(
+                      color: (applyPowerCurrentRequest() != null)
+                          ? Colors.red
+                          : Colors.grey,
+                    ),
+                  ),
+                  // child: const Text("Cancel"),
+                  child: const Icon(
+                    Icons.arrow_back,
                   ),
                 ),
-                child: const Text("Cancel"),
-              ),
-              ElevatedButton(
-                onPressed: applyPowerCurrentRequest(),
-                style: ElevatedButton.styleFrom(
-                  elevation: 0,
-                  backgroundColor: Colors.green, // Green background
-                  foregroundColor: Colors.white, // White foreground
+                const SizedBox(
+                  width: 10,
                 ),
-                child: const Text("Apply"),
-              ),
-              Spacer(),
-              Switch(
-                  value: _enableValueEff!,
-                  onChanged: enableValueSwitchOnChanged()),
-            ],
-          )
-        ],
-      ));
+                ElevatedButton(
+                  onPressed: applyPowerCurrentRequest(),
+                  style: ElevatedButton.styleFrom(
+                    elevation: 0,
+                    backgroundColor: Colors.green, // Green background
+                    foregroundColor: Colors.white, // White foreground
+                  ),
+                  child: const Text("Apply"),
+                ),
+                Spacer(),
+                Switch(
+                    value: _enableValueEff!,
+                    onChanged: enableValueSwitchOnChanged()),
+              ],
+            )
+          ],
+        )
+      );
     } else {
       return Card(
           child: Column(children: [
         cardHeadLine(widget._interfaceConnection),
-        const Text("Wait for data...")
+        Text(
+          "Wait for data...",
+          style: TextStyle(
+            color: black
+          ),
+        )
       ]));
     }
   }
