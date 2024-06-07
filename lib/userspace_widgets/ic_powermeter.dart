@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:panduza_sandbox_flutter/data/const.dart';
 import 'templates.dart';
 import '../../data/interface_connection.dart';
 
@@ -14,23 +15,16 @@ class IcPowermeter extends StatefulWidget {
   final InterfaceConnection _interfaceConnection;
 
   @override
-  _IcPowermeterState createState() => _IcPowermeterState();
+  State<IcPowermeter> createState() => _IcPowermeterState();
 }
 
 class _IcPowermeterState extends State<IcPowermeter> {
-  // bool? _enableValueReq;
-  // bool? _enableValueEff;
-
-  // double? _voltageValueReq;
-  // double? _voltageValueEff;
-
-  // double? _currentValueReq;
-  // double? _currentValueEff;
 
   double _value = 0;
 
-  ///
-  ///
+  /// Init each value of the powermeter, here just the measure 
+  /// powermeter
+  /// 
   void onMqttMessage(List<MqttReceivedMessage<MqttMessage>> c) {
     print("============");
     print('Received ${c[0].topic} from ${widget._interfaceConnection.topic} ');
@@ -46,68 +40,34 @@ class _IcPowermeterState extends State<IcPowermeter> {
         var jsonObject = json.decode(pt);
 
         print(jsonObject);
+      
+        for (MapEntry<String, dynamic> atts in jsonObject.entries) {
+          for (MapEntry<String, dynamic> field in atts.value.entries) {
+            print('${atts.key} ${field.key} => ${field.value}');
 
-        // Map<String, dynamic> updateAtts = Map.from(_attsEffective);
-
-        setState(() {
-          for (MapEntry<String, dynamic> atts in jsonObject.entries) {
-            for (MapEntry<String, dynamic> field in atts.value.entries) {
-              print('${atts.key} ${field.key} => ${field.value}');
-
-              switch (atts.key) {
-                case "measure":
-                  if (field.key == "value") {
-                    double update_val = 0;
-                    switch (field.value.runtimeType) {
-                      case int:
-                        update_val = field.value.toDouble();
-                      case double:
-                        update_val = field.value;
-                    }
-                    setState(() {
-                      _value = update_val;
-                    });
+            switch (atts.key) {
+              case "measure":
+                if (field.key == "value") {
+                  double updateVal = 0;
+                  switch (field.value.runtimeType) {
+                    case int:
+                      updateVal = field.value.toDouble();
+                    case double:
+                      updateVal = field.value;
                   }
-                  break;
-              }
+                  setState(() {
+                    _value = updateVal;
+                  });
+                }
 
-              //   case "voltage":
-              //     if (field.key == "value") {
-              //       // print("pokkk !! ${field.value.runtimeType}");
-              //       switch (field.value.runtimeType) {
-              //         case int:
-              //           _voltageValueEff = field.value.toDouble();
-              //         case double:
-              //           _voltageValueEff = field.value;
-              //       }
-              //       _voltageValueReq ??= _voltageValueEff;
-              //     }
-              //     break;
+                if (field.key == "decimals") {
 
-              //   case "current":
-              //     if (field.key == "value") {
-              //       // print("pokkk !! ${field.value.runtimeType}");
-              //       switch (field.value.runtimeType) {
-              //         case int:
-              //           _currentValueEff = field.value.toDouble();
-              //         case double:
-              //           _currentValueEff = field.value;
-              //       }
-              //       _currentValueReq ??= _currentValueEff;
-              //     }
-              //     break;
-              // }
+                }
+                break;
             }
           }
-        });
-        // print(updateAtts);
-
-        // setState(() {
-        //   _attsEffective = updateAtts;
-        // });
-        // _attsEffective
-
-        // print(jsonObject.runtimeType);
+        }
+        
       }
     } else {
       // print('not good:');
@@ -124,11 +84,6 @@ class _IcPowermeterState extends State<IcPowermeter> {
     Subscription? sub = widget._interfaceConnection.client
         .subscribe(attsTopic, MqttQos.atLeastOnce);
 
-    // if (sub != null) {
-    //   print("coool !!");
-    // } else {
-    //   print("nullllll");
-    // }
   }
 
   late TextEditingController _freqController;
@@ -151,92 +106,8 @@ class _IcPowermeterState extends State<IcPowermeter> {
     super.dispose();
   }
 
-  // void Function(bool)? enableValueSwitchOnChanged() {
-  //   if (_enableValueReq != _enableValueEff) {
-  //     return null;
-  //   } else {
-  //     return (value) {
-  //       enableValueToggleRequest();
-  //     };
-  //   }
-  // }
-
+  /// Appearance of the powermeter widget
   ///
-  ///
-  ///
-  // void Function()? applyVoltageCurrentRequest() {
-  //   if (_voltageValueEff == _voltageValueReq &&
-  //       _currentValueReq == _currentValueEff) {
-  //     return null;
-  //   } else {
-  //     return () {
-  //       if (_voltageValueEff != _voltageValueReq) {
-  //         MqttClientPayloadBuilder builder = MqttClientPayloadBuilder();
-
-  //         Map<String, dynamic> data = {
-  //           "voltage": {"value": _voltageValueReq!}
-  //         };
-
-  //         String jsonString = jsonEncode(data);
-
-  //         builder.addString(jsonString);
-  //         final payload = builder.payload;
-
-  //         String cmdsTopic = "${widget._interfaceConnection.topic}/cmds/set";
-
-  //         widget._interfaceConnection.client
-  //             .publishMessage(cmdsTopic, MqttQos.atLeastOnce, payload!);
-  //       }
-  //       if (_currentValueEff != _currentValueReq) {
-  //         MqttClientPayloadBuilder builder = MqttClientPayloadBuilder();
-
-  //         Map<String, dynamic> data = {
-  //           "current": {"value": _currentValueReq!}
-  //         };
-
-  //         String jsonString = jsonEncode(data);
-
-  //         builder.addString(jsonString);
-  //         final payload = builder.payload;
-
-  //         String cmdsTopic = "${widget._interfaceConnection.topic}/cmds/set";
-
-  //         widget._interfaceConnection.client
-  //             .publishMessage(cmdsTopic, MqttQos.atLeastOnce, payload!);
-  //       }
-  //     };
-  //   }
-  // }
-
-  // void enableValueToggleRequest() {
-  //   if (_enableValueEff == null) {
-  //     return;
-  //   }
-  //   bool target = _enableValueEff! ? false : true;
-
-  //   MqttClientPayloadBuilder builder = MqttClientPayloadBuilder();
-
-  //   // Example JSON object
-  //   Map<String, dynamic> data = {
-  //     "enable": {"value": target}
-  //   };
-
-  //   // Convert JSON object to string
-  //   String jsonString = jsonEncode(data);
-
-  //   builder.addString(jsonString);
-  //   final payload = builder.payload;
-
-  //   String cmdsTopic = "${widget._interfaceConnection.topic}/cmds/set";
-
-  //   widget._interfaceConnection.client
-  //       .publishMessage(cmdsTopic, MqttQos.atLeastOnce, payload!);
-
-  //   setState(() {
-  //     _enableValueReq = target;
-  //   });
-  // }
-
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -244,21 +115,43 @@ class _IcPowermeterState extends State<IcPowermeter> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         cardHeadLine(widget._interfaceConnection),
-        Text("${_value.toString()}W"),
+        Text(
+          "${_value.toString()} W",
+          style: TextStyle(
+            color: black
+          ),
+        ),
         Row(
           children: [
             SizedBox(
-                width: 100,
-                child: TextField(
-                  controller: _freqController,
-                  keyboardType: TextInputType.number,
-                  inputFormatters: <TextInputFormatter>[
-                    FilteringTextInputFormatter.digitsOnly
-                  ],
-                )),
-            const Text("read per sec"),
+              width: 100,
+              child: TextField(
+                textDirection: TextDirection.rtl,
+                controller: _freqController,
+                keyboardType: TextInputType.number,
+                inputFormatters: <TextInputFormatter>[
+                  FilteringTextInputFormatter.digitsOnly
+                ],
+                style: TextStyle(
+                  color: black,
+                  fontSize: 16
+                ),
+              )
+            ),
+            const SizedBox(
+              width: 10,
+            ),
+            Text(
+              "read per sec",
+              style: TextStyle(
+                color: black
+              ),
+            ),
           ],
-        )
+        ),
+        const SizedBox(
+          height: 10,
+        ),
       ],
     ));
   }
