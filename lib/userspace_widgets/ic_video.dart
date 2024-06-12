@@ -3,11 +3,9 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:mqtt_client/mqtt_client.dart';
-
 import 'package:panduza_sandbox_flutter/data/interface_connection.dart';
+
 import 'package:panduza_sandbox_flutter/userspace_widgets/templates.dart';
-
-
 
 class IcVideo extends StatefulWidget {
   const IcVideo(this._interfaceConnection,
