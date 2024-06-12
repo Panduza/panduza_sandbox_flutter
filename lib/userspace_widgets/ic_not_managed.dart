@@ -8,7 +8,7 @@ class IcNotManaged extends StatefulWidget {
   InterfaceConnection _interfaceConnection;
 
   @override
-  _IcNotManagedState createState() => _IcNotManagedState();
+  State<IcNotManaged> createState() => _IcNotManagedState();
 }
 
 class _IcNotManagedState extends State<IcNotManaged> {

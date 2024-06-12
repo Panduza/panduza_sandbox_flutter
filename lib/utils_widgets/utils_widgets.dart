@@ -341,7 +341,7 @@ Widget getTransitionButton(BuildContext context, Widget page, String title, Icon
             );
           },
           style: ButtonStyle(
-            backgroundColor: MaterialStateProperty.all<Color>(blue)
+            backgroundColor: WidgetStateProperty.all<Color>(blue)
           ),
           child: Text(
             // 'Append',

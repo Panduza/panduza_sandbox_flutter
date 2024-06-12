@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:panduza_sandbox_flutter/data/const.dart';
@@ -21,6 +23,8 @@ class IcPowermeter extends StatefulWidget {
 class _IcPowermeterState extends State<IcPowermeter> {
 
   double _value = 0;
+
+  StreamSubscription<List<MqttReceivedMessage<MqttMessage>>>? mqttSubscription;
 
   /// Init each value of the powermeter, here just the measure 
   /// powermeter
@@ -74,7 +78,7 @@ class _IcPowermeterState extends State<IcPowermeter> {
   /// Initialize MQTT Subscriptions
   ///
   void initializeMqttSubscription() async {
-    widget._interfaceConnection.client.updates!.listen(onMqttMessage);
+    mqttSubscription = widget._interfaceConnection.client.updates!.listen(onMqttMessage);
 
     String attsTopic = "${widget._interfaceConnection.topic}/atts/#";
     // print(attsTopic);
@@ -100,6 +104,7 @@ class _IcPowermeterState extends State<IcPowermeter> {
 
   @override
   void dispose() {
+    mqttSubscription!.cancel();
     super.dispose();
   }
 

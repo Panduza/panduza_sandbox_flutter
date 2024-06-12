@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:panduza_sandbox_flutter/data/const.dart';
@@ -21,13 +23,13 @@ class IcThermometer extends StatefulWidget {
 class _IcThermometerState extends State<IcThermometer> {
 
   double _value = 0;
+  
+  StreamSubscription<List<MqttReceivedMessage<MqttMessage>>>? mqttSubscription;
 
   /// Init each value of the thermometer, here just the measure 
   /// temperature
   /// 
   void onMqttMessage(List<MqttReceivedMessage<MqttMessage>> c) {
-    print("============");
-    print('Received ${c[0].topic} from ${widget._interfaceConnection.topic} ');
 
     //
     if (c[0].topic.startsWith(widget._interfaceConnection.topic)) {
@@ -38,12 +40,9 @@ class _IcThermometerState extends State<IcThermometer> {
             MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
 
         var jsonObject = json.decode(pt);
-
-        print(jsonObject);
       
         for (MapEntry<String, dynamic> atts in jsonObject.entries) {
           for (MapEntry<String, dynamic> field in atts.value.entries) {
-            print('${atts.key} ${field.key} => ${field.value}');
 
             switch (atts.key) {
               case "measure":
@@ -77,7 +76,7 @@ class _IcThermometerState extends State<IcThermometer> {
   /// Initialize MQTT Subscriptions
   ///
   void initializeMqttSubscription() async {
-    widget._interfaceConnection.client.updates!.listen(onMqttMessage);
+    mqttSubscription = widget._interfaceConnection.client.updates!.listen(onMqttMessage);
 
     String attsTopic = "${widget._interfaceConnection.topic}/atts/#";
     // print(attsTopic);
@@ -103,6 +102,7 @@ class _IcThermometerState extends State<IcThermometer> {
 
   @override
   void dispose() {
+    mqttSubscription!.cancel();
     super.dispose();
   }
 

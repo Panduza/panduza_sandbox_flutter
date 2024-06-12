@@ -54,7 +54,8 @@ PreferredSizeWidget? getAppBarUserSpace(String title, BuildContext context) {
     leading: BackButton(
       color: white,
       onPressed: () {
-        Navigator.push(context, MaterialPageRoute(builder: (context) => const ConnectionsPage()));
+        // Navigator.push(context, MaterialPageRoute(builder: (context) => const ConnectionsPage()));
+        Navigator.pop(context);
       },
     ),
   );

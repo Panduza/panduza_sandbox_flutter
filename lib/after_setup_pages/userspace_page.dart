@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
@@ -31,6 +33,8 @@ class _UserspacePageState extends State<UserspacePage> {
   List<InterfaceConnection> interfaces = [];
   Map<int, InterfaceConnection> channel = {}; 
 
+  StreamSubscription<List<MqttReceivedMessage<MqttMessage>>>? mqttSubscription;
+
 
   bool interfaceAlreadyRegistered(InterfaceConnection ic) {
     for (var interface in interfaces) {
@@ -38,7 +42,6 @@ class _UserspacePageState extends State<UserspacePage> {
         return true;
       }
     }
-    // print(ic.topic);
     return false;
   }
 
@@ -51,6 +54,13 @@ class _UserspacePageState extends State<UserspacePage> {
     }
 
     return null;
+  }
+
+  @override
+  void dispose() {
+    mqttSubscription!.cancel();
+    
+    super.dispose();
   }
 
   @override
@@ -70,17 +80,9 @@ class _UserspacePageState extends State<UserspacePage> {
       // Run your async function here
       // await myAsyncFunction();
 
-      widget.broker_connection_info.client.updates!
+      mqttSubscription = widget.broker_connection_info.client.updates!
           .listen((List<MqttReceivedMessage<MqttMessage>> c) {
-        // final MqttMessage message = c[0].payload;
 
-        // print('Received  from userspace from topic: ${c[0].topic}>');
-
-        // final string = binascii.b2a_base64(bytearray(data)).decode('utf-8');
-        // print(message.toString());
-
-        // pza/*/atts/info
-        // print(c![0].topic);
         if (c![0].topic.startsWith("pza") & c![0].topic.endsWith("atts/info")) {
           final recMess = c![0].payload as MqttPublishMessage;
 
@@ -110,36 +112,12 @@ class _UserspacePageState extends State<UserspacePage> {
                   }
                   return compareResult;
                 });
-                // interfaces = [...interfaces, ic];
               });
             }
           }
         }
-        // final payload =
-        // MqttPublishPayload.bytesToStringAsString(message.);
-
-        // print('Received message:$payload from topic: ${c[0].topic}>');
-
-        // sort and put in my map
-        
       });
     });
-
-    /*
-    Future.delayed(Duration(seconds: 2), () async {
-      List<InterfaceConnection> newInterfaces = [];
-
-      newInterfaces.add(findPlatform() as InterfaceConnection);
-
-      for (var interface in interfaces) {
-        if (interface.info["type"] != "platform") {
-          newInterfaces.add(interface);
-        }
-      }
-
-      interfaces = newInterfaces;
-    });
-    */
   }
 
   // Build item of the grid that control the interfaces
@@ -185,35 +163,6 @@ class _UserspacePageState extends State<UserspacePage> {
       // appBar: getAppBar("UserSpace"),
       appBar: getAppBarUserSpace("Userspace", context),
       body: 
-      /*
-      ListView.separated(
-        padding: const EdgeInsets.all(20),
-        itemCount: interfaces.length,
-
-        itemBuilder: (BuildContext context, int index) {
-          return interfaceControlItemBuiler(context, index);
-        },
-        separatorBuilder: (context, index) => const Divider(),
-      )
-      */
-      /*
-      Column(
-        // Start with the platform then display every device
-        children: <Widget>[
-          Center(
-            child: Container(
-              height: MediaQuery.sizeOf(context).height / 3,
-              width: MediaQuery.sizeOf(context).width / 3,
-              child: IcPlatform(findPlatform() as InterfaceConnection),
-            )
-          ),
-        ]
-      )
-      */
-      
-      
-      
-      
       MasonryGridView.count(
         crossAxisCount: columns,
         mainAxisSpacing: 4,

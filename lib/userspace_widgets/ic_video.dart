@@ -1,12 +1,8 @@
 import 'dart:async';
-import 'dart:convert';
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:mqtt_client/mqtt_client.dart';
-import 'package:yuv_to_png/yuv_to_png.dart';
-import 'package:yuv_converter/yuv_converter.dart';
 
 import 'package:panduza_sandbox_flutter/data/interface_connection.dart';
 import 'package:panduza_sandbox_flutter/userspace_widgets/templates.dart';
@@ -26,27 +22,24 @@ class IcVideo extends StatefulWidget {
 
 class _IcVideoState extends State<IcVideo> {
 
-  // late WinVideoPlayerController controller;
-
   int imageCount = 0;
 
   // Video Stream 
-
   StreamController<Uint8List> streamVideoController = StreamController<Uint8List>();
+  
+  // Subcription to broker message
+  StreamSubscription<List<MqttReceivedMessage<MqttMessage>>>? mqttSubscription;
 
   // init the receving of frame on some topic (maybe add some topic) 
 
   void initFrameRecevingMqtt() {
     Future.delayed(Duration(milliseconds: 1), () {
 
+      // Subscribe to receive message link to video
       String attsTopic = "${widget._interfaceConnection.topic}/atts/#";
-      // print(attsTopic);
-      Subscription? sub = widget._interfaceConnection.client
+      widget._interfaceConnection.client
           .subscribe(attsTopic, MqttQos.atLeastOnce);
       
-      // widget._interfaceConnection.client
-      //     .subscribe("pza/default/video/channel/atts/frame", MqttQos.atLeastOnce);
-
       MqttClientPayloadBuilder builder = MqttClientPayloadBuilder();
       builder.addString('*');
       final payload = builder.payload;
@@ -55,49 +48,47 @@ class _IcVideoState extends State<IcVideo> {
 
       print(widget._interfaceConnection.topic);
 
-      // Listen every frame
-      widget._interfaceConnection.client.updates!
+      if (streamVideoController.isClosed) {
+        streamVideoController = StreamController<Uint8List>();
+        print("reopen stream video");
+      }
+
+      // Listen every frame on the broker
+      mqttSubscription = widget._interfaceConnection.client.updates!
         .listen((List<MqttReceivedMessage<MqttMessage>> c) {
         
         if (c![0].topic == "${widget._interfaceConnection.topic}/atts/frame") {
-          // print("i");
           
           final recMess = c![0].payload as MqttPublishMessage;
 
-          // Using mjpeg
+          // Reading frame and putting it on the video stream
+
+          // From mjpeg
 
           var frameMjpeg = recMess.payload.message;
           var imageBytes = Uint8List.view(frameMjpeg.buffer, 0, frameMjpeg.length);
           streamVideoController.add(imageBytes);
 
-          // Using YUV convert to ?
-          
-          // var frameYUV = recMess.payload.message;
-          // var imageBytes = Uint8List.view(frameYUV.buffer, 0, frameYUV.length);
-          // Uint8List rgbga1 = YuvConverter.yuv422yuyvToRgba8888(imageBytes, 512, 512);
-          // streamVideoController.add(rgbga1);
-
-          // Using h264
+          // From h264
         }
       });
     });
   }
 
-
-
+  // Start to receive video at init
   @override
   void initState() {
     super.initState();
     initFrameRecevingMqtt();
   }
 
+  // Stop listening broker message and close video stream
   @override
   void dispose() {
+    mqttSubscription!.cancel();
     streamVideoController.close();
     super.dispose();
   }
-
-  
 
   @override
   Widget build(BuildContext context) {
@@ -106,7 +97,6 @@ class _IcVideoState extends State<IcVideo> {
       builder: (BuildContext context, AsyncSnapshot snapshot) {
         if (snapshot.hasData) {
           var imageData = Uint8List.fromList(snapshot.data);
-          // print("arggg");
           return Card(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
