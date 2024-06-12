@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -23,28 +24,20 @@ class _IcRelayState extends State<IcRelay> {
   bool? _enableValueReq = false;
   bool? _enableValueEff = false;
 
+  StreamSubscription<List<MqttReceivedMessage<MqttMessage>>>? mqttSubscription;
+
   ///
   ///
   void onMqttMessage(List<MqttReceivedMessage<MqttMessage>> c) {
-    // print("============");
-    // print('Received ${c[0].topic} from ${widget._interfaceConnection.topic} ');
-    
-    // print(widget._interfaceConnection.topic);
 
     if (c[0].topic.startsWith(widget._interfaceConnection.topic)) {
-      // print("test = ${c[0].topic}");
       if (!c[0].topic.endsWith('/info')) {
-        // print("success = ${c[0].topic}");
         final recMess = c![0].payload as MqttPublishMessage;
 
         final pt =
             MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
 
         var jsonObject = json.decode(pt);
-
-        // print(jsonObject);
-
-        // Map<String, dynamic> updateAtts = Map.from(_attsEffective);
 
         setState(() {
           for (MapEntry<String, dynamic> atts in jsonObject.entries) {
@@ -75,18 +68,18 @@ class _IcRelayState extends State<IcRelay> {
     // because first state is not detected (and the application see it like 
     // interface is not connected)
 
-    widget._interfaceConnection.client.updates!.listen(onMqttMessage);
+    mqttSubscription = widget._interfaceConnection.client.updates!.listen(onMqttMessage);
 
     await Future.delayed(const Duration(milliseconds: 400));
 
     String attsTopic = "${widget._interfaceConnection.topic}/atts/#";
-    // print(attsTopic);
     Subscription? sub = widget._interfaceConnection.client
         .subscribe(attsTopic, MqttQos.atLeastOnce);
   }
 
   @override
   void dispose() {
+    mqttSubscription!.cancel();
     super.dispose();
   }
 
@@ -159,13 +152,6 @@ class _IcRelayState extends State<IcRelay> {
               onChanged: enableValueSwitchOnChanged(),
               activeColor: blue,
             ),
-            /*
-            Switch(
-              value: _enableValueEff, 
-              onChanged: (value) {
-              },
-            )
-            */
           ],
         )
       );
