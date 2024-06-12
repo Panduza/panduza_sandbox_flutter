@@ -110,6 +110,8 @@ class _IcBlcState extends State<IcBlc> {
                       sync = true;
                     }
 
+                    
+
                     switch (field.value.runtimeType) {
                       case int:
                         _powerValueEff = field.value.toDouble();

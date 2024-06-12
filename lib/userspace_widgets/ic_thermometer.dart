@@ -76,6 +76,7 @@ class _IcThermometerState extends State<IcThermometer> {
   /// Initialize MQTT Subscriptions
   ///
   void initializeMqttSubscription() async {
+
     mqttSubscription = widget._interfaceConnection.client.updates!.listen(onMqttMessage);
 
     String attsTopic = "${widget._interfaceConnection.topic}/atts/#";
