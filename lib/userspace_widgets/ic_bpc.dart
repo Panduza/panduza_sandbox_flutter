@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:panduza_sandbox_flutter/data/const.dart';
 import 'templates.dart';
@@ -14,7 +16,8 @@ class IcBpc extends StatefulWidget {
   final InterfaceConnection _interfaceConnection;
 
   @override
-  _IcBpcState createState() => _IcBpcState();
+  State<IcBpc> createState() => _IcBpcState();
+ 
 }
 
 class _IcBpcState extends State<IcBpc> {
@@ -27,15 +30,14 @@ class _IcBpcState extends State<IcBpc> {
   double? _currentValueReq;
   double? _currentValueEff;
 
+  StreamSubscription<List<MqttReceivedMessage<MqttMessage>>>? mqttSubscription;
+
   ///
   ///
   void onMqttMessage(List<MqttReceivedMessage<MqttMessage>> c) {
-    // print("============");
-    // print('Received ${c[0].topic} from ${widget._interfaceConnection.topic} ');
 
     //
     if (c[0].topic.startsWith(widget._interfaceConnection.topic)) {
-      // print(c[0].topic);
       if (!c[0].topic.endsWith('/info')) {
         final recMess = c![0].payload as MqttPublishMessage;
 
@@ -44,14 +46,9 @@ class _IcBpcState extends State<IcBpc> {
 
         var jsonObject = json.decode(pt);
         
-        // print(jsonObject);
-
-        // Map<String, dynamic> updateAtts = Map.from(_attsEffective);
-
         setState(() {
           for (MapEntry<String, dynamic> atts in jsonObject.entries) {
             for (MapEntry<String, dynamic> field in atts.value.entries) {
-              // print('${atts.key} ${field.key} => ${field.value}');
               switch (atts.key) {
                 case "enable":
                   if (field.key == "value") {
@@ -62,7 +59,6 @@ class _IcBpcState extends State<IcBpc> {
 
                 case "voltage":
                   if (field.key == "value") {
-                    // print("pokkk !! ${field.value.runtimeType}");
                     switch (field.value.runtimeType) {
                       case int:
                         _voltageValueEff = field.value.toDouble();
@@ -75,7 +71,6 @@ class _IcBpcState extends State<IcBpc> {
 
                 case "current":
                   if (field.key == "value") {
-                    // print("pokkk !! ${field.value.runtimeType}");
                     switch (field.value.runtimeType) {
                       case int:
                         _currentValueEff = field.value.toDouble();
@@ -89,14 +84,6 @@ class _IcBpcState extends State<IcBpc> {
             }
           }
         });
-        // print(updateAtts);
-
-        // setState(() {
-        //   _attsEffective = updateAtts;
-        // });
-        // _attsEffective
-
-        // print(jsonObject.runtimeType);
       }
     } else {
       // print('not good:');
@@ -106,18 +93,12 @@ class _IcBpcState extends State<IcBpc> {
   /// Initialize MQTT Subscriptions
   ///
   void initializeMqttSubscription() async {
-    widget._interfaceConnection.client.updates!.listen(onMqttMessage);
+    mqttSubscription = widget._interfaceConnection.client.updates!.listen(onMqttMessage);
 
     String attsTopic = "${widget._interfaceConnection.topic}/atts/#";
     // print(attsTopic);
     Subscription? sub = widget._interfaceConnection.client
         .subscribe(attsTopic, MqttQos.atLeastOnce);
-
-    // if (sub != null) {
-    //   print("coool !!");
-    // } else {
-    //   print("nullllll");
-    // }
   }
 
   /// Perform MQTT Subscriptions at the start of the component
@@ -132,6 +113,7 @@ class _IcBpcState extends State<IcBpc> {
 
   @override
   void dispose() {
+    mqttSubscription!.cancel();
     super.dispose();
   }
 
