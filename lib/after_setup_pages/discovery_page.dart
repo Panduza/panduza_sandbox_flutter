@@ -2,10 +2,8 @@ import 'dart:io';
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 
-import 'package:panduza_sandbox_flutter/data/utils.dart';
 import 'package:panduza_sandbox_flutter/data/const.dart';
 import 'package:panduza_sandbox_flutter/utils_widgets/appBar.dart';
 import 'manual_connection_page.dart';
@@ -47,46 +45,54 @@ class _DiscoveryPageState extends State<DiscoveryPage> {
     
     for (NetworkInterface interface in listInterface) {
       for (InternetAddress address in interface.addresses) {
-        RawDatagramSocket socket = await RawDatagramSocket.bind(address.address, 63500);
-        socket.broadcastEnabled = true;
-        // Add to the list of socket to close when changing of page or refreshing 
-        sockets.add(socket);
-        subscriptions.add(
-          socket.listen((event) {
-            Datagram? datagram = socket.receive();
-            if (datagram != null) {
-              String answer = utf8.decode(datagram.data);
-          
-              Map<String, dynamic> answerMap = jsonDecode(answer);
+        // Try to listen to every network address
+        try {
+          RawDatagramSocket socket = await RawDatagramSocket.bind(address.address, 63500);
+          socket.broadcastEnabled = true;
 
-              Map<String, dynamic>? brokerInfo = answerMap["broker"];
-              Map<String, dynamic>? platformInfo = answerMap["platform"];
-              
-              if (brokerInfo != null && platformInfo != null) {
-                String? brokerAddr = brokerInfo["addr"];
-                int? brokerPort = brokerInfo["port"];
-                String? platformName = platformInfo["name"];
+          // Add to the list of socket to close it when changing of page or refreshing 
+          sockets.add(socket);
+          subscriptions.add(
+            socket.listen((event) {
+              Datagram? datagram = socket.receive();
+              if (datagram != null) {
+                String answer = utf8.decode(datagram.data);
+            
+                Map<String, dynamic> answerMap = jsonDecode(answer);
 
-                // if platform name is not given in the answer payload do not add this platform 
-                if (platformName != null && brokerAddr != null && brokerPort != null) {
-                  
-                  // Get addr, port and platform name
-                  if (!platformsIpsPorts.contains((datagram.address.address, brokerPort, platformName))) {
-                    setState(() {
-                      // add the new platform discovered to the list seen by the user, sort them by name
-                      platformsIpsPorts.add((datagram.address.address, brokerPort, platformName));
-                      platformsIpsPorts.sort(((a, b) => a.$3.compareTo(b.$3)));
-                    });
+                Map<String, dynamic>? brokerInfo = answerMap["broker"];
+                Map<String, dynamic>? platformInfo = answerMap["platform"];
+                
+                if (brokerInfo != null && platformInfo != null) {
+                  String? brokerAddr = brokerInfo["addr"];
+                  int? brokerPort = brokerInfo["port"];
+                  String? platformName = platformInfo["name"];
+
+                  // if platform name is not given in the answer payload do not add this platform 
+                  if (platformName != null && brokerAddr != null && brokerPort != null) {
+                    
+                    // Get addr, port and platform name
+                    if (!platformsIpsPorts.contains((datagram.address.address, brokerPort, platformName))) {
+                      setState(() {
+                        // add the new platform discovered to the list seen by the user, sort them by name
+                        platformsIpsPorts.add((datagram.address.address, brokerPort, platformName));
+                        platformsIpsPorts.sort(((a, b) => a.$3.compareTo(b.$3)));
+                      });
+                    }
                   }
-                }
-              } 
-            }
-          }, onError: (error) {
-            print("error: $error");
-          }, onDone: () {
-            print("done!");
-          }, cancelOnError: true)
-        );
+                } 
+              }
+            }, onError: (error) {
+              print("error: $error");
+            }, onDone: () {
+              print("done!");
+            }, cancelOnError: true)
+          );
+          print("Succes listening on ${address.address}:63500");
+        } catch(e) {
+          // If not successly listen on this network address
+          print(e);
+        }
       }
     }
   }
