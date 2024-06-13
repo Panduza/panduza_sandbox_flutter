@@ -24,7 +24,7 @@ class DiscoveryPage extends StatefulWidget {
 class _DiscoveryPageState extends State<DiscoveryPage> {
 
   // List ip/port broker of the platforms already discovered
-  List<(String, int, String)> platformsIpsPorts = [];
+  List<(String, int, String, String)> platformsIpsPorts = [];
   bool isLoading = false;
 
   Timer? timer;
@@ -78,10 +78,10 @@ class _DiscoveryPageState extends State<DiscoveryPage> {
                     }
 
                     // Get addr, port and platform name
-                    if (!platformsIpsPorts.contains((addrString, brokerPort, platformName))) {
+                    if (!platformsIpsPorts.contains((addrString, brokerPort, platformName, interface.name))) {
                       setState(() {
                         // add the new platform discovered to the list seen by the user, sort them by name
-                        platformsIpsPorts.add((addrString, brokerPort, platformName));
+                        platformsIpsPorts.add((addrString, brokerPort, platformName, interface.name));
                         platformsIpsPorts.sort(((a, b) => a.$3.compareTo(b.$3)));
                       });
                     }
@@ -116,7 +116,7 @@ class _DiscoveryPageState extends State<DiscoveryPage> {
 
 
   // List of button of local platform detected 
-  Widget localDiscoveryConnections(List<(String, int, String)> platformsIpsPorts, bool isLoading) {
+  Widget localDiscoveryConnections(List<(String, int, String, String)> platformsIpsPorts, bool isLoading) {
 
     if (isLoading) {
       return Center(
@@ -134,7 +134,7 @@ class _DiscoveryPageState extends State<DiscoveryPage> {
           cursor: SystemMouseCursors.click,
           child: GestureDetector(
             child: Container(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10),
                 color: black,
@@ -150,9 +150,15 @@ class _DiscoveryPageState extends State<DiscoveryPage> {
                     ),
                     AutoSizeText(
                       platformsIpsPorts[index].$1
-                    ),
+                    ),                               
                     AutoSizeText(
                       platformsIpsPorts[index].$2.toString()
+                    ),
+                    AutoSizeText(
+                      "(discovered with ${platformsIpsPorts[index].$4})",
+                      style: const TextStyle(
+                        fontSize: 10
+                      ),
                     )
                   ],
                 )
