@@ -41,8 +41,8 @@ class _DiscoveryPageState extends State<DiscoveryPage> {
   Future<void> platformDiscoveryStart() async {
 
     // Could have some problem with some android phone ?
-    List<NetworkInterface> listInterface = await NetworkInterface.list();
-    
+    List<NetworkInterface> listInterface = await NetworkInterface.list(includeLoopback: true);
+
     for (NetworkInterface interface in listInterface) {
       for (InternetAddress address in interface.addresses) {
         // Try to listen to every network address
@@ -71,11 +71,17 @@ class _DiscoveryPageState extends State<DiscoveryPage> {
                   // if platform name is not given in the answer payload do not add this platform 
                   if (platformName != null && brokerAddr != null && brokerPort != null) {
                     
+                    String addrString = datagram.address.address;
+                    // If loopback address show localhost instead of 127.0.0.1
+                    if (address.isLoopback) {
+                      addrString = "localhost";
+                    }
+
                     // Get addr, port and platform name
-                    if (!platformsIpsPorts.contains((datagram.address.address, brokerPort, platformName))) {
+                    if (!platformsIpsPorts.contains((addrString, brokerPort, platformName))) {
                       setState(() {
                         // add the new platform discovered to the list seen by the user, sort them by name
-                        platformsIpsPorts.add((datagram.address.address, brokerPort, platformName));
+                        platformsIpsPorts.add((addrString, brokerPort, platformName));
                         platformsIpsPorts.sort(((a, b) => a.$3.compareTo(b.$3)));
                       });
                     }
