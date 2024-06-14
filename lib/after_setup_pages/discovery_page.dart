@@ -2,10 +2,8 @@ import 'dart:io';
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 
-import 'package:panduza_sandbox_flutter/data/utils.dart';
 import 'package:panduza_sandbox_flutter/data/const.dart';
 import 'package:panduza_sandbox_flutter/utils_widgets/appBar.dart';
 import 'manual_connection_page.dart';
@@ -26,7 +24,7 @@ class DiscoveryPage extends StatefulWidget {
 class _DiscoveryPageState extends State<DiscoveryPage> {
 
   // List ip/port broker of the platforms already discovered
-  List<(String, int, String)> platformsIpsPorts = [];
+  List<(String, int, String, String)> platformsIpsPorts = [];
   bool isLoading = false;
 
   Timer? timer;
@@ -43,50 +41,64 @@ class _DiscoveryPageState extends State<DiscoveryPage> {
   Future<void> platformDiscoveryStart() async {
 
     // Could have some problem with some android phone ?
-    List<NetworkInterface> listInterface = await NetworkInterface.list();
-    
+    List<NetworkInterface> listInterface = await NetworkInterface.list(includeLoopback: true);
+
     for (NetworkInterface interface in listInterface) {
       for (InternetAddress address in interface.addresses) {
-        RawDatagramSocket socket = await RawDatagramSocket.bind(address.address, 63500);
-        socket.broadcastEnabled = true;
-        // Add to the list of socket to close when changing of page or refreshing 
-        sockets.add(socket);
-        subscriptions.add(
-          socket.listen((event) {
-            Datagram? datagram = socket.receive();
-            if (datagram != null) {
-              String answer = utf8.decode(datagram.data);
-          
-              Map<String, dynamic> answerMap = jsonDecode(answer);
+        // Try to listen to every network address
+        try {
+          RawDatagramSocket socket = await RawDatagramSocket.bind(address.address, 63500);
+          socket.broadcastEnabled = true;
 
-              Map<String, dynamic>? brokerInfo = answerMap["broker"];
-              Map<String, dynamic>? platformInfo = answerMap["platform"];
-              
-              if (brokerInfo != null && platformInfo != null) {
-                String? brokerAddr = brokerInfo["addr"];
-                int? brokerPort = brokerInfo["port"];
-                String? platformName = platformInfo["name"];
+          // Add to the list of socket to close it when changing of page or refreshing 
+          sockets.add(socket);
+          subscriptions.add(
+            socket.listen((event) {
+              Datagram? datagram = socket.receive();
+              if (datagram != null) {
+                String answer = utf8.decode(datagram.data);
+            
+                Map<String, dynamic> answerMap = jsonDecode(answer);
 
-                // if platform name is not given in the answer payload do not add this platform 
-                if (platformName != null && brokerAddr != null && brokerPort != null) {
-                  
-                  // Get addr, port and platform name
-                  if (!platformsIpsPorts.contains((datagram.address.address, brokerPort, platformName))) {
-                    setState(() {
-                      // add the new platform discovered to the list seen by the user, sort them by name
-                      platformsIpsPorts.add((datagram.address.address, brokerPort, platformName));
-                      platformsIpsPorts.sort(((a, b) => a.$3.compareTo(b.$3)));
-                    });
+                Map<String, dynamic>? brokerInfo = answerMap["broker"];
+                Map<String, dynamic>? platformInfo = answerMap["platform"];
+                
+                if (brokerInfo != null && platformInfo != null) {
+                  String? brokerAddr = brokerInfo["addr"];
+                  int? brokerPort = brokerInfo["port"];
+                  String? platformName = platformInfo["name"];
+
+                  // if platform name is not given in the answer payload do not add this platform 
+                  if (platformName != null && brokerAddr != null && brokerPort != null) {
+                    
+                    String addrString = datagram.address.address;
+                    // If loopback address show localhost instead of 127.0.0.1
+                    if (address.isLoopback) {
+                      addrString = "localhost";
+                    }
+
+                    // Get addr, port and platform name
+                    if (!platformsIpsPorts.contains((addrString, brokerPort, platformName, interface.name))) {
+                      setState(() {
+                        // add the new platform discovered to the list seen by the user, sort them by name
+                        platformsIpsPorts.add((addrString, brokerPort, platformName, interface.name));
+                        platformsIpsPorts.sort(((a, b) => a.$3.compareTo(b.$3)));
+                      });
+                    }
                   }
-                }
-              } 
-            }
-          }, onError: (error) {
-            print("error: $error");
-          }, onDone: () {
-            print("done!");
-          }, cancelOnError: true)
-        );
+                } 
+              }
+            }, onError: (error) {
+              print("error: $error");
+            }, onDone: () {
+              print("done!");
+            }, cancelOnError: true)
+          );
+          print("Succes listening on ${address.address}:63500");
+        } catch(e) {
+          // If not successly listen on this network address
+          print(e);
+        }
       }
     }
   }
@@ -104,7 +116,7 @@ class _DiscoveryPageState extends State<DiscoveryPage> {
 
 
   // List of button of local platform detected 
-  Widget localDiscoveryConnections(List<(String, int, String)> platformsIpsPorts, bool isLoading) {
+  Widget localDiscoveryConnections(List<(String, int, String, String)> platformsIpsPorts, bool isLoading) {
 
     if (isLoading) {
       return Center(
@@ -122,7 +134,7 @@ class _DiscoveryPageState extends State<DiscoveryPage> {
           cursor: SystemMouseCursors.click,
           child: GestureDetector(
             child: Container(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10),
                 color: black,
@@ -138,9 +150,15 @@ class _DiscoveryPageState extends State<DiscoveryPage> {
                     ),
                     AutoSizeText(
                       platformsIpsPorts[index].$1
-                    ),
+                    ),                               
                     AutoSizeText(
                       platformsIpsPorts[index].$2.toString()
+                    ),
+                    AutoSizeText(
+                      "(discovered with ${platformsIpsPorts[index].$4})",
+                      style: const TextStyle(
+                        fontSize: 10
+                      ),
                     )
                   ],
                 )
