@@ -1,11 +1,6 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 
-import 'package:panduza_sandbox_flutter/data/const.dart';
-import 'package:panduza_sandbox_flutter/data/rest_request.dart';
-import 'package:panduza_sandbox_flutter/data/utils.dart';
-import 'package:panduza_sandbox_flutter/data/broker_connection_info.dart';
-import 'package:panduza_sandbox_flutter/after_setup_pages/userspace_page.dart';
+import 'package:panduza_sandbox_flutter/utils/const.dart';
 
 // Form to add a new manual connection 
 // The user can add on his disk a new setup of connection mqtt
@@ -63,20 +58,11 @@ class AddDeviceToBenchForm extends StatelessWidget {
             // Connect to the broker with the info of username and password given
             ElevatedButton(
               onPressed: () {
-                // Send a request to api to created a new device
-                postDevice(token, ctrlName.text, ctrlType.text).then((response) {
-
-                  var responseObject = json.decode(response.body);
-
-                  // then link this new device to the targeted bench
-                  putDeviceInBench(token, benchId, responseObject["id"]).then((value) {
-                    Navigator.pop(context);
-                  });
-                });
+                // TO DO when cloud will be more advanced
               }, 
               // Show error message if unsuccessful connection
               style: ButtonStyle(
-                backgroundColor: MaterialStateProperty.all<Color>(blue)
+                backgroundColor: WidgetStateProperty.all<Color>(blue)
               ),
               child: Text(
                 'SAVE',

@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:panduza_sandbox_flutter/setup_pages/choice_cloud_self_managed_page.dart';
-import 'package:panduza_sandbox_flutter/data/const.dart';
+import 'package:panduza_sandbox_flutter/pages/setup_pages/choice_cloud_self_managed_page.dart';
+import 'package:panduza_sandbox_flutter/utils/const.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import 'data/const.dart';
 
 
 // Think about init SharedPreferences only to the start of the application
