@@ -7,14 +7,14 @@ import 'package:panduza_sandbox_flutter/utils/utils_objects/platform_config.dart
 
 
 class DevicePage extends StatefulWidget {
-  DevicePage(this._deviceStore, this._platformConfig, this._deviceConfig,
+  const DevicePage(this._deviceStore, this._deviceConfig,
       {super.key});
 
-  Map<dynamic, dynamic> _deviceStore;
+  final Map<dynamic, dynamic> _deviceStore;
 
-  PlatformConfig _platformConfig;
+  // PlatformConfig _platformConfig;
 
-  DeviceConfig _deviceConfig;
+  final DeviceConfig _deviceConfig;
 
   @override
   _DevicePageState createState() => _DevicePageState(_deviceConfig);
