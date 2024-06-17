@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import 'package:panduza_sandbox_flutter/data/const.dart';
-import 'package:panduza_sandbox_flutter/data/utils.dart';
-import 'package:panduza_sandbox_flutter/utils_widgets/utils_widgets.dart';
+import 'package:panduza_sandbox_flutter/utils/const.dart';
+import 'package:panduza_sandbox_flutter/utils/utils_functions.dart';
+import 'package:panduza_sandbox_flutter/widgets/utils_widgets/utils_widgets.dart';
 
 // Form to edit a existing connection
 

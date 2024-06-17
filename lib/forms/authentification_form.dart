@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-import 'package:panduza_sandbox_flutter/data/const.dart';
-import 'package:panduza_sandbox_flutter/data/utils.dart';
-import 'package:panduza_sandbox_flutter/data/broker_connection_info.dart';
-import 'package:panduza_sandbox_flutter/after_setup_pages/userspace_page.dart';
+import 'package:panduza_sandbox_flutter/utils/const.dart';
+import 'package:panduza_sandbox_flutter/utils/utils_functions.dart';
+import 'package:panduza_sandbox_flutter/utils/utils_objects/broker_connection_info.dart';
+import 'package:panduza_sandbox_flutter/pages/after_setup_pages/userspace_page.dart';
 
 // Form to add a new manual connection 
 // The user can add on his disk a new setup of connection mqtt
@@ -69,7 +69,7 @@ class AuthentificationForm extends StatelessWidget {
                       context,
                       MaterialPageRoute(
                         builder: (context) => UserspacePage(
-                          broker_connection_info: BrokerConnectionInfo(
+                          brokerConnectionInfo: BrokerConnectionInfo(
                             ip, 
                             int.parse(port), 
                             client
