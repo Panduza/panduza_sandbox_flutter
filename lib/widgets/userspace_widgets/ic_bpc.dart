@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:panduza_sandbox_flutter/utils/const.dart';
+import 'package:panduza_sandbox_flutter/utils/utils_functions.dart';
 import 'templates.dart';
 import '../../utils/utils_objects/interface_connection.dart';
 
@@ -21,12 +22,19 @@ class IcBpc extends StatefulWidget {
 }
 
 class _IcBpcState extends State<IcBpc> {
+
   bool? _enableValueReq;
   bool? _enableValueEff;
 
+  int _voltageDecimal = 3;
+  double _voltageMin = 0;
+  double _voltageMax = 1;
   double? _voltageValueReq;
   double? _voltageValueEff;
 
+  int _currentDecimal = 3;
+  double _currentMin = 0;
+  double _currentMax = 1;
   double? _currentValueReq;
   double? _currentValueEff;
 
@@ -67,6 +75,21 @@ class _IcBpcState extends State<IcBpc> {
                     }
                     _voltageValueReq ??= _voltageValueEff;
                   }
+
+                  if (field.key == "min") {
+                    _voltageMin = value_to_double(field.value);
+                  }
+                  if (field.key == "max") {
+                    _voltageMax = value_to_double(field.value);
+                  }
+                  if (field.key == "decimals") {
+                    switch (field.value.runtimeType) {
+                      case int:
+                        _voltageDecimal = field.value;
+                      case double:
+                        _voltageDecimal = (field.value as double).toInt();
+                    }
+                  }
                   break;
 
                 case "current":
@@ -79,7 +102,24 @@ class _IcBpcState extends State<IcBpc> {
                     }
                     _currentValueReq ??= _currentValueEff;
                   }
+
+                  if (field.key == "min") {
+                    _currentMin = value_to_double(field.value);
+                  }
+                  if (field.key == "max") {
+                    _currentMax = value_to_double(field.value);
+                  }
+                  if (field.key == "decimals") {
+                    switch (field.value.runtimeType) {
+                      case int:
+                        _currentDecimal = field.value;
+                      case double:
+                        _currentDecimal = (field.value as double).toInt();
+                    }
+                  }
                   break;
+
+                  
               }
             }
           }
@@ -232,7 +272,7 @@ class _IcBpcState extends State<IcBpc> {
         children: [
           cardHeadLine(widget._interfaceConnection),
           Text(
-            'Voltage : ${double.parse(_voltageValueReq!.toStringAsFixed(2))}V',
+            'Voltage : ${double.parse(_voltageValueReq!.toStringAsFixed(_voltageDecimal))}V',
             style: TextStyle(
               color: black
             ),
@@ -244,9 +284,11 @@ class _IcBpcState extends State<IcBpc> {
                 _voltageValueReq = value;
               });
             },
+            min: _voltageMin,
+            max: _voltageMax
           ),
           Text(
-            'Current : ${double.parse(_currentValueReq!.toStringAsFixed(2))}V',
+            'Current : ${double.parse(_currentValueReq!.toStringAsFixed(_currentDecimal))}V',
             style: TextStyle(
               color: black
             ),
@@ -258,8 +300,8 @@ class _IcBpcState extends State<IcBpc> {
                 _currentValueReq = value;
               });
             },
-            // min: 0.0,
-            // max: 100.0,
+            min: _currentMin,
+            max: _currentMax,
           ),
           Row(
             children: [
