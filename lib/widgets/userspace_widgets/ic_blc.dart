@@ -1,11 +1,12 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:panduza_sandbox_flutter/utils/const.dart';
 import 'templates.dart';
 import '../../utils/utils_objects/interface_connection.dart';
+import 'package:panduza_sandbox_flutter/utils/utils_functions.dart';
 
-import 'dart:convert';
 
 // import '../widgets/interface_control/icw_bpc.dart';
 import 'package:mqtt_client/mqtt_client.dart';
@@ -18,16 +19,6 @@ class IcBlc extends StatefulWidget {
   @override
   State<IcBlc> createState() => _IcBlcState();
    
-}
-
-double value_to_double(dynamic value) {
-  switch (value.runtimeType) {
-    case int:
-      return value.toDouble();
-    case double:
-      return value;
-  }
-  return 0.0;
 }
 
 class _IcBlcState extends State<IcBlc> {
@@ -68,8 +59,8 @@ class _IcBlcState extends State<IcBlc> {
         setState(() {
           for (MapEntry<String, dynamic> atts in jsonObject.entries) {
             for (MapEntry<String, dynamic> field in atts.value.entries) {
-
               switch (atts.key) {
+                
                 case "mode":
                   if (field.key == "value") {
                     bool sync = false;
@@ -110,8 +101,6 @@ class _IcBlcState extends State<IcBlc> {
                       sync = true;
                     }
 
-                    
-
                     switch (field.value.runtimeType) {
                       case int:
                         _powerValueEff = field.value.toDouble();
@@ -124,10 +113,10 @@ class _IcBlcState extends State<IcBlc> {
                   }
 
                   if (field.key == "min") {
-                    _powerMin = value_to_double(field.value);
+                    _powerMin = valueToDouble(field.value);
                   }
                   if (field.key == "max") {
-                    _powerMax = value_to_double(field.value);
+                    _powerMax = valueToDouble(field.value);
                   }
                   if (field.key == "decimals") {
                     switch (field.value.runtimeType) {
@@ -161,10 +150,10 @@ class _IcBlcState extends State<IcBlc> {
                   }
 
                   if (field.key == "min") {
-                    _currentMin = value_to_double(field.value);
+                    _currentMin = valueToDouble(field.value);
                   }
                   if (field.key == "max") {
-                    _currentMax = value_to_double(field.value);
+                    _currentMax = valueToDouble(field.value);
                   }
                   if (field.key == "decimals") {
                     switch (field.value.runtimeType) {

@@ -20,6 +20,7 @@ class IcPowermeter extends StatefulWidget {
 
 class _IcPowermeterState extends State<IcPowermeter> {
 
+  int _measureDecimal = 5;
   double _value = 0;
 
   StreamSubscription<List<MqttReceivedMessage<MqttMessage>>>? mqttSubscription;
@@ -28,8 +29,8 @@ class _IcPowermeterState extends State<IcPowermeter> {
   /// powermeter
   /// 
   void onMqttMessage(List<MqttReceivedMessage<MqttMessage>> c) {
-    print("============");
-    print('Received ${c[0].topic} from ${widget._interfaceConnection.topic} ');
+    // print("============");
+    // print('Received ${c[0].topic} from ${widget._interfaceConnection.topic} ');
 
     //
     if (c[0].topic.startsWith(widget._interfaceConnection.topic)) {
@@ -41,12 +42,12 @@ class _IcPowermeterState extends State<IcPowermeter> {
 
         var jsonObject = json.decode(pt);
 
-        print(jsonObject);
+        // print(jsonObject);
 
         setState(() {
           for (MapEntry<String, dynamic> atts in jsonObject.entries) {
             for (MapEntry<String, dynamic> field in atts.value.entries) {
-              print('${atts.key} ${field.key} => ${field.value}');
+              // print('${atts.key} ${field.key} => ${field.value}');
 
               switch (atts.key) {
                 case "measure":
@@ -61,6 +62,15 @@ class _IcPowermeterState extends State<IcPowermeter> {
                     setState(() {
                       _value = updateVal;
                     });
+                  }
+
+                  if (field.key == "decimals") {
+                    switch (field.value.runtimeType) {
+                      case int:
+                        _measureDecimal = field.value;
+                      case double:
+                        _measureDecimal = (field.value as double).toInt();
+                    }
                   }
                   break;
               }
@@ -115,7 +125,7 @@ class _IcPowermeterState extends State<IcPowermeter> {
       children: [
         cardHeadLine(widget._interfaceConnection),
         Text(
-          "${_value.toString()} W",
+          "${double.parse(_value.toStringAsFixed(_measureDecimal))} W",
           style: TextStyle(
             color: black
           ),

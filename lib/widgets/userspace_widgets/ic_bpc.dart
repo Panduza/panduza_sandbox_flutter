@@ -1,12 +1,11 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:panduza_sandbox_flutter/utils/const.dart';
 import 'package:panduza_sandbox_flutter/utils/utils_functions.dart';
+import 'package:panduza_sandbox_flutter/utils/utils_objects/interface_connection.dart';
 import 'templates.dart';
-import '../../utils/utils_objects/interface_connection.dart';
-
-import 'dart:convert';
 
 // import '../widgets/interface_control/icw_bpc.dart';
 import 'package:mqtt_client/mqtt_client.dart';
@@ -77,10 +76,10 @@ class _IcBpcState extends State<IcBpc> {
                   }
 
                   if (field.key == "min") {
-                    _voltageMin = value_to_double(field.value);
+                    _voltageMin = valueToDouble(field.value);
                   }
                   if (field.key == "max") {
-                    _voltageMax = value_to_double(field.value);
+                    _voltageMax = valueToDouble(field.value);
                   }
                   if (field.key == "decimals") {
                     switch (field.value.runtimeType) {
@@ -104,10 +103,10 @@ class _IcBpcState extends State<IcBpc> {
                   }
 
                   if (field.key == "min") {
-                    _currentMin = value_to_double(field.value);
+                    _currentMin = valueToDouble(field.value);
                   }
                   if (field.key == "max") {
-                    _currentMax = value_to_double(field.value);
+                    _currentMax = valueToDouble(field.value);
                   }
                   if (field.key == "decimals") {
                     switch (field.value.runtimeType) {

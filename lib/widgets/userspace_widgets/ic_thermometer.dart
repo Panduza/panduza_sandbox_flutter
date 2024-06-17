@@ -20,6 +20,7 @@ class IcThermometer extends StatefulWidget {
 
 class _IcThermometerState extends State<IcThermometer> {
 
+  int _measureDecimal = 1;
   double _value = 0;
   
   StreamSubscription<List<MqttReceivedMessage<MqttMessage>>>? mqttSubscription;
@@ -58,7 +59,12 @@ class _IcThermometerState extends State<IcThermometer> {
                 }
 
                 if (field.key == "decimals") {
-
+                  switch (field.value.runtimeType) {
+                    case int:
+                      _measureDecimal = field.value;
+                    case double:
+                      _measureDecimal = (field.value as double).toInt();
+                  }
                 }
                 break;
             }
@@ -114,7 +120,7 @@ class _IcThermometerState extends State<IcThermometer> {
       children: [
         cardHeadLine(widget._interfaceConnection),
         Text(
-          "${_value.toString()} °C",
+          "${double.parse(_value.toStringAsFixed(_measureDecimal))} °C",
           style: TextStyle(
             color: black
           ),

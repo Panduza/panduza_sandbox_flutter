@@ -277,3 +277,14 @@ Future<bool> checkIfConnectionValid(BuildContext context, String name, String ho
 
   return true;
 }
+
+// Convert dynamic to double if possible
+double valueToDouble(dynamic value) {
+  switch (value.runtimeType) {
+    case int:
+      return value.toDouble();
+    case double:
+      return value;
+  }
+  return 0.0;
+}
