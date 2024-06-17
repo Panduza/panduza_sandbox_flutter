@@ -56,7 +56,7 @@ class EditConnectionForm extends StatelessWidget {
                 Navigator.pop(context);
               },
               style: ButtonStyle(
-                backgroundColor: WidgetStateProperty.all<Color>(black)
+                backgroundColor: MaterialStateProperty.all<Color>(black)
               ),
               child: Text(
                 'CANCEL',
@@ -84,7 +84,7 @@ class EditConnectionForm extends StatelessWidget {
                 }
               }, 
               style: ButtonStyle(
-                backgroundColor: WidgetStateProperty.all<Color>(blue)
+                backgroundColor: MaterialStateProperty.all<Color>(blue)
               ),
               child: Text(
                 'EDIT',

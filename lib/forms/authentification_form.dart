@@ -84,7 +84,7 @@ class AuthentificationForm extends StatelessWidget {
               }, 
               // Show error message if unsuccessful connection
               style: ButtonStyle(
-                backgroundColor: WidgetStateProperty.all<Color>(blue)
+                backgroundColor: MaterialStateProperty.all<Color>(blue)
               ),
               child: Text(
                 'CONNECT',

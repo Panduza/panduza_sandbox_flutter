@@ -121,7 +121,7 @@ class _PlatformPageState extends State<PlatformPage> {
               context,
               MaterialPageRoute(
                   builder: (context) =>
-                      DevicePage(_deviceStore, _platformConfig, device)),
+                      DevicePage(_deviceStore, device)),
             ).then((value) {
               setState(() {});
             });

@@ -97,7 +97,7 @@ class _DiscoveryPageState extends State<DiscoveryPage> {
           print("Succes listening on ${address.address}:63500");
         } catch(e) {
           // If not successly listen on this network address
-          print(e);
+          print("Error while trying to bind socket : $e");
         }
       }
     }
@@ -110,6 +110,8 @@ class _DiscoveryPageState extends State<DiscoveryPage> {
         socket.send(utf8.encode(jsonEncode({"search" : true})), InternetAddress("255.255.255.255"), portLocalDiscovery);
       } on SocketException catch(e) {
         print("Local discovery on ${e.address}:${e.port} failed, error code = ${e.osError?.errorCode}, ${e.osError?.message}");
+      } catch(e) {
+        print("Send failed : $e");
       }
     }
   }
@@ -230,7 +232,7 @@ class _DiscoveryPageState extends State<DiscoveryPage> {
             height: MediaQuery.sizeOf(context).height / 12,
             child: TextButton(
               style: ButtonStyle (
-                backgroundColor: WidgetStateProperty.all<Color>(black)
+                backgroundColor: MaterialStateProperty.all<Color>(black)
               ),
               onPressed: () {
                 // Close sockets then create new ones if potential bugs
