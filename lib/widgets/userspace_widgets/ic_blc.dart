@@ -26,10 +26,14 @@ class _IcBlcState extends State<IcBlc> {
   bool? _enableValueEff;
 
   int _powerDecimals = 3;
-  double _powerMin = 0;
-  double _powerMax = 0.1;
+  double? _powerMin;
+  double? _powerMax;
+
   double? _powerValueReq;
   double? _powerValueEff;
+
+  double? _powerPercentageReq;
+  double? _powerPercentageEff;
 
   int _currentDecimals = 3;
   double _currentMin = 0;
@@ -107,6 +111,10 @@ class _IcBlcState extends State<IcBlc> {
                       case double:
                         _powerValueEff = field.value;
                     }
+                    if (_powerMax != null) {
+                      _powerPercentageReq = _powerValueEff! / _powerMax! * 100;
+                      _powerPercentageEff = _powerValueEff! / _powerMax! * 100;
+                    }
                     if (sync) {
                       _powerValueReq = _powerValueEff;
                     }
@@ -117,6 +125,10 @@ class _IcBlcState extends State<IcBlc> {
                   }
                   if (field.key == "max") {
                     _powerMax = valueToDouble(field.value);
+                    if (_powerValueReq != null && _powerValueEff != null) {
+                      _powerPercentageReq = _powerValueReq! / _powerMax! * 100;
+                      _powerPercentageEff = _powerValueEff! / _powerMax! * 100;
+                    }
                   }
                   if (field.key == "decimals") {
                     switch (field.value.runtimeType) {
@@ -218,16 +230,21 @@ class _IcBlcState extends State<IcBlc> {
   ///
   void Function()? applyPowerCurrentRequest() {
     if (_powerValueEff == _powerValueReq &&
+        _powerPercentageEff == _powerPercentageReq &&
         _currentValueReq == _currentValueEff &&
         _modeValueReq == _modeValueEff) {
       return null;
     } else {
       return () {
-        if (_powerValueEff != _powerValueReq) {
+        if (_powerPercentageEff != _powerPercentageReq) {
           MqttClientPayloadBuilder builder = MqttClientPayloadBuilder();
+ 
+          // Transform percentage in value
+          double powerValue = (1/100) * _powerPercentageReq! * _powerMax!;
+          // print(powerValue);
 
           Map<String, dynamic> data = {
-            "power": {"value": _powerValueReq!}
+            "power": {"value": powerValue}
           };
 
           String jsonString = jsonEncode(data);
@@ -239,6 +256,8 @@ class _IcBlcState extends State<IcBlc> {
 
           widget._interfaceConnection.client
               .publishMessage(cmdsTopic, MqttQos.atLeastOnce, payload!);
+
+          print(_powerPercentageReq);
         }
         if (_currentValueEff != _currentValueReq) {
           MqttClientPayloadBuilder builder = MqttClientPayloadBuilder();
@@ -281,6 +300,7 @@ class _IcBlcState extends State<IcBlc> {
 
   void Function()? cancelPowerCurrentRequest() {
     if (_powerValueEff == _powerValueReq &&
+        _powerPercentageEff == _powerPercentageReq &&
         _currentValueReq == _currentValueEff &&
         _modeValueReq == _modeValueEff) {
       return null;
@@ -288,6 +308,9 @@ class _IcBlcState extends State<IcBlc> {
       return () {
         if (_powerValueEff != _powerValueReq) {
           _powerValueReq = _powerValueEff;
+        }
+        if (_powerPercentageEff != _powerPercentageReq) {
+          _powerPercentageReq = _powerPercentageEff;
         }
         if (_currentValueEff != _currentValueReq) {
           _currentValueReq = _currentValueEff;
@@ -334,6 +357,7 @@ class _IcBlcState extends State<IcBlc> {
 
     if (_enableValueEff != null &&
         _powerValueReq != null &&
+        _powerPercentageReq != null &&
         _currentValueReq != null &&
         _modeValueReq != null) {
       return Card(
@@ -366,21 +390,23 @@ class _IcBlcState extends State<IcBlc> {
               height: 20,
             ),
             Text(
-              'Power : ${double.parse(_powerValueReq!.toStringAsFixed(_powerDecimals))}W',
+              'Power : ${double.parse(_powerPercentageReq!.toStringAsFixed(_powerDecimals))}%',
               style: TextStyle(
                 color: black
               ),
             ),
             Slider(
-              value: _powerValueReq!,
+              value: _powerPercentageReq!,
               onChanged: (value) {
                 setState(() {
-                  _powerValueReq =
+                  _powerPercentageReq =
                       double.parse((value).toStringAsFixed(_powerDecimals));
                 });
               },
-              min: _powerMin,
-              max: _powerMax,
+              // min: _powerMin,
+              // max: _powerMax,
+              min: 0,
+              max: 100,
             ),
             Text(
               'Current : ${double.parse(_currentValueReq!.toStringAsFixed(_currentDecimals))}A',
