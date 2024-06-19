@@ -193,7 +193,7 @@ class _IcBlcState extends State<IcBlc> {
     mqttSubscription = widget._interfaceConnection.client.updates!.listen(onMqttMessage);
 
     String attsTopic = "${widget._interfaceConnection.topic}/atts/#";
-    // print(attsTopic);
+
     widget._interfaceConnection.client
         .subscribe(attsTopic, MqttQos.atLeastOnce);
 
@@ -241,7 +241,6 @@ class _IcBlcState extends State<IcBlc> {
  
           // Transform percentage in value
           double powerValue = (1/100) * _powerPercentageReq! * _powerMax!;
-          // print(powerValue);
 
           Map<String, dynamic> data = {
             "power": {"value": powerValue}
@@ -256,8 +255,6 @@ class _IcBlcState extends State<IcBlc> {
 
           widget._interfaceConnection.client
               .publishMessage(cmdsTopic, MqttQos.atLeastOnce, payload!);
-
-          print(_powerPercentageReq);
         }
         if (_currentValueEff != _currentValueReq) {
           MqttClientPayloadBuilder builder = MqttClientPayloadBuilder();
@@ -352,6 +349,66 @@ class _IcBlcState extends State<IcBlc> {
     });
   }
 
+  // Show power or current slider according to mod selected
+  Widget powerOrCurrentSlider() {
+
+    if (_modeValueEff != null) {
+      if (_modeValueEff!.compareTo("constant_power") == 0) {
+        return Column(
+          children: [
+            const SizedBox(
+              height: 20,
+            ),
+            Text(
+              'Power : ${double.parse(_powerPercentageReq!.toStringAsFixed(_powerDecimals))}%',
+              style: TextStyle(
+                color: black
+              ),
+            ),
+            Slider(
+              value: _powerPercentageReq!,
+              onChanged: (value) {
+                setState(() {
+                  _powerPercentageReq =
+                      double.parse((value).toStringAsFixed(_powerDecimals));
+                });
+              },
+              min: 0,
+              max: 100,
+            ),
+          ],
+        );
+      } else if (_modeValueEff!.compareTo("constant_current") == 0) {
+        return Column(
+          children: [
+            const SizedBox(
+              height: 20,
+            ),
+            Text(
+              'Current : ${double.parse(_currentValueReq!.toStringAsFixed(_currentDecimals))}A',
+              style: TextStyle(
+                color: black
+              ),
+            ),
+            Slider(
+              value: _currentValueReq!,
+              onChanged: (value) {
+                setState(() {
+                  _currentValueReq =
+                      double.parse((value).toStringAsFixed(_currentDecimals));
+                });
+              },
+              min: _currentMin,
+              max: _currentMax,
+            ),
+          ],
+        );
+      } 
+    }
+
+    return const SizedBox.shrink();
+  }
+
   @override
   Widget build(BuildContext context) {
 
@@ -360,6 +417,48 @@ class _IcBlcState extends State<IcBlc> {
         _powerPercentageReq != null &&
         _currentValueReq != null &&
         _modeValueReq != null) {
+        
+      // Button to start laser and buttons to confirm changing mod 
+      // or send the value of power or current choose with the slider
+      Widget enableButton = Row(
+        children: [
+          const SizedBox(
+            width: 10,
+          ),
+          OutlinedButton(
+            onPressed: cancelPowerCurrentRequest(),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: Colors.red,
+              side: BorderSide(
+                color: (applyPowerCurrentRequest() != null)
+                    ? Colors.red
+                    : Colors.grey,
+              ),
+            ),
+            // child: const Text("Cancel"),
+            child: const Icon(
+              Icons.arrow_back,
+            ),
+          ),
+          const SizedBox(
+            width: 10,
+          ),
+          ElevatedButton(
+            onPressed: applyPowerCurrentRequest(),
+            style: ElevatedButton.styleFrom(
+              elevation: 0,
+              backgroundColor: Colors.green, // Green background
+              foregroundColor: Colors.white, // White foreground
+            ),
+            child: const Text("Apply"),
+          ),
+          const Spacer(),
+          Switch(
+              value: _enableValueEff!,
+              onChanged: enableValueSwitchOnChanged()),
+        ],
+      );
+      
       return Card(
         child: Column(
           children: [
@@ -386,83 +485,8 @@ class _IcBlcState extends State<IcBlc> {
                 });
               }
             ),
-            const SizedBox(
-              height: 20,
-            ),
-            Text(
-              'Power : ${double.parse(_powerPercentageReq!.toStringAsFixed(_powerDecimals))}%',
-              style: TextStyle(
-                color: black
-              ),
-            ),
-            Slider(
-              value: _powerPercentageReq!,
-              onChanged: (value) {
-                setState(() {
-                  _powerPercentageReq =
-                      double.parse((value).toStringAsFixed(_powerDecimals));
-                });
-              },
-              // min: _powerMin,
-              // max: _powerMax,
-              min: 0,
-              max: 100,
-            ),
-            Text(
-              'Current : ${double.parse(_currentValueReq!.toStringAsFixed(_currentDecimals))}A',
-              style: TextStyle(
-                color: black
-              ),
-            ),
-            Slider(
-              value: _currentValueReq!,
-              onChanged: (value) {
-                setState(() {
-                  _currentValueReq =
-                      double.parse((value).toStringAsFixed(_currentDecimals));
-                });
-              },
-              min: _currentMin,
-              max: _currentMax,
-            ),
-            Row(
-              children: [
-                const SizedBox(
-                  width: 10,
-                ),
-                OutlinedButton(
-                  onPressed: cancelPowerCurrentRequest(),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.red,
-                    side: BorderSide(
-                      color: (applyPowerCurrentRequest() != null)
-                          ? Colors.red
-                          : Colors.grey,
-                    ),
-                  ),
-                  // child: const Text("Cancel"),
-                  child: const Icon(
-                    Icons.arrow_back,
-                  ),
-                ),
-                const SizedBox(
-                  width: 10,
-                ),
-                ElevatedButton(
-                  onPressed: applyPowerCurrentRequest(),
-                  style: ElevatedButton.styleFrom(
-                    elevation: 0,
-                    backgroundColor: Colors.green, // Green background
-                    foregroundColor: Colors.white, // White foreground
-                  ),
-                  child: const Text("Apply"),
-                ),
-                const Spacer(),
-                Switch(
-                    value: _enableValueEff!,
-                    onChanged: enableValueSwitchOnChanged()),
-              ],
-            )
+            powerOrCurrentSlider(),
+            enableButton
           ],
         )
       );
