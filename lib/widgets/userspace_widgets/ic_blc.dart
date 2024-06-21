@@ -26,10 +26,14 @@ class _IcBlcState extends State<IcBlc> {
   bool? _enableValueEff;
 
   int _powerDecimals = 3;
-  double _powerMin = 0;
-  double _powerMax = 0.1;
+  double? _powerMin;
+  double? _powerMax;
+
   double? _powerValueReq;
   double? _powerValueEff;
+
+  double? _powerPercentageReq;
+  double? _powerPercentageEff;
 
   int _currentDecimals = 3;
   double _currentMin = 0;
@@ -107,6 +111,10 @@ class _IcBlcState extends State<IcBlc> {
                       case double:
                         _powerValueEff = field.value;
                     }
+                    if (_powerMax != null) {
+                      _powerPercentageReq = _powerValueEff! / _powerMax! * 100;
+                      _powerPercentageEff = _powerValueEff! / _powerMax! * 100;
+                    }
                     if (sync) {
                       _powerValueReq = _powerValueEff;
                     }
@@ -117,6 +125,10 @@ class _IcBlcState extends State<IcBlc> {
                   }
                   if (field.key == "max") {
                     _powerMax = valueToDouble(field.value);
+                    if (_powerValueReq != null && _powerValueEff != null) {
+                      _powerPercentageReq = _powerValueReq! / _powerMax! * 100;
+                      _powerPercentageEff = _powerValueEff! / _powerMax! * 100;
+                    }
                   }
                   if (field.key == "decimals") {
                     switch (field.value.runtimeType) {
@@ -181,7 +193,7 @@ class _IcBlcState extends State<IcBlc> {
     mqttSubscription = widget._interfaceConnection.client.updates!.listen(onMqttMessage);
 
     String attsTopic = "${widget._interfaceConnection.topic}/atts/#";
-    // print(attsTopic);
+
     widget._interfaceConnection.client
         .subscribe(attsTopic, MqttQos.atLeastOnce);
 
@@ -218,16 +230,20 @@ class _IcBlcState extends State<IcBlc> {
   ///
   void Function()? applyPowerCurrentRequest() {
     if (_powerValueEff == _powerValueReq &&
+        _powerPercentageEff == _powerPercentageReq &&
         _currentValueReq == _currentValueEff &&
         _modeValueReq == _modeValueEff) {
       return null;
     } else {
       return () {
-        if (_powerValueEff != _powerValueReq) {
+        if (_powerPercentageEff != _powerPercentageReq) {
           MqttClientPayloadBuilder builder = MqttClientPayloadBuilder();
+ 
+          // Transform percentage in value
+          double powerValue = (1/100) * _powerPercentageReq! * _powerMax!;
 
           Map<String, dynamic> data = {
-            "power": {"value": _powerValueReq!}
+            "power": {"value": powerValue}
           };
 
           String jsonString = jsonEncode(data);
@@ -281,6 +297,7 @@ class _IcBlcState extends State<IcBlc> {
 
   void Function()? cancelPowerCurrentRequest() {
     if (_powerValueEff == _powerValueReq &&
+        _powerPercentageEff == _powerPercentageReq &&
         _currentValueReq == _currentValueEff &&
         _modeValueReq == _modeValueEff) {
       return null;
@@ -288,6 +305,9 @@ class _IcBlcState extends State<IcBlc> {
       return () {
         if (_powerValueEff != _powerValueReq) {
           _powerValueReq = _powerValueEff;
+        }
+        if (_powerPercentageEff != _powerPercentageReq) {
+          _powerPercentageReq = _powerPercentageEff;
         }
         if (_currentValueEff != _currentValueReq) {
           _currentValueReq = _currentValueEff;
@@ -329,13 +349,116 @@ class _IcBlcState extends State<IcBlc> {
     });
   }
 
+  // Show power or current slider according to mod selected
+  Widget powerOrCurrentSlider() {
+
+    if (_modeValueEff != null) {
+      if (_modeValueEff!.compareTo("constant_power") == 0) {
+        return Column(
+          children: [
+            const SizedBox(
+              height: 20,
+            ),
+            Text(
+              'Power : ${double.parse(_powerPercentageReq!.toStringAsFixed(_powerDecimals))}%',
+              style: TextStyle(
+                color: black
+              ),
+            ),
+            Slider(
+              value: _powerPercentageReq!,
+              onChanged: (value) {
+                setState(() {
+                  _powerPercentageReq =
+                      double.parse((value).toStringAsFixed(_powerDecimals));
+                });
+              },
+              min: 0,
+              max: 100,
+            ),
+          ],
+        );
+      } else if (_modeValueEff!.compareTo("constant_current") == 0) {
+        return Column(
+          children: [
+            const SizedBox(
+              height: 20,
+            ),
+            Text(
+              'Current : ${double.parse(_currentValueReq!.toStringAsFixed(_currentDecimals))}A',
+              style: TextStyle(
+                color: black
+              ),
+            ),
+            Slider(
+              value: _currentValueReq!,
+              onChanged: (value) {
+                setState(() {
+                  _currentValueReq =
+                      double.parse((value).toStringAsFixed(_currentDecimals));
+                });
+              },
+              min: _currentMin,
+              max: _currentMax,
+            ),
+          ],
+        );
+      } 
+    }
+
+    return const SizedBox.shrink();
+  }
+
   @override
   Widget build(BuildContext context) {
 
     if (_enableValueEff != null &&
         _powerValueReq != null &&
+        _powerPercentageReq != null &&
         _currentValueReq != null &&
         _modeValueReq != null) {
+        
+      // Button to start laser and buttons to confirm changing mod 
+      // or send the value of power or current choose with the slider
+      Widget enableButton = Row(
+        children: [
+          const SizedBox(
+            width: 10,
+          ),
+          OutlinedButton(
+            onPressed: cancelPowerCurrentRequest(),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: Colors.red,
+              side: BorderSide(
+                color: (applyPowerCurrentRequest() != null)
+                    ? Colors.red
+                    : Colors.grey,
+              ),
+            ),
+            // child: const Text("Cancel"),
+            child: const Icon(
+              Icons.arrow_back,
+            ),
+          ),
+          const SizedBox(
+            width: 10,
+          ),
+          ElevatedButton(
+            onPressed: applyPowerCurrentRequest(),
+            style: ElevatedButton.styleFrom(
+              elevation: 0,
+              backgroundColor: Colors.green, // Green background
+              foregroundColor: Colors.white, // White foreground
+            ),
+            child: const Text("Apply"),
+          ),
+          const Spacer(),
+          Switch(
+              value: _enableValueEff!,
+              onChanged: enableValueSwitchOnChanged()),
+        ],
+      );
+      
       return Card(
         child: Column(
           children: [
@@ -362,81 +485,8 @@ class _IcBlcState extends State<IcBlc> {
                 });
               }
             ),
-            const SizedBox(
-              height: 20,
-            ),
-            Text(
-              'Power : ${double.parse(_powerValueReq!.toStringAsFixed(_powerDecimals))}W',
-              style: TextStyle(
-                color: black
-              ),
-            ),
-            Slider(
-              value: _powerValueReq!,
-              onChanged: (value) {
-                setState(() {
-                  _powerValueReq =
-                      double.parse((value).toStringAsFixed(_powerDecimals));
-                });
-              },
-              min: _powerMin,
-              max: _powerMax,
-            ),
-            Text(
-              'Current : ${double.parse(_currentValueReq!.toStringAsFixed(_currentDecimals))}A',
-              style: TextStyle(
-                color: black
-              ),
-            ),
-            Slider(
-              value: _currentValueReq!,
-              onChanged: (value) {
-                setState(() {
-                  _currentValueReq =
-                      double.parse((value).toStringAsFixed(_currentDecimals));
-                });
-              },
-              min: _currentMin,
-              max: _currentMax,
-            ),
-            Row(
-              children: [
-                const SizedBox(
-                  width: 10,
-                ),
-                OutlinedButton(
-                  onPressed: cancelPowerCurrentRequest(),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.red,
-                    side: BorderSide(
-                      color: (applyPowerCurrentRequest() != null)
-                          ? Colors.red
-                          : Colors.grey,
-                    ),
-                  ),
-                  // child: const Text("Cancel"),
-                  child: const Icon(
-                    Icons.arrow_back,
-                  ),
-                ),
-                const SizedBox(
-                  width: 10,
-                ),
-                ElevatedButton(
-                  onPressed: applyPowerCurrentRequest(),
-                  style: ElevatedButton.styleFrom(
-                    elevation: 0,
-                    backgroundColor: Colors.green, // Green background
-                    foregroundColor: Colors.white, // White foreground
-                  ),
-                  child: const Text("Apply"),
-                ),
-                const Spacer(),
-                Switch(
-                    value: _enableValueEff!,
-                    onChanged: enableValueSwitchOnChanged()),
-              ],
-            )
+            powerOrCurrentSlider(),
+            enableButton
           ],
         )
       );
