@@ -2,8 +2,11 @@ import 'dart:async';
 import 'dart:math';
 // import 'dart:convert';
 import 'package:flutter/material.dart';
+
+// import 'package:mqtt_client/mqtt_client.dart';
 // import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
+// import 'package:mqtt5_client/mqtt5_server_client.dart';
 
 import 'package:panduza_sandbox_flutter/utils/utils_objects/broker_connection_info.dart';
 import 'package:panduza_sandbox_flutter/pages/after_setup_pages/userspace_page.dart';
@@ -55,9 +58,20 @@ class _MqttConnectionFormState extends State<MqttConnectionForm> {
       try {
         String host = _ctrlHost.text;
         int port = int.parse(_ctrlPort.text);
+        String clientId = generateRandomMqttIdentifier();
 
         _client = MqttServerClient.withPort(
-            host, generateRandomMqttIdentifier(), port);
+            host, clientId, port);
+        _client.setProtocolV311();
+
+        // final MqttConnectMessage connMess = MqttConnectMessage()
+        //   .withClientIdentifier(client_id)
+        //   .startClean() // Non persistent session for MQTT 4.1
+        //   .withWillQos(MqttQos.atLeastOnce);
+        // _client.connectionMessage = connMess;
+
+        _client.setProtocolV311();
+        // _client.setProtocolV31();
 
         await _client.connect();
 
