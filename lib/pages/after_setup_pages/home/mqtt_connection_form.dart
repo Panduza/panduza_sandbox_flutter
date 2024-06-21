@@ -63,15 +63,7 @@ class _MqttConnectionFormState extends State<MqttConnectionForm> {
         _client = MqttServerClient.withPort(
             host, clientId, port);
         _client.setProtocolV311();
-
-        // final MqttConnectMessage connMess = MqttConnectMessage()
-        //   .withClientIdentifier(client_id)
-        //   .startClean() // Non persistent session for MQTT 4.1
-        //   .withWillQos(MqttQos.atLeastOnce);
-        // _client.connectionMessage = connMess;
-
-        _client.setProtocolV311();
-        // _client.setProtocolV31();
+        _client.keepAlivePeriod = 20;
 
         await _client.connect();
 
