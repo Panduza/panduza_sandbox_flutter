@@ -173,6 +173,7 @@ Future<MqttServerClient?> tryConnecting(String host, String portStr, String user
 
       _client = MqttServerClient.withPort(
           host, generateRandomMqttIdentifier(), port);
+      _client.setProtocolV311();
 
       _client.keepAlivePeriod = 20;
 
