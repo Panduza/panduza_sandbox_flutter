@@ -259,6 +259,9 @@ class _IcBlcState extends State<IcBlc> {
         if (_currentValueEff != _currentValueReq) {
           MqttClientPayloadBuilder builder = MqttClientPayloadBuilder();
 
+          // Send a current value approx to decimal attribute 
+          _currentValueReq = num.parse(_currentValueReq!.toStringAsFixed(_currentDecimals)).toDouble();
+
           Map<String, dynamic> data = {
             "current": {"value": _currentValueReq!}
           };

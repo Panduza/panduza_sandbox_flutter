@@ -178,6 +178,9 @@ class _IcBpcState extends State<IcBpc> {
         if (_voltageValueEff != _voltageValueReq) {
           MqttClientPayloadBuilder builder = MqttClientPayloadBuilder();
 
+          // Send a voltage value approx to decimal attribute 
+          _voltageValueReq = num.parse(_voltageValueReq!.toStringAsFixed(_voltageDecimal)).toDouble();
+
           Map<String, dynamic> data = {
             "voltage": {"value": _voltageValueReq!}
           };
@@ -194,6 +197,9 @@ class _IcBpcState extends State<IcBpc> {
         }
         if (_currentValueEff != _currentValueReq) {
           MqttClientPayloadBuilder builder = MqttClientPayloadBuilder();
+
+          // Send a current value approx to decimal attribute 
+          _currentValueReq = num.parse(_currentValueReq!.toStringAsFixed(_currentDecimal)).toDouble();
 
           Map<String, dynamic> data = {
             "current": {"value": _currentValueReq!}
