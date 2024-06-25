@@ -52,7 +52,7 @@ class _IcBpcState extends State<IcBpc> {
             MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
 
         var jsonObject = json.decode(pt);
-        
+
         setState(() {
           for (MapEntry<String, dynamic> atts in jsonObject.entries) {
             for (MapEntry<String, dynamic> field in atts.value.entries) {

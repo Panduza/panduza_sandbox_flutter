@@ -34,6 +34,7 @@ class _UserspacePageState extends State<UserspacePage> {
   Map<int, InterfaceConnection> channel = {}; 
 
   StreamSubscription<List<MqttReceivedMessage<MqttMessage>>>? mqttSubscription;
+  Timer? timer;
 
 
   bool interfaceAlreadyRegistered(InterfaceConnection ic) {
@@ -59,8 +60,21 @@ class _UserspacePageState extends State<UserspacePage> {
   @override
   void dispose() {
     mqttSubscription!.cancel();
+    timer?.cancel();
     
     super.dispose();
+  }
+
+  void sendMessageToPza() {
+    MqttClientPayloadBuilder builder = MqttClientPayloadBuilder();
+    builder.addString('*');
+    final payload = builder.payload;
+    try {
+      widget.brokerConnectionInfo.client
+        .publishMessage('pza', MqttQos.atLeastOnce, payload!);
+    } catch(e) {
+      // If publish failed (means the person quitt to fastly the page)
+    }
   }
 
   @override
@@ -70,11 +84,9 @@ class _UserspacePageState extends State<UserspacePage> {
     widget.brokerConnectionInfo.client
           .subscribe('pza/+/+/+/atts/info', MqttQos.atLeastOnce);
 
-    MqttClientPayloadBuilder builder = MqttClientPayloadBuilder();
-    builder.addString('*');
-    final payload = builder.payload;
-    widget.brokerConnectionInfo.client
-        .publishMessage('pza', MqttQos.atLeastOnce, payload!);
+    sendMessageToPza();
+
+    timer = Timer.periodic(Duration(seconds: 2), (Timer t) => sendMessageToPza());
 
     Future.delayed(const Duration(milliseconds: 1), () async {
       // Run your async function here
@@ -130,7 +142,7 @@ class _UserspacePageState extends State<UserspacePage> {
 
     final ic = interfaces[index];
     final type = ic.info["type"];
-    
+
     switch (type) {
       case "blc":
         return IcBlc(ic);
