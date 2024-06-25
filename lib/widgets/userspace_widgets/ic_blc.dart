@@ -206,7 +206,7 @@ class _IcBlcState extends State<IcBlc> {
     super.initState();
 
     // subscribe to info and atts ?
-    Future.delayed(const Duration(milliseconds: 1), initializeMqttSubscription);
+    Future.delayed(const Duration(milliseconds: 500), initializeMqttSubscription);
   }
 
   @override
