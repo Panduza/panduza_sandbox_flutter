@@ -293,7 +293,7 @@ class _IcBpcState extends State<IcBpc> {
             max: _voltageMax
           ),
           Text(
-            'Current : ${double.parse(_currentValueReq!.toStringAsFixed(_currentDecimal))}V',
+            'Current : ${double.parse(_currentValueReq!.toStringAsFixed(_currentDecimal))}A',
             style: TextStyle(
               color: black
             ),

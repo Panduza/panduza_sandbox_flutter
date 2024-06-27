@@ -336,6 +336,8 @@ class _IcBlcState extends State<IcBlc> {
       "enable": {"value": target}
     };
 
+    print(target);
+
     // Convert JSON object to string
     String jsonString = jsonEncode(data);
 
