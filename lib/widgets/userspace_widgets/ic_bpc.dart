@@ -60,7 +60,7 @@ class _IcBpcState extends State<IcBpc> {
                 case "enable":
                   if (field.key == "value") {
                     _enableValueEff = field.value;
-                    _enableValueReq ??= _enableValueEff;
+                    _enableValueReq = _enableValueEff;
                   }
                   break;
 
@@ -72,7 +72,7 @@ class _IcBpcState extends State<IcBpc> {
                       case double:
                         _voltageValueEff = field.value;
                     }
-                    _voltageValueReq ??= _voltageValueEff;
+                    _voltageValueReq = _voltageValueEff;
                   }
 
                   if (field.key == "min") {
@@ -99,7 +99,7 @@ class _IcBpcState extends State<IcBpc> {
                       case double:
                         _currentValueEff = field.value;
                     }
-                    _currentValueReq ??= _currentValueEff;
+                    _currentValueReq = _currentValueEff;
                   }
 
                   if (field.key == "min") {
