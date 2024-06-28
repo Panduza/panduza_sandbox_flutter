@@ -174,8 +174,7 @@ class _UserspacePageState extends State<UserspacePage> {
     return Scaffold(
       // appBar: getAppBar("UserSpace"),
       appBar: getAppBarUserSpace("Userspace", context),
-      body: 
-      MasonryGridView.count(
+      body: MasonryGridView.count(
         crossAxisCount: columns,
         mainAxisSpacing: 4,
         crossAxisSpacing: 4,

@@ -4,9 +4,9 @@ import 'package:panduza_sandbox_flutter/utils/utils_objects/interface_connection
 
 Widget cardHeadLine(InterfaceConnection ic) {
   return ListTile(
-      title: Text(ic.getType()),
+      title: Text(ic.getDeviceName()),
       subtitle: Row(children: [
-        Text(ic.getDeviceName(),
+        Text(ic.getType(),
             style: const TextStyle(
                 color: Color.fromARGB(255, 0, 9, 27), fontSize: 12)),
         const Text("  ",
