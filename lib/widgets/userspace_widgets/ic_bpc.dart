@@ -59,7 +59,6 @@ class _IcBpcState extends State<IcBpc> {
               switch (atts.key) {
                 case "enable":
                   if (field.key == "value") {
-                    print("${widget._interfaceConnection.getDeviceName()} : ${field.value}");
                     _enableValueEff = field.value;
                     _enableValueReq = _enableValueEff;
                   }
