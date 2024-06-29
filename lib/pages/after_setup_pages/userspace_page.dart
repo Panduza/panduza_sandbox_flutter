@@ -12,6 +12,8 @@ import 'package:panduza_sandbox_flutter/widgets/userspace_widgets/ic_powermeter.
 import 'package:panduza_sandbox_flutter/widgets/userspace_widgets/ic_not_managed.dart';
 import 'package:panduza_sandbox_flutter/widgets/userspace_widgets/ic_video.dart';
 
+import 'package:panduza_sandbox_flutter/widgets/userspace_widgets/ic_registers.dart';
+
 // import '../widgets/interface_control/icw_bpc.dart';
 
 import 'package:panduza_sandbox_flutter/utils/utils_objects/interface_connection.dart';
@@ -158,6 +160,8 @@ class _UserspacePageState extends State<UserspacePage> {
         return IcRelay(ic);
       case "video":
         return IcVideo(ic);
+      case "registers":
+        return IcRegisters(ic);
       default:
         print("!!!! $type");
         return IcNotManaged(ic);
