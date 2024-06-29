@@ -15,7 +15,6 @@ import 'dart:convert';
 // import 'package:panduza_sandbox_flutter/utils/utils_objects/interface_connection.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 
-
 class IcRegisters extends StatefulWidget {
   const IcRegisters(this._interfaceConnection, {super.key});
 
@@ -26,17 +25,18 @@ class IcRegisters extends StatefulWidget {
 }
 
 class _IcRegistersState extends State<IcRegisters> {
-
   StreamSubscription<List<MqttReceivedMessage<MqttMessage>>>? mqttSubscription;
 
   int baseAddress = 0;
   int numberOfRegister = 0;
   int registerSize = 0;
 
+  var values = [];
+  var timestamps = [];
 
-  /// Init each value of the powermeter, here just the measure 
+  /// Init each value of the powermeter, here just the measure
   /// powermeter
-  /// 
+  ///
   void onMqttMessage(List<MqttReceivedMessage<MqttMessage>> c) {
     // print("============");
     // print('Received ${c[0].topic} from ${widget._interfaceConnection.topic} ');
@@ -53,47 +53,24 @@ class _IcRegistersState extends State<IcRegisters> {
 
         print(jsonObject);
 
-
-        if (c[0].topic.startsWith("${widget._interfaceConnection.topic}/atts/settings")) {
-          print("settings");
-        }
-        if (c[0].topic.startsWith("${widget._interfaceConnection.topic}/atts/map")) {
-          print("map");
-        }
-        
-
         setState(() {
-        //   for (MapEntry<String, dynamic> atts in jsonObject.entries) {
-        //     for (MapEntry<String, dynamic> field in atts.value.entries) {
-        //       // print('${atts.key} ${field.key} => ${field.value}');
+          if (c[0].topic.startsWith(
+              "${widget._interfaceConnection.topic}/atts/settings")) {
+            print("settings");
 
-        //       switch (atts.key) {
-        //         case "measure":
-        //           if (field.key == "value") {
-        //             double updateVal = 0;
-        //             switch (field.value.runtimeType) {
-        //               case int:
-        //                 updateVal = field.value.toDouble();
-        //               case double:
-        //                 updateVal = field.value;
-        //             }
-        //             setState(() {
-        //               _value = updateVal;
-        //             });
-        //           }
+            baseAddress = jsonObject["base_address"];
+            numberOfRegister = jsonObject["number_of_register"];
+            registerSize = jsonObject["register_size"];
 
-        //           if (field.key == "decimals") {
-        //             switch (field.value.runtimeType) {
-        //               case int:
-        //                 _measureDecimal = field.value;
-        //               case double:
-        //                 _measureDecimal = (field.value as double).toInt();
-        //             }
-        //           }
-        //           break;
-        //       }
-        //     }
-        //   }
+            print("settings $numberOfRegister");
+          }
+          if (c[0]
+              .topic
+              .startsWith("${widget._interfaceConnection.topic}/atts/map")) {
+            // print("map");
+            values = jsonObject["values"];
+            timestamps = jsonObject["timestamps"];
+          }
         });
       }
     } else {
@@ -104,13 +81,29 @@ class _IcRegistersState extends State<IcRegisters> {
   /// Initialize MQTT Subscriptions
   ///
   void initializeMqttSubscription() async {
-    mqttSubscription = widget._interfaceConnection.client.updates!.listen(onMqttMessage);
+    mqttSubscription =
+        widget._interfaceConnection.client.updates!.listen(onMqttMessage);
 
     String attsTopic = "${widget._interfaceConnection.topic}/atts/#";
     // print(attsTopic);
     widget._interfaceConnection.client
         .subscribe(attsTopic, MqttQos.atLeastOnce);
+  }
 
+  List<DataRow> buildDataRows() {
+    List<DataRow> rows = [];
+    for (int i = 0; i < numberOfRegister; i++) {
+      rows.add(
+        DataRow(
+          cells: <DataCell>[
+            DataCell(Text(i.toString(), style: TextStyle(color: Colors.black))),
+            DataCell(Text(values[i].toString(),
+                style: TextStyle(color: Colors.black))),
+          ],
+        ),
+      );
+    }
+    return rows;
   }
 
   /// Perform MQTT Subscriptions at the start of the component
@@ -134,7 +127,26 @@ class _IcRegistersState extends State<IcRegisters> {
   @override
   Widget build(BuildContext context) {
     return Card(
-      child: cardHeadLine(widget._interfaceConnection),
-    );
+        child: Column(children: [
+      cardHeadLine(widget._interfaceConnection),
+      DataTable(columns: const <DataColumn>[
+        DataColumn(
+          label: Expanded(
+            child: Text(
+              'Adress',
+              style: TextStyle(fontStyle: FontStyle.italic),
+            ),
+          ),
+        ),
+        DataColumn(
+          label: Expanded(
+            child: Text(
+              'Value',
+              style: TextStyle(fontStyle: FontStyle.italic),
+            ),
+          ),
+        ),
+      ], rows: buildDataRows())
+    ]));
   }
 }
