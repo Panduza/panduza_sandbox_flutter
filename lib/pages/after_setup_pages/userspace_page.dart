@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'dart:convert';
@@ -32,6 +33,8 @@ class UserspacePage extends StatefulWidget {
 class _UserspacePageState extends State<UserspacePage> {
   List<InterfaceConnection> interfaces = [];
   Map<int, InterfaceConnection> channel = {}; 
+
+  int itemCount = 0;
 
   StreamSubscription<List<MqttReceivedMessage<MqttMessage>>>? mqttSubscription;
   Timer? timer;
@@ -113,6 +116,7 @@ class _UserspacePageState extends State<UserspacePage> {
               widget.brokerConnectionInfo.client, topic, jsonObject["info"]);
           
           if (!interfaceAlreadyRegistered(ic)) {
+            itemCount++;
             if (ic.getType() != "device") {
               setState(() {
                 // sort interface by device name and 
@@ -178,6 +182,8 @@ class _UserspacePageState extends State<UserspacePage> {
         crossAxisCount: columns,
         mainAxisSpacing: 4,
         crossAxisSpacing: 4,
+        itemCount: itemCount,
+        scrollDirection: Axis.vertical,
         itemBuilder: interfaceControlItemBuiler
       )
       
