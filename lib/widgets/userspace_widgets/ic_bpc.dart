@@ -117,8 +117,6 @@ class _IcBpcState extends State<IcBpc> {
                     }
                   }
                   break;
-
-                  
               }
             }
           }
@@ -269,9 +267,24 @@ class _IcBpcState extends State<IcBpc> {
 
   @override
   Widget build(BuildContext context) {
-    if (_enableValueEff != null &&
+
+    if ((_voltageValueEff != null && _voltageValueEff! < 0) &&
+        (_voltageValueEff != null && _currentValueEff! < 0)) {
+      // With just turn on/off button
+      return Card(
+          child: Column(
+        children: [
+          cardHeadLine(widget._interfaceConnection),
+          Switch(
+            value: _enableValueEff!,
+            onChanged: enableValueSwitchOnChanged()
+          ),
+        ],
+      ));
+    } else if (_enableValueEff != null &&
         _voltageValueReq != null &&
         _currentValueReq != null) {
+      // Full bpc
       return Card(
           child: Column(
         children: [
@@ -341,14 +354,24 @@ class _IcBpcState extends State<IcBpc> {
               ),
               const Spacer(),
               Switch(
-                  value: _enableValueEff!,
-                  onChanged: enableValueSwitchOnChanged()),
+                value: _enableValueEff!,
+                onChanged: enableValueSwitchOnChanged()
+              ),
             ],
           )
         ],
       ));
     } else {
-      return const Card();
+      return Card(
+          child: Column(children: [
+        cardHeadLine(widget._interfaceConnection),
+        Text(
+          "Wait for data...",
+          style: TextStyle(
+            color: black
+          ),
+        )
+      ]));
     }
   }
 }
