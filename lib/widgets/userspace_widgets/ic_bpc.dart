@@ -117,8 +117,6 @@ class _IcBpcState extends State<IcBpc> {
                     }
                   }
                   break;
-
-                  
               }
             }
           }
@@ -269,6 +267,8 @@ class _IcBpcState extends State<IcBpc> {
 
   @override
   Widget build(BuildContext context) {
+
+    // Full bpc
     if (_enableValueEff != null &&
         _voltageValueReq != null &&
         _currentValueReq != null) {
@@ -341,14 +341,111 @@ class _IcBpcState extends State<IcBpc> {
               ),
               const Spacer(),
               Switch(
-                  value: _enableValueEff!,
-                  onChanged: enableValueSwitchOnChanged()),
+                value: _enableValueEff!,
+                onChanged: enableValueSwitchOnChanged()
+              ),
             ],
           )
         ],
       ));
+    } else if (_voltageValueReq != null &&
+        _currentValueReq != null) {
+      
+      // With slider current and voltage
+      return Card(
+          child: Column(
+        children: [
+          cardHeadLine(widget._interfaceConnection),
+          Text(
+            'Voltage : ${double.parse(_voltageValueReq!.toStringAsFixed(_voltageDecimal))}V',
+            style: TextStyle(
+              color: black
+            ),
+          ),
+          Slider(
+            value: _voltageValueReq!,
+            onChanged: (value) {
+              setState(() {
+                _voltageValueReq = value;
+              });
+            },
+            min: _voltageMin,
+            max: _voltageMax
+          ),
+          Text(
+            'Current : ${double.parse(_currentValueReq!.toStringAsFixed(_currentDecimal))}A',
+            style: TextStyle(
+              color: black
+            ),
+          ),
+          Slider(
+            value: _currentValueReq!,
+            onChanged: (value) {
+              setState(() {
+                _currentValueReq = value;
+              });
+            },
+            min: _currentMin,
+            max: _currentMax,
+          ),
+          Row(
+            children: [
+              const SizedBox(
+                width: 10,
+              ),
+              OutlinedButton(
+                onPressed: cancelPowerCurrentRequest(),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: Colors.red,
+                  side: BorderSide(
+                    color: (applyVoltageCurrentRequest() != null)
+                        ? Colors.red
+                        : Colors.grey,
+                  ),
+                ),
+                child: const Icon(
+                  Icons.arrow_back
+                ),
+              ),
+              const SizedBox(
+                width: 10,
+              ),
+              ElevatedButton(
+                onPressed: applyVoltageCurrentRequest(),
+                style: ElevatedButton.styleFrom(
+                  elevation: 0,
+                  backgroundColor: Colors.green, // Green background
+                  foregroundColor: Colors.white, // White foreground
+                ),
+                child: const Text("Apply"),
+              ),
+            ],
+          )
+        ],
+      ));
+    } else if (_enableValueEff != null) {
+      // With just turn on/off button
+      return Card(
+          child: Column(
+        children: [
+          cardHeadLine(widget._interfaceConnection),
+          Switch(
+            value: _enableValueEff!,
+            onChanged: enableValueSwitchOnChanged()
+          ),
+        ],
+      ));
     } else {
-      return const Card();
+      return Card(
+          child: Column(children: [
+        cardHeadLine(widget._interfaceConnection),
+        Text(
+          "Wait for data...",
+          style: TextStyle(
+            color: black
+          ),
+        )
+      ]));
     }
   }
 }
