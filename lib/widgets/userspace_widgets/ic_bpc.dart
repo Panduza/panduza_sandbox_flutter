@@ -268,10 +268,23 @@ class _IcBpcState extends State<IcBpc> {
   @override
   Widget build(BuildContext context) {
 
-    // Full bpc
-    if (_enableValueEff != null &&
+    if ((_voltageValueEff != null && _voltageValueEff! < 0) &&
+        (_voltageValueEff != null && _currentValueEff! < 0)) {
+      // With just turn on/off button
+      return Card(
+          child: Column(
+        children: [
+          cardHeadLine(widget._interfaceConnection),
+          Switch(
+            value: _enableValueEff!,
+            onChanged: enableValueSwitchOnChanged()
+          ),
+        ],
+      ));
+    } else if (_enableValueEff != null &&
         _voltageValueReq != null &&
         _currentValueReq != null) {
+      // Full bpc
       return Card(
           child: Column(
         children: [
@@ -346,19 +359,6 @@ class _IcBpcState extends State<IcBpc> {
               ),
             ],
           )
-        ],
-      ));
-    } else if (_voltageValueEff == -1.0 &&
-        _voltageValueEff == -1.0) {
-      // With just turn on/off button
-      return Card(
-          child: Column(
-        children: [
-          cardHeadLine(widget._interfaceConnection),
-          Switch(
-            value: _enableValueEff!,
-            onChanged: enableValueSwitchOnChanged()
-          ),
         ],
       ));
     } else {
