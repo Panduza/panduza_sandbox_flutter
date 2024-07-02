@@ -477,11 +477,7 @@ class _IcBlcState extends State<IcBlc> {
                 DropdownMenuItem<String>(
                   value: "constant_current",
                   child: Text("current mode"),
-                ),
-                DropdownMenuItem<String>(
-                  value: "no_regulation",
-                  child: Text("No regulation mode"),
-                ),
+                )
               ],
               value: _modeValueReq!,
               onChanged: (String? value) {
