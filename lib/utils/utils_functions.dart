@@ -15,6 +15,13 @@ final _chars =
     'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
 final Random _rnd = Random();
 
+// Check if SharedPreferences can be used or must be cleaned 
+Future<void> checkPreferencesClearItIfProblem(SharedPreferences pref) async {
+  if (!pref.containsKey(connectionKey)) {
+    await pref.clear();
+  }
+}
+
 // remove the connection of disk, 
 // first the direct entry of this connection 
 // then remove it from the directory (connectionKey)
