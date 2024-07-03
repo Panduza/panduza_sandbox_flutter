@@ -290,7 +290,7 @@ class _IcBpcState extends State<IcBpc> {
         children: [
           cardHeadLine(widget._interfaceConnection),
           Text(
-            'Voltage : ${double.parse(_voltageValueReq!.toStringAsFixed(_voltageDecimal))}V',
+            formatValueInBaseMilliMicro(double.parse(_voltageValueReq!.toStringAsFixed(_voltageDecimal)), 'Voltage : ', 'V'),
             style: TextStyle(
               color: black
             ),
@@ -306,7 +306,7 @@ class _IcBpcState extends State<IcBpc> {
             max: _voltageMax
           ),
           Text(
-            'Current : ${double.parse(_currentValueReq!.toStringAsFixed(_currentDecimal))}A',
+            formatValueInBaseMilliMicro(double.parse(_currentValueReq!.toStringAsFixed(_voltageDecimal)), 'Current : ', 'A'),
             style: TextStyle(
               color: black
             ),
