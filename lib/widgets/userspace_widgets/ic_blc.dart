@@ -7,8 +7,6 @@ import 'templates.dart';
 import '../../utils/utils_objects/interface_connection.dart';
 import 'package:panduza_sandbox_flutter/utils/utils_functions.dart';
 
-
-// import '../widgets/interface_control/icw_bpc.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 
 class IcBlc extends StatefulWidget {
@@ -45,6 +43,13 @@ class _IcBlcState extends State<IcBlc> {
   String? _modeValueEff;
 
   StreamSubscription<List<MqttReceivedMessage<MqttMessage>>>? mqttSubscription;
+
+  // If request made on the slider apply it after a small timer
+  bool isRequestingPower = false;
+  Timer? _applyPowerTimer;
+
+  bool isRequestingCurrent = false;
+  Timer? _applyCurrentTimer;
 
   ///
   ///
@@ -211,7 +216,9 @@ class _IcBlcState extends State<IcBlc> {
 
   @override
   void dispose() {
-    mqttSubscription!.cancel();
+    mqttSubscription?.cancel();
+    _applyCurrentTimer?.cancel();
+    _applyPowerTimer?.cancel();
     super.dispose();
   }
 
@@ -225,101 +232,63 @@ class _IcBlcState extends State<IcBlc> {
     }
   }
 
+  /// 
+  /// Send request on power, current or mode to platform
   ///
-  ///
-  ///
-  void Function()? applyPowerCurrentRequest() {
+  void sendRequestNewValues() {
     if (_powerValueEff == _powerValueReq &&
         _powerPercentageEff == _powerPercentageReq &&
         _currentValueReq == _currentValueEff &&
         _modeValueReq == _modeValueEff) {
-      return null;
+      // Problem 
     } else {
-      return () {
-        if (_powerPercentageEff != _powerPercentageReq) {
-          MqttClientPayloadBuilder builder = MqttClientPayloadBuilder();
- 
+      if (_powerPercentageEff != _powerPercentageReq &&
+          isRequestingPower == false) {
+
+        // Not possible to request anymore before this sending has been made
+        // User can change send value only every 50 milliseconds
+        isRequestingPower = true;
+
+        // Send power request to broker after 50 milliseconds to not 
+        // send request while at each tick of the slider
+        _applyCurrentTimer = Timer(const Duration(milliseconds: 50), () {
+
           // Transform percentage in value
           double powerValue = (1/100) * _powerPercentageReq! * _powerMax!;
 
-          Map<String, dynamic> data = {
-            "power": {"value": powerValue}
-          };
+          basicSendingMqttRequest("power", "value", powerValue, widget._interfaceConnection);
 
-          String jsonString = jsonEncode(data);
+          // User can remake a another sending
+          isRequestingPower = false;
+        });
+      }
+      if (_currentValueEff != _currentValueReq && 
+          isRequestingCurrent == false) {
 
-          builder.addString(jsonString);
-          final payload = builder.payload;
+        // Not possible to request anymore before this sending has been made
+        // User can change send value only every 50 milliseconds
+        isRequestingCurrent = true;
 
-          String cmdsTopic = "${widget._interfaceConnection.topic}/cmds/set";
-
-          widget._interfaceConnection.client
-              .publishMessage(cmdsTopic, MqttQos.atLeastOnce, payload!);
-        }
-        if (_currentValueEff != _currentValueReq) {
-          MqttClientPayloadBuilder builder = MqttClientPayloadBuilder();
+        // Send current request to broker after 50 milliseconds to not 
+        // send request while at each tick of the slider
+        _applyCurrentTimer = Timer(const Duration(milliseconds: 50), () {
 
           // Send a current value approx to decimal attribute 
           _currentValueReq = num.parse(_currentValueReq!.toStringAsFixed(_currentDecimals)).toDouble();
 
-          Map<String, dynamic> data = {
-            "current": {"value": _currentValueReq!}
-          };
+          basicSendingMqttRequest("current", "value", _currentValueReq!, widget._interfaceConnection);
 
-          String jsonString = jsonEncode(data);
+          // User can remake a another sending
+          isRequestingCurrent = false;
+        });
+      }
 
-          builder.addString(jsonString);
-          final payload = builder.payload;
+      if (_modeValueEff != _modeValueReq) {
 
-          String cmdsTopic = "${widget._interfaceConnection.topic}/cmds/set";
+        basicSendingMqttRequest("mode", "value", _modeValueReq!, widget._interfaceConnection);
 
-          widget._interfaceConnection.client
-              .publishMessage(cmdsTopic, MqttQos.atLeastOnce, payload!);
-        }
-
-        if (_modeValueEff != _modeValueReq) {
-          MqttClientPayloadBuilder builder = MqttClientPayloadBuilder();
-
-          Map<String, dynamic> data = {
-            "mode": {"value": _modeValueReq!}
-          };
-
-          String jsonString = jsonEncode(data);
-
-          builder.addString(jsonString);
-          final payload = builder.payload;
-
-          String cmdsTopic = "${widget._interfaceConnection.topic}/cmds/set";
-
-          widget._interfaceConnection.client
-              .publishMessage(cmdsTopic, MqttQos.atLeastOnce, payload!);
-        }
-      };
-    }
-  }
-
-  void Function()? cancelPowerCurrentRequest() {
-    if (_powerValueEff == _powerValueReq &&
-        _powerPercentageEff == _powerPercentageReq &&
-        _currentValueReq == _currentValueEff &&
-        _modeValueReq == _modeValueEff) {
-      return null;
-    } else {
-      return () {
-        if (_powerValueEff != _powerValueReq) {
-          _powerValueReq = _powerValueEff;
-        }
-        if (_powerPercentageEff != _powerPercentageReq) {
-          _powerPercentageReq = _powerPercentageEff;
-        }
-        if (_currentValueEff != _currentValueReq) {
-          _currentValueReq = _currentValueEff;
-        }
-        if (_modeValueEff != _modeValueReq) {
-          _modeValueReq = _modeValueEff;
-        }
-        setState(() {});
-      };
+      }
+    
     }
   }
 
@@ -329,25 +298,7 @@ class _IcBlcState extends State<IcBlc> {
     }
     bool target = _enableValueEff! ? false : true;
 
-    MqttClientPayloadBuilder builder = MqttClientPayloadBuilder();
-
-    // Example JSON object
-    Map<String, dynamic> data = {
-      "enable": {"value": target}
-    };
-
-    print(target);
-
-    // Convert JSON object to string
-    String jsonString = jsonEncode(data);
-
-    builder.addString(jsonString);
-    final payload = builder.payload;
-
-    String cmdsTopic = "${widget._interfaceConnection.topic}/cmds/set";
-
-    widget._interfaceConnection.client
-        .publishMessage(cmdsTopic, MqttQos.atLeastOnce, payload!);
+    basicSendingMqttRequest("enable", "value", target, widget._interfaceConnection);
 
     setState(() {
       _enableValueReq = target;
@@ -376,6 +327,7 @@ class _IcBlcState extends State<IcBlc> {
                 setState(() {
                   _powerPercentageReq =
                       double.parse((value).toStringAsFixed(_powerDecimals));
+                  sendRequestNewValues();
                 });
               },
               min: 0,
@@ -401,6 +353,7 @@ class _IcBlcState extends State<IcBlc> {
                 setState(() {
                   _currentValueReq =
                       double.parse((value).toStringAsFixed(_currentDecimals));
+                  sendRequestNewValues();
                 });
               },
               min: _currentMin,
@@ -422,52 +375,20 @@ class _IcBlcState extends State<IcBlc> {
         _powerPercentageReq != null &&
         _currentValueReq != null &&
         _modeValueReq != null) {
-        
-      // Button to start laser and buttons to confirm changing mod 
-      // or send the value of power or current choose with the slider
-      Widget enableButton = Row(
-        children: [
-          const SizedBox(
-            width: 10,
-          ),
-          OutlinedButton(
-            onPressed: cancelPowerCurrentRequest(),
-            style: OutlinedButton.styleFrom(
-              foregroundColor: Colors.red,
-              side: BorderSide(
-                color: (applyPowerCurrentRequest() != null)
-                    ? Colors.red
-                    : Colors.grey,
-              ),
-            ),
-            // child: const Text("Cancel"),
-            child: const Icon(
-              Icons.arrow_back,
-            ),
-          ),
-          const SizedBox(
-            width: 10,
-          ),
-          ElevatedButton(
-            onPressed: applyPowerCurrentRequest(),
-            style: ElevatedButton.styleFrom(
-              elevation: 0,
-              backgroundColor: Colors.green, // Green background
-              foregroundColor: Colors.white, // White foreground
-            ),
-            child: const Text("Apply"),
-          ),
-          const Spacer(),
-          Switch(
-              value: _enableValueEff!,
-              onChanged: enableValueSwitchOnChanged()),
-        ],
-      );
       
       return Card(
         child: Column(
           children: [
-            cardHeadLine(widget._interfaceConnection),
+            Row(
+              children: [
+                cardHeadLine2(widget._interfaceConnection),
+                const Spacer(),
+                Switch(
+                  value: _enableValueEff!,
+                  onChanged: enableValueSwitchOnChanged()
+                ),
+              ],
+            ),
             DropdownButton<String>(
               items: const [
                 DropdownMenuItem<String>(
@@ -483,11 +404,11 @@ class _IcBlcState extends State<IcBlc> {
               onChanged: (String? value) {
                 setState(() {
                   _modeValueReq = value!;
+                  sendRequestNewValues();
                 });
               }
             ),
             powerOrCurrentSlider(),
-            enableButton
           ],
         )
       );

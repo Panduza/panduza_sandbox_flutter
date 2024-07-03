@@ -1,8 +1,11 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:mqtt_client/mqtt_client.dart';
+import 'package:panduza_sandbox_flutter/utils/utils_objects/interface_connection.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -288,4 +291,26 @@ double valueToDouble(dynamic value) {
       return value;
   }
   return 0.0;
+}
+
+// typeAttribute example : "power"
+// attributeName example : "value"
+// attributeValue example : 1.1
+void basicSendingMqttRequest(String typeAttribute, String attributeName, dynamic value, InterfaceConnection interfaceConnection) {
+  
+  MqttClientPayloadBuilder builder = MqttClientPayloadBuilder();
+
+  Map<String, dynamic> data = {
+    typeAttribute: {attributeName: value}
+  };
+
+  String jsonString = jsonEncode(data);
+
+  builder.addString(jsonString);
+  final payload = builder.payload;
+
+  String cmdsTopic = "${interfaceConnection.topic}/cmds/set";
+
+  interfaceConnection.client
+      .publishMessage(cmdsTopic, MqttQos.atLeastOnce, payload!);
 }
