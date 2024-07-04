@@ -300,6 +300,28 @@ double valueToDouble(dynamic value) {
   return 0.0;
 }
 
+// Show W, mW or micro W in function of value, 
+// if 0.001 W show 1 mW
+String formatValueInBaseMilliMicro(double value, String prefix, String suffix) {
+
+  String newSuffix = suffix;
+  double newValue = value;
+  // If value inferior to 1 show it in milli
+  if (newValue < 1.0) {
+    newValue *= 1000;
+    newSuffix = "m$suffix";
+    // If value in milli inferior to 1 show it in milli
+    if (newValue < 1.0) {
+      newValue *= 1000;
+      newSuffix = "µ$suffix";
+    }
+  }
+
+  if (newValue == 0.0 ) {
+    newSuffix = suffix;
+  }
+  return "$prefix$newValue $newSuffix";
+
 // typeAttribute example : "power"
 // attributeName example : "value"
 // attributeValue example : 1.1

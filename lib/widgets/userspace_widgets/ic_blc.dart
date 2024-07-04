@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:panduza_sandbox_flutter/utils/const.dart';
 import 'templates.dart';
-import '../../utils/utils_objects/interface_connection.dart';
+import 'package:panduza_sandbox_flutter/utils/utils_objects/interface_connection.dart';
 import 'package:panduza_sandbox_flutter/utils/utils_functions.dart';
 
 import 'package:mqtt_client/mqtt_client.dart';
@@ -315,8 +315,9 @@ class _IcBlcState extends State<IcBlc> {
             const SizedBox(
               height: 20,
             ),
+            // Show power in percentage and the value
             Text(
-              'Power : ${double.parse(_powerPercentageReq!.toStringAsFixed(_powerDecimals))}%',
+              'Power : ${double.parse(_powerPercentageReq!.toStringAsFixed(_powerDecimals))}% (${formatValueInBaseMilliMicro(double.parse(_powerValueReq!.toStringAsFixed(_powerDecimals)), "", "W")})',
               style: TextStyle(
                 color: black
               ),
@@ -327,6 +328,11 @@ class _IcBlcState extends State<IcBlc> {
                 setState(() {
                   _powerPercentageReq =
                       double.parse((value).toStringAsFixed(_powerDecimals));
+                  
+                  // Transform percentage in value
+                  double powerValue = (1/100) * _powerPercentageReq! * _powerMax!;
+                  _powerValueReq = 
+                      double.parse((powerValue).toStringAsFixed(_powerDecimals));
                   sendRequestNewValues();
                 });
               },
@@ -342,7 +348,7 @@ class _IcBlcState extends State<IcBlc> {
               height: 20,
             ),
             Text(
-              'Current : ${double.parse(_currentValueReq!.toStringAsFixed(_currentDecimals))}A',
+              formatValueInBaseMilliMicro(double.parse(_currentValueReq!.toStringAsFixed(_currentDecimals)), "Current : ", "A"),
               style: TextStyle(
                 color: black
               ),

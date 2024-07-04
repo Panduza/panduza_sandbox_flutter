@@ -3,10 +3,12 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
 import 'package:panduza_sandbox_flutter/utils/const.dart';
 import 'templates.dart';
 import 'package:panduza_sandbox_flutter/utils/utils_objects/interface_connection.dart';
 import 'package:mqtt_client/mqtt_client.dart';
+import 'package:panduza_sandbox_flutter/utils/utils_functions.dart';
 
 
 class IcPowermeter extends StatefulWidget {
@@ -125,7 +127,7 @@ class _IcPowermeterState extends State<IcPowermeter> {
       children: [
         cardHeadLine(widget._interfaceConnection),
         Text(
-          "${double.parse(_value.toStringAsFixed(_measureDecimal))} W",
+          formatValueInBaseMilliMicro(double.parse(_value.toStringAsFixed(_measureDecimal)), "", "W"),
           style: TextStyle(
             color: black
           ),

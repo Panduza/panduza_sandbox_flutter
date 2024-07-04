@@ -281,68 +281,51 @@ class _IcBpcState extends State<IcBpc> {
         _currentValueReq != null) {
       // Full bpc
       return Card(
-        child: Column(
-          children: [
-            Row(
-              children: [
-                cardHeadLine2(widget._interfaceConnection),
-                const Spacer(),
-                Switch(
-                  value: _enableValueEff!,
-                  onChanged: enableValueSwitchOnChanged()
-                ),
-              ],
-            ),
-            Text(
-              'Voltage : ${double.parse(_voltageValueReq!.toStringAsFixed(_voltageDecimal))}V',
-              style: TextStyle(
-                color: black
+          child: Column(
+        children: [
+          Row(
+            children: [
+              cardHeadLine2(widget._interfaceConnection),
+              const Spacer(),
+              Switch(
+                value: _enableValueEff!,
+                onChanged: enableValueSwitchOnChanged()
               ),
+            ],
+          ),
+          Text(
+            formatValueInBaseMilliMicro(double.parse(_voltageValueReq!.toStringAsFixed(_voltageDecimal)), 'Voltage : ', 'V'),
+            style: TextStyle(
+              color: black
             ),
-            Slider(
-              value: _voltageValueReq!,
-              onChanged: (value) {
-                setState(() {
-                  _voltageValueReq = value;
-
-                  // Send value to broker only after timer
-                  applyVoltageCurrentRequest();
-                });
-              },
-              min: _voltageMin,
-              max: _voltageMax
+          ),
+          Slider(
+            value: _voltageValueReq!,
+            onChanged: (value) {
+              setState(() {
+                _voltageValueReq = value;
+              });
+            },
+            min: _voltageMin,
+            max: _voltageMax
+          ),
+          Text(
+            formatValueInBaseMilliMicro(double.parse(_currentValueReq!.toStringAsFixed(_voltageDecimal)), 'Current : ', 'A'),
+            style: TextStyle(
+              color: black
             ),
-            Text(
-              'Current : ${double.parse(_currentValueReq!.toStringAsFixed(_currentDecimal))}A',
-              style: TextStyle(
-                color: black
-              ),
-            ),
-            Slider(
-              value: _currentValueReq!,
-              onChanged: (value) {
-                setState(() {
-                  _currentValueReq = value;
-                  applyVoltageCurrentRequest();
-                });
-              },
-              min: _currentMin,
-              max: _currentMax,
-            ),
-            // Row(
-            //   children: [
-            //     const SizedBox(
-            //       width: 10,
-            //     ),
-            //     const Spacer(),
-            //     Switch(
-            //       value: _enableValueEff!,
-            //       onChanged: enableValueSwitchOnChanged()
-            //     ),
-            //   ],
-            // )
-          ],
-        )
+          ),
+          Slider(
+            value: _currentValueReq!,
+            onChanged: (value) {
+              setState(() {
+                _currentValueReq = value;
+              });
+            },
+            min: _currentMin,
+            max: _currentMax,
+          ),
+        ])
       );
     } else {
       return Card(
