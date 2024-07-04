@@ -42,9 +42,11 @@ class _IcBpcState extends State<IcBpc> {
   // If request made on the slider apply it after a small timer
   bool isRequestingVoltage = false;
   Timer? _applyVoltageTimer;
+  List<double> voltageRequests = [];
 
   bool isRequestingCurrent = false;
   Timer? _applyCurrentTimer;
+  List<double> currentRequests = [];
 
   ///
   ///
@@ -73,13 +75,24 @@ class _IcBpcState extends State<IcBpc> {
 
                 case "voltage":
                   if (field.key == "value") {
-                    switch (field.value.runtimeType) {
-                      case int:
-                        _voltageValueEff = field.value.toDouble();
-                      case double:
-                        _voltageValueEff = field.value;
+                    if (_voltageValueEff == null) {
+                      switch (field.value.runtimeType) {
+                        case int:
+                          _voltageValueEff = field.value.toDouble();
+                        case double:
+                          _voltageValueEff = field.value;
+                      }
+                    } 
+
+                    // Remove the request who has been accepted
+                    if (voltageRequests.isNotEmpty) {
+                      voltageRequests.removeAt(0);
                     }
 
+                    if (voltageRequests.isEmpty) {
+                      _voltageValueEff = field.value.toDouble();
+                    }
+                    
                     _voltageValueReq = _voltageValueEff;
                   }
 
@@ -101,12 +114,24 @@ class _IcBpcState extends State<IcBpc> {
 
                 case "current":
                   if (field.key == "value") {
-                    switch (field.value.runtimeType) {
-                      case int:
-                        _currentValueEff = field.value.toDouble();
-                      case double:
-                        _currentValueEff = field.value;
+                    if (_currentValueEff == null) {
+                      switch (field.value.runtimeType) {
+                        case int:
+                          _currentValueEff = field.value.toDouble();
+                        case double:
+                          _currentValueEff = field.value;
+                      }
                     }
+                    
+                    // Remove the request who has been accepted
+                    if (currentRequests.isNotEmpty) {
+                      currentRequests.removeAt(0);
+                    }
+
+                    if (currentRequests.isEmpty) {
+                      _currentValueEff = field.value.toDouble();
+                    }
+                    
                     _currentValueReq = _currentValueEff;
                   }
 
@@ -191,10 +216,11 @@ class _IcBpcState extends State<IcBpc> {
 
         // Send voltage request to broker after 50 milliseconds to not 
         // send request while at each tick of the slider
-        _applyVoltageTimer = Timer(const Duration(milliseconds: 50), () {
+        _applyVoltageTimer = Timer(const Duration(milliseconds: 200), () {
 
           // Send a voltage value approx to decimal attribute 
           _voltageValueReq = num.parse(_voltageValueReq!.toStringAsFixed(_voltageDecimal)).toDouble();
+          voltageRequests.add(_voltageValueReq!);
 
           basicSendingMqttRequest("voltage", "value", _voltageValueReq!, widget._interfaceConnection);
 
@@ -211,10 +237,11 @@ class _IcBpcState extends State<IcBpc> {
 
         // Send current request to broker after 50 milliseconds to not 
         // send request while at each tick of the slider
-        _applyVoltageTimer = Timer(const Duration(milliseconds: 50), () {
+        _applyVoltageTimer = Timer(const Duration(milliseconds: 200), () {
 
           // Send a current value approx to decimal attribute 
           _currentValueReq = num.parse(_currentValueReq!.toStringAsFixed(_currentDecimal)).toDouble();
+          currentRequests.add(_currentValueReq!);
 
           basicSendingMqttRequest("current", "value", _currentValueReq!, widget._interfaceConnection);
 
@@ -304,6 +331,7 @@ class _IcBpcState extends State<IcBpc> {
             onChanged: (value) {
               setState(() {
                 _voltageValueReq = value;
+                applyVoltageCurrentRequest();
               });
             },
             min: _voltageMin,
@@ -320,6 +348,7 @@ class _IcBpcState extends State<IcBpc> {
             onChanged: (value) {
               setState(() {
                 _currentValueReq = value;
+                applyVoltageCurrentRequest();
               });
             },
             min: _currentMin,
