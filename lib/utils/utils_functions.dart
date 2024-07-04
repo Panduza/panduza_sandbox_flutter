@@ -321,6 +321,7 @@ String formatValueInBaseMilliMicro(double value, String prefix, String suffix) {
     newSuffix = suffix;
   }
   return "$prefix$newValue $newSuffix";
+}
 
 // typeAttribute example : "power"
 // attributeName example : "value"
