@@ -39,6 +39,13 @@ class _IcBpcState extends State<IcBpc> {
 
   StreamSubscription<List<MqttReceivedMessage<MqttMessage>>>? mqttSubscription;
 
+  // If request made on the slider apply it after a small timer
+  bool isRequestingVoltage = false;
+  Timer? _applyVoltageTimer;
+
+  bool isRequestingCurrent = false;
+  Timer? _applyCurrentTimer;
+
   ///
   ///
   void onMqttMessage(List<MqttReceivedMessage<MqttMessage>> c) {
@@ -72,6 +79,7 @@ class _IcBpcState extends State<IcBpc> {
                       case double:
                         _voltageValueEff = field.value;
                     }
+
                     _voltageValueReq = _voltageValueEff;
                   }
 
@@ -150,7 +158,9 @@ class _IcBpcState extends State<IcBpc> {
 
   @override
   void dispose() {
-    mqttSubscription!.cancel();
+    mqttSubscription?.cancel();
+    _applyVoltageTimer?.cancel();
+    _applyCurrentTimer?.cancel();
     super.dispose();
   }
 
@@ -167,72 +177,51 @@ class _IcBpcState extends State<IcBpc> {
   ///
   ///
   ///
-  void Function()? applyVoltageCurrentRequest() {
+  void applyVoltageCurrentRequest() {
     if (_voltageValueEff == _voltageValueReq &&
         _currentValueReq == _currentValueEff) {
-      return null;
+      // Not suppose to happen
     } else {
-      return () {
-        if (_voltageValueEff != _voltageValueReq) {
-          MqttClientPayloadBuilder builder = MqttClientPayloadBuilder();
+      if (_voltageValueEff != _voltageValueReq && 
+          isRequestingVoltage == false) {
+        
+        // Not possible to request anymore before this sending has been made
+        // User can change send value only every 50 milliseconds
+        isRequestingVoltage = true;
+
+        // Send voltage request to broker after 50 milliseconds to not 
+        // send request while at each tick of the slider
+        _applyVoltageTimer = Timer(const Duration(milliseconds: 50), () {
 
           // Send a voltage value approx to decimal attribute 
           _voltageValueReq = num.parse(_voltageValueReq!.toStringAsFixed(_voltageDecimal)).toDouble();
 
-          Map<String, dynamic> data = {
-            "voltage": {"value": _voltageValueReq!}
-          };
+          basicSendingMqttRequest("voltage", "value", _voltageValueReq!, widget._interfaceConnection);
 
-          String jsonString = jsonEncode(data);
+          // User can remake a another sending
+          isRequestingVoltage = false;
+        });
+      }
+      if (_currentValueEff != _currentValueReq && 
+          isRequestingCurrent == false) {
 
-          builder.addString(jsonString);
-          final payload = builder.payload;
+        // Not possible to request anymore before this sending has been made
+        // User can change send value only every 50 milliseconds
+        isRequestingCurrent = true;
 
-          String cmdsTopic = "${widget._interfaceConnection.topic}/cmds/set";
-
-          widget._interfaceConnection.client
-              .publishMessage(cmdsTopic, MqttQos.atLeastOnce, payload!);
-        }
-        if (_currentValueEff != _currentValueReq) {
-          MqttClientPayloadBuilder builder = MqttClientPayloadBuilder();
+        // Send current request to broker after 50 milliseconds to not 
+        // send request while at each tick of the slider
+        _applyVoltageTimer = Timer(const Duration(milliseconds: 50), () {
 
           // Send a current value approx to decimal attribute 
           _currentValueReq = num.parse(_currentValueReq!.toStringAsFixed(_currentDecimal)).toDouble();
 
-          Map<String, dynamic> data = {
-            "current": {"value": _currentValueReq!}
-          };
+          basicSendingMqttRequest("current", "value", _currentValueReq!, widget._interfaceConnection);
 
-          String jsonString = jsonEncode(data);
-
-          builder.addString(jsonString);
-          final payload = builder.payload;
-
-          String cmdsTopic = "${widget._interfaceConnection.topic}/cmds/set";
-
-          widget._interfaceConnection.client
-              .publishMessage(cmdsTopic, MqttQos.atLeastOnce, payload!);
-        }
-      };
-    }
-  }
-
-  
-  void Function()? cancelPowerCurrentRequest() {
-    if (_voltageValueReq == _voltageValueEff &&
-        _currentValueReq == _currentValueEff 
-      ) {
-      return null;
-    } else {
-      return () {
-        if (_voltageValueReq != _voltageValueEff) {
-          _voltageValueReq = _voltageValueEff;
-        }
-        if (_currentValueEff != _currentValueReq) {
-          _currentValueReq = _currentValueEff;
-        }
-        setState(() {});
-      };
+          // User can remake a another sending
+          isRequestingCurrent = false;
+        });
+      }
     }
   }
 
@@ -272,15 +261,21 @@ class _IcBpcState extends State<IcBpc> {
         (_voltageValueEff != null && _currentValueEff! < 0)) {
       // With just turn on/off button
       return Card(
-          child: Column(
-        children: [
-          cardHeadLine(widget._interfaceConnection),
-          Switch(
-            value: _enableValueEff!,
-            onChanged: enableValueSwitchOnChanged()
-          ),
-        ],
-      ));
+        child: Row(
+          children: [
+            Column(
+              children: [
+                cardHeadLine(widget._interfaceConnection),
+              ],
+            ),
+            const Spacer(),
+            Switch(
+              value: _enableValueEff!,
+              onChanged: enableValueSwitchOnChanged()
+            ),
+          ],
+        )
+      );
     } else if (_enableValueEff != null &&
         _voltageValueReq != null &&
         _currentValueReq != null) {
@@ -288,7 +283,16 @@ class _IcBpcState extends State<IcBpc> {
       return Card(
           child: Column(
         children: [
-          cardHeadLine(widget._interfaceConnection),
+          Row(
+            children: [
+              cardHeadLine2(widget._interfaceConnection),
+              const Spacer(),
+              Switch(
+                value: _enableValueEff!,
+                onChanged: enableValueSwitchOnChanged()
+              ),
+            ],
+          ),
           Text(
             formatValueInBaseMilliMicro(double.parse(_voltageValueReq!.toStringAsFixed(_voltageDecimal)), 'Voltage : ', 'V'),
             style: TextStyle(
@@ -321,46 +325,8 @@ class _IcBpcState extends State<IcBpc> {
             min: _currentMin,
             max: _currentMax,
           ),
-          Row(
-            children: [
-              const SizedBox(
-                width: 10,
-              ),
-              OutlinedButton(
-                onPressed: cancelPowerCurrentRequest(),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: Colors.red,
-                  side: BorderSide(
-                    color: (applyVoltageCurrentRequest() != null)
-                        ? Colors.red
-                        : Colors.grey,
-                  ),
-                ),
-                child: const Icon(
-                  Icons.arrow_back
-                ),
-              ),
-              const SizedBox(
-                width: 10,
-              ),
-              ElevatedButton(
-                onPressed: applyVoltageCurrentRequest(),
-                style: ElevatedButton.styleFrom(
-                  elevation: 0,
-                  backgroundColor: Colors.green, // Green background
-                  foregroundColor: Colors.white, // White foreground
-                ),
-                child: const Text("Apply"),
-              ),
-              const Spacer(),
-              Switch(
-                value: _enableValueEff!,
-                onChanged: enableValueSwitchOnChanged()
-              ),
-            ],
-          )
-        ],
-      ));
+        ])
+      );
     } else {
       return Card(
           child: Column(children: [

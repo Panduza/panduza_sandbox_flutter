@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:panduza_sandbox_flutter/pages/setup_pages/choice_cloud_self_managed_page.dart';
 import 'package:panduza_sandbox_flutter/utils/const.dart';
+import 'package:panduza_sandbox_flutter/utils/utils_functions.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 
@@ -13,6 +14,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SharedPreferences prefs = await SharedPreferences.getInstance();
+  await checkPreferencesClearItIfProblem(prefs);
   runApp(PanduzaSandboxApp(
     prefs: prefs,
   ));
