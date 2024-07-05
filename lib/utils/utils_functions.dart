@@ -13,7 +13,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:panduza_sandbox_flutter/utils/const.dart';
 
 late MqttServerClient _client;
-bool _isConnecting = false;
+
 final _chars =
     'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
 final Random _rnd = Random();
@@ -174,58 +174,55 @@ String generateRandomMqttIdentifier() {
 
 Future<MqttServerClient?> tryConnecting(String host, String portStr, String username, String password) async {
 
-  if (!_isConnecting) {
-    _isConnecting = true;
-    try {
-      
-      int port = int.parse(portStr);
+  try {
+    
+    int port = int.parse(portStr);
 
+    _client = MqttServerClient.withPort(
+        host, generateRandomMqttIdentifier(), port);
+    _client.setProtocolV311();
 
-      _client = MqttServerClient.withPort(
-          host, generateRandomMqttIdentifier(), port);
-      _client.setProtocolV311();
+    _client.keepAlivePeriod = 5;
 
-      _client.keepAlivePeriod = 20;
+    // Let 5 sec to connect 
+    _client.connectTimeoutPeriod = 5000;
 
-      await _client.connect(username, password);
+    await _client.connect(username, password);
+    
+    _client.onConnected = () {
+      print("MQTT connected");
+    };
 
-      _client.onConnected = () {
-        print("MQTT connected");
-      };
+    return _client;
+  } catch (error) {
+    print(error);
 
-      _isConnecting = false;
-      return _client;
-    } catch (error) {
-      print(error);
-
-      _isConnecting = false;
-      if (Platform.isAndroid || Platform.isIOS) {
-        Fluttertoast.showToast(
-          msg: "Connection failed",
-          textColor: Colors.black,
-          gravity: ToastGravity.BOTTOM,
-          backgroundColor: Colors.red,
-          toastLength: Toast.LENGTH_LONG
-        );
-      }
-      
-      // never return because _client not init
-      return null;
+    if (Platform.isAndroid || Platform.isIOS) {
+      Fluttertoast.showToast(
+        msg: "Connection failed",
+        textColor: Colors.black,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.red,
+        toastLength: Toast.LENGTH_LONG
+      );
     }
+    
+    // never return because _client not init
+    return null;
   }
 
-  if (Platform.isAndroid || Platform.isIOS) {
-     Fluttertoast.showToast(
-      msg: "A connection is already in process",
-      textColor: Colors.black,
-      gravity: ToastGravity.BOTTOM,
-      backgroundColor: Colors.red,
-      toastLength: Toast.LENGTH_LONG
-    );
-  }
+  // if (Platform.isAndroid || Platform.isIOS) {
+  //    Fluttertoast.showToast(
+  //     msg: "A connection is already in process",
+  //     textColor: Colors.black,
+  //     gravity: ToastGravity.BOTTOM,
+  //     backgroundColor: Colors.red,
+  //     toastLength: Toast.LENGTH_LONG
+  //   );
+  // }
  
   
-  return null;
+  // return null;
 }
 
 // If user mistake show a pop up to describe his mistake with 
