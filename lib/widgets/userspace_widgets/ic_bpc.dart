@@ -131,7 +131,7 @@ class _IcBpcState extends State<IcBpc> {
                     if (currentRequests.isEmpty) {
                       _currentValueEff = field.value.toDouble();
                     }
-                    
+
                     _currentValueReq = _currentValueEff;
                   }
 
@@ -292,7 +292,7 @@ class _IcBpcState extends State<IcBpc> {
           children: [
             Column(
               children: [
-                cardHeadLine(widget._interfaceConnection),
+                cardHeadLine2(widget._interfaceConnection),
               ],
             ),
             const Spacer(),
@@ -359,14 +359,16 @@ class _IcBpcState extends State<IcBpc> {
     } else {
       return Card(
           child: Column(children: [
-        cardHeadLine(widget._interfaceConnection),
-        Text(
-          "Wait for data...",
-          style: TextStyle(
-            color: black
-          ),
+            cardHeadLine(widget._interfaceConnection),
+            Text(
+              "Wait for data...",
+              style: TextStyle(
+                color: black
+              ),
+            )
+          ]
         )
-      ]));
+      );
     }
   }
 }
