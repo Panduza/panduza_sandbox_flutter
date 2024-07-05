@@ -47,9 +47,11 @@ class _IcBlcState extends State<IcBlc> {
   // If request made on the slider apply it after a small timer
   bool isRequestingPower = false;
   Timer? _applyPowerTimer;
+  List<double> powerRequests = [];
 
   bool isRequestingCurrent = false;
   Timer? _applyCurrentTimer;
+  List<double> currentRequests = [];
 
   ///
   ///
@@ -116,10 +118,22 @@ class _IcBlcState extends State<IcBlc> {
                       case double:
                         _powerValueEff = field.value;
                     }
-                    if (_powerMax != null) {
+                    if (_powerMax != null && _powerPercentageReq == null) {
                       _powerPercentageReq = _powerValueEff! / _powerMax! * 100;
                       _powerPercentageEff = _powerValueEff! / _powerMax! * 100;
                     }
+
+                    // Remove the request who has been accepted
+                    if (powerRequests.isNotEmpty) {
+                      powerRequests.removeAt(0);
+                    }
+
+                    if (powerRequests.isEmpty) {
+                      _powerValueEff = field.value.toDouble();
+                      _powerPercentageReq = _powerValueEff! / _powerMax! * 100;
+                      _powerPercentageEff = _powerValueEff! / _powerMax! * 100;
+                    }
+
                     if (sync) {
                       _powerValueReq = _powerValueEff;
                     }
@@ -159,6 +173,14 @@ class _IcBlcState extends State<IcBlc> {
                         _currentValueEff = field.value.toDouble();
                       case double:
                         _currentValueEff = field.value;
+                    }
+
+                    if (currentRequests.isNotEmpty) {
+                      currentRequests.removeAt(0);
+                    }
+
+                    if (currentRequests.isEmpty) {
+                      _currentValueEff = field.value.toDouble();
                     }
 
                     if (sync) {
@@ -251,10 +273,11 @@ class _IcBlcState extends State<IcBlc> {
 
         // Send power request to broker after 50 milliseconds to not 
         // send request while at each tick of the slider
-        _applyCurrentTimer = Timer(const Duration(milliseconds: 50), () {
+        _applyCurrentTimer = Timer(const Duration(milliseconds: 200), () {
 
           // Transform percentage in value
           double powerValue = (1/100) * _powerPercentageReq! * _powerMax!;
+          powerRequests.add(powerValue);
 
           basicSendingMqttRequest("power", "value", powerValue, widget._interfaceConnection);
 
@@ -271,10 +294,11 @@ class _IcBlcState extends State<IcBlc> {
 
         // Send current request to broker after 50 milliseconds to not 
         // send request while at each tick of the slider
-        _applyCurrentTimer = Timer(const Duration(milliseconds: 50), () {
+        _applyCurrentTimer = Timer(const Duration(milliseconds: 200), () {
 
           // Send a current value approx to decimal attribute 
           _currentValueReq = num.parse(_currentValueReq!.toStringAsFixed(_currentDecimals)).toDouble();
+          currentRequests.add(_currentValueReq!);
 
           basicSendingMqttRequest("current", "value", _currentValueReq!, widget._interfaceConnection);
 
