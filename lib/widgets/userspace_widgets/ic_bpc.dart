@@ -284,25 +284,29 @@ class _IcBpcState extends State<IcBpc> {
   @override
   Widget build(BuildContext context) {
 
-    if ((_voltageValueEff != null && _voltageValueEff! < 0) &&
-        (_voltageValueEff != null && _currentValueEff! < 0)) {
+    // Bpc with just turn off/on button 
+    Widget widgetBpcEnable = Card(
+      child: Row(
+        children: [
+          Column(
+            children: [
+              cardHeadLine2(widget._interfaceConnection),
+            ],
+          ),
+          const Spacer(),
+          Switch(
+            value: _enableValueEff!,
+            onChanged: enableValueSwitchOnChanged()
+          ),
+        ],
+      )
+    );
+
+    if (_voltageValueEff == null &&
+      _currentValueEff == null && 
+      _enableValueEff != null) {
       // With just turn on/off button
-      return Card(
-        child: Row(
-          children: [
-            Column(
-              children: [
-                cardHeadLine2(widget._interfaceConnection),
-              ],
-            ),
-            const Spacer(),
-            Switch(
-              value: _enableValueEff!,
-              onChanged: enableValueSwitchOnChanged()
-            ),
-          ],
-        )
-      );
+      return widgetBpcEnable;
     } else if (_enableValueEff != null &&
         _voltageValueReq != null &&
         _currentValueReq != null) {

@@ -52,8 +52,6 @@ class _IcRelayState extends State<IcRelay> {
           }
         });
       }
-    } else {
-      // print('not good:');
     }
   }
 
