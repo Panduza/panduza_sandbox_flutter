@@ -329,130 +329,191 @@ class _IcBlcState extends State<IcBlc> {
     });
   }
 
-  // Show power or current slider according to mod selected
-  Widget powerOrCurrentSlider() {
 
-    if (_modeValueEff != null) {
-      if (_modeValueEff!.compareTo("constant_power") == 0) {
-        return Column(
-          children: [
-            const SizedBox(
-              height: 20,
-            ),
-            // Show power in percentage and the value
-            Text(
-              'Power : ${double.parse(_powerPercentageReq!.toStringAsFixed(_powerDecimals))}% (${formatValueInBaseMilliMicro(double.parse(_powerValueReq!.toStringAsFixed(_powerDecimals)), "", "W")})',
-              style: TextStyle(
-                color: black
-              ),
-            ),
-            Slider(
-              value: _powerPercentageReq!,
-              onChanged: (value) {
-                setState(() {
-                  _powerPercentageReq =
-                      double.parse((value).toStringAsFixed(_powerDecimals));
-                  
-                  // Transform percentage in value
-                  double powerValue = (1/100) * _powerPercentageReq! * _powerMax!;
-                  _powerValueReq = 
-                      double.parse((powerValue).toStringAsFixed(_powerDecimals));
-                  sendRequestNewValues();
-                });
-              },
-              min: 0,
-              max: 100,
-            ),
-          ],
-        );
-      } else if (_modeValueEff!.compareTo("constant_current") == 0) {
-        return Column(
-          children: [
-            const SizedBox(
-              height: 20,
-            ),
-            Text(
-              formatValueInBaseMilliMicro(double.parse(_currentValueReq!.toStringAsFixed(_currentDecimals)), "Current : ", "A"),
-              style: TextStyle(
-                color: black
-              ),
-            ),
-            Slider(
-              value: _currentValueReq!,
-              onChanged: (value) {
-                setState(() {
-                  _currentValueReq =
-                      double.parse((value).toStringAsFixed(_currentDecimals));
-                  sendRequestNewValues();
-                });
-              },
-              min: _currentMin,
-              max: _currentMax,
-            ),
-          ],
-        );
-      } 
-    }
+  // Return List<Widget> with different part of the widget to show when
+  // power attribute has been received 
 
-    return const SizedBox.shrink();
+  List<Widget> powerWidgetPart() {
+    List<Widget> partOfWidget = [];
+
+    partOfWidget.add(
+      const SizedBox(
+        height: 20,
+      )
+    );
+
+    // Show power in percentage and the value in W
+
+    partOfWidget.add(
+      Text(
+        'Power : ${double.parse(_powerPercentageReq!.toStringAsFixed(_powerDecimals))}% (${formatValueInBaseMilliMicro(double.parse(_powerValueReq!.toStringAsFixed(_powerDecimals)), "", "W")})',
+        style: TextStyle(
+          color: black
+        ),
+      ),
+    );
+
+    partOfWidget.add(
+      Slider(
+        value: _powerPercentageReq!,
+        onChanged: (value) {
+          setState(() {
+            _powerPercentageReq =
+                double.parse((value).toStringAsFixed(_powerDecimals));
+            
+            // Transform percentage in value
+            double powerValue = (1/100) * _powerPercentageReq! * _powerMax!;
+            _powerValueReq = 
+                double.parse((powerValue).toStringAsFixed(_powerDecimals));
+            sendRequestNewValues();
+          });
+        },
+        min: 0,
+        max: 100,
+      )
+    );
+
+    return partOfWidget;
+  }
+
+
+  // Return List<Widget> with different part of the widget to show when
+  // current attribute has been received 
+
+  List<Widget> currentWidgetPart() {
+    List<Widget> partOfWidget = [];
+
+    partOfWidget.add(
+      const SizedBox(
+        height: 20,
+      )
+    );
+
+    partOfWidget.add(
+      Text(
+        formatValueInBaseMilliMicro(double.parse(_currentValueReq!.toStringAsFixed(_currentDecimals)), "Current : ", "A"),
+        style: TextStyle(
+          color: black
+        ),
+      )
+    );
+    
+    partOfWidget.add(
+      Slider(
+        value: _currentValueReq!,
+        onChanged: (value) {
+          setState(() {
+            _currentValueReq =
+                double.parse((value).toStringAsFixed(_currentDecimals));
+            sendRequestNewValues();
+          });
+        },
+        min: _currentMin,
+        max: _currentMax,
+      )
+    );
+
+    return partOfWidget;
   }
 
   @override
   Widget build(BuildContext context) {
 
-    if (_enableValueEff != null &&
-        _powerValueReq != null &&
-        _powerPercentageReq != null &&
-        _currentValueReq != null &&
-        _modeValueReq != null) {
-      
+    // Here add each part used by the widget (for example could only used 
+    // enable attribute and so show only the button turn on/off)
+    List<Widget> firstRowContent = [];
+    List<Widget> partOfWidget = [];
+
+    // If enable attribute is received show a turn on/off button
+    if (_enableValueEff != null) {
+      firstRowContent.add(
+        const Spacer()
+      );
+      firstRowContent.add(
+        Switch(
+          value: _enableValueEff!,
+          onChanged: enableValueSwitchOnChanged()
+        )
+      );
+    }
+
+    // If mode, current and voltage attributes are given, 
+    // show dropdown button to make it controle the laser 
+    // with power or current, but if one attribute is missing 
+    // even if mode is given don't show this choice (because 
+    // if for example mode and power are given, there is no use to show a
+    // current mode button)
+    if (_modeValueEff != null && 
+      _currentValueEff != null &&
+      _powerPercentageEff != null) {
+      partOfWidget.add(
+        DropdownButton<String> (
+          items: const [
+            DropdownMenuItem<String>(
+              value: "constant_power",
+              child: Text("power mode"),
+            ),
+            DropdownMenuItem<String>(
+              value: "constant_current",
+              child: Text("current mode"),
+            )
+          ],
+          value: _modeValueReq!,
+          onChanged: (String? value) {
+            setState(() {
+              _modeValueReq = value!;
+              sendRequestNewValues();
+            });
+          }
+        )
+      );
+
+      if (_modeValueEff == "constant_power") {
+        partOfWidget.addAll(
+          powerWidgetPart()
+        );
+      } else {
+        partOfWidget.addAll(
+          currentWidgetPart()
+        );
+      }
+
+    } else if (_powerPercentageEff != null) {
+      partOfWidget.addAll(
+        powerWidgetPart()
+      );
+    } else if (_currentValueEff != null) {
+      partOfWidget.addAll(
+        currentWidgetPart()
+      );
+    }
+    
+    if (partOfWidget.isEmpty && firstRowContent.isEmpty) {
       return Card(
         child: Column(
           children: [
-            Row(
-              children: [
-                cardHeadLine2(widget._interfaceConnection),
-                const Spacer(),
-                Switch(
-                  value: _enableValueEff!,
-                  onChanged: enableValueSwitchOnChanged()
-                ),
-              ],
-            ),
-            DropdownButton<String>(
-              items: const [
-                DropdownMenuItem<String>(
-                  value: "constant_power",
-                  child: Text("power mode"),
-                ),
-                DropdownMenuItem<String>(
-                  value: "constant_current",
-                  child: Text("current mode"),
-                )
-              ],
-              value: _modeValueReq!,
-              onChanged: (String? value) {
-                setState(() {
-                  _modeValueReq = value!;
-                  sendRequestNewValues();
-                });
-              }
-            ),
-            powerOrCurrentSlider(),
-          ],
+            cardHeadLine(widget._interfaceConnection),
+            Text(
+              "Wait for data...",
+              style: TextStyle(
+                color: black
+              ),
+            )
+          ]
         )
       );
-    } else {
-      return Card(
-          child: Column(children: [
-        cardHeadLine(widget._interfaceConnection),
-        Text(
-          "Wait for data...",
-          style: TextStyle(
-            color: black
-          ),
-        )
-      ]));
     }
+
+    // Add title at the start of the widget
+    firstRowContent.insert(0, cardHeadLine2(widget._interfaceConnection));
+    partOfWidget.insert(0, Row(
+      children: firstRowContent,
+    ));
+
+    return Card(
+      child: Column(
+        children: partOfWidget,
+      ),
+    );
   }
 }

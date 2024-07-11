@@ -283,80 +283,79 @@ class _IcBpcState extends State<IcBpc> {
 
   @override
   Widget build(BuildContext context) {
+    
+    // Here add each part used by the widget (for example could only used 
+    // enable attribute and so show only the button turn on/off)
+    List<Widget> firstRowContent = [];
+    List<Widget> partOfWidget = [];
 
-    if ((_voltageValueEff != null && _voltageValueEff! < 0) &&
-        (_voltageValueEff != null && _currentValueEff! < 0)) {
-      // With just turn on/off button
-      return Card(
-        child: Row(
-          children: [
-            Column(
-              children: [
-                cardHeadLine2(widget._interfaceConnection),
-              ],
-            ),
-            const Spacer(),
-            Switch(
-              value: _enableValueEff!,
-              onChanged: enableValueSwitchOnChanged()
-            ),
-          ],
+    // If enable attribute is received show a turn on/off button
+    if (_enableValueEff != null) {
+      firstRowContent.add(
+        const Spacer()
+      );
+      firstRowContent.add(
+        Switch(
+          value: _enableValueEff!,
+          onChanged: enableValueSwitchOnChanged()
         )
       );
-    } else if (_enableValueEff != null &&
-        _voltageValueReq != null &&
-        _currentValueReq != null) {
-      // Full bpc
-      return Card(
-          child: Column(
-        children: [
-          Row(
-            children: [
-              cardHeadLine2(widget._interfaceConnection),
-              const Spacer(),
-              Switch(
-                value: _enableValueEff!,
-                onChanged: enableValueSwitchOnChanged()
-              ),
-            ],
+    }
+
+    // Show a slider for the voltage with a text in V
+    if (_voltageValueEff != null) {
+      partOfWidget.add(
+        Text(
+          formatValueInBaseMilliMicro(double.parse(_voltageValueReq!.toStringAsFixed(_voltageDecimal)), 'Voltage : ', 'V'),
+          style: TextStyle(
+            color: black
           ),
-          Text(
-            formatValueInBaseMilliMicro(double.parse(_voltageValueReq!.toStringAsFixed(_voltageDecimal)), 'Voltage : ', 'V'),
-            style: TextStyle(
-              color: black
-            ),
-          ),
-          Slider(
-            value: _voltageValueReq!,
-            onChanged: (value) {
-              setState(() {
-                _voltageValueReq = value;
-                applyVoltageCurrentRequest();
-              });
-            },
-            min: _voltageMin,
-            max: _voltageMax
-          ),
-          Text(
-            formatValueInBaseMilliMicro(double.parse(_currentValueReq!.toStringAsFixed(_voltageDecimal)), 'Current : ', 'A'),
-            style: TextStyle(
-              color: black
-            ),
-          ),
-          Slider(
-            value: _currentValueReq!,
-            onChanged: (value) {
-              setState(() {
-                _currentValueReq = value;
-                applyVoltageCurrentRequest();
-              });
-            },
-            min: _currentMin,
-            max: _currentMax,
-          ),
-        ])
+        ),
       );
-    } else {
+
+      partOfWidget.add(
+        Slider(
+          value: _voltageValueReq!,
+          onChanged: (value) {
+            setState(() {
+              _voltageValueReq = value;
+              applyVoltageCurrentRequest();
+            });
+          },
+          min: _voltageMin,
+          max: _voltageMax
+        ),
+      );
+    }
+
+    // Show a slider for the current with a text in A
+    if (_currentValueEff != null) {
+      partOfWidget.add(
+        Text(
+          formatValueInBaseMilliMicro(double.parse(_currentValueReq!.toStringAsFixed(_voltageDecimal)), 'Current : ', 'A'),
+          style: TextStyle(
+            color: black
+          ),
+        )
+      );
+      partOfWidget.add(
+        Slider(
+          value: _currentValueReq!,
+          onChanged: (value) {
+            setState(() {
+              _currentValueReq = value;
+              applyVoltageCurrentRequest();
+            });
+          },
+          min: _currentMin,
+          max: _currentMax,
+        )
+      );
+    }
+
+    // If any attribute is still received, show a temporary widget to make the
+    // user wait
+    if (partOfWidget.isEmpty && firstRowContent.isEmpty) {
       return Card(
           child: Column(children: [
             cardHeadLine(widget._interfaceConnection),
@@ -370,5 +369,17 @@ class _IcBpcState extends State<IcBpc> {
         )
       );
     }
+
+    // Add title at the start of the widget
+    firstRowContent.insert(0, cardHeadLine2(widget._interfaceConnection));
+    partOfWidget.insert(0, Row(
+      children: firstRowContent,
+    ));
+
+    return Card(
+      child: Column(
+        children: partOfWidget,
+      ),
+    );
   }
 }
