@@ -20,27 +20,35 @@ class IcBlc extends StatefulWidget {
 }
 
 class _IcBlcState extends State<IcBlc> {
+
+  // Enable value requested, effectiv
   bool? _enableValueReq;
   bool? _enableValueEff;
-
+  
+  // power requested, effectiv
   int _powerDecimals = 3;
   double? _powerMin;
   double? _powerMax;
 
   double? _powerValueReq;
   double? _powerValueEff;
-
+  
   double? _powerPercentageReq;
   double? _powerPercentageEff;
 
+  // power requested, effectiv
   int _currentDecimals = 3;
   double _currentMin = 0;
   double _currentMax = 0.1;
   double? _currentValueReq;
   double? _currentValueEff;
 
+  // Mode requested, effectiv
   String? _modeValueReq;
   String? _modeValueEff;
+
+  bool? _analogModulationValueReq;
+  bool? _analogModulationValueEff;
 
   StreamSubscription<List<MqttReceivedMessage<MqttMessage>>>? mqttSubscription;
 
@@ -69,9 +77,10 @@ class _IcBlcState extends State<IcBlc> {
 
         setState(() {
           for (MapEntry<String, dynamic> atts in jsonObject.entries) {
-            for (MapEntry<String, dynamic> field in atts.value.entries) {
+            for (MapEntry<String, dynamic> field in atts.value.entries) {  
               switch (atts.key) {
                 
+                // Received mode attribute
                 case "mode":
                   if (field.key == "value") {
                     bool sync = false;
@@ -88,6 +97,7 @@ class _IcBlcState extends State<IcBlc> {
 
                   break;
 
+                // Received enable attribute
                 case "enable":
                   if (field.key == "value") {
                     bool sync = false;
@@ -104,6 +114,7 @@ class _IcBlcState extends State<IcBlc> {
 
                   break;
 
+                // Received power attribute
                 case "power":
                   if (field.key == "value") {
                     bool sync = false;
@@ -160,6 +171,7 @@ class _IcBlcState extends State<IcBlc> {
                   
                   break;
 
+                // Received current attribute
                 case "current":
                   if (field.key == "value") {
                     bool sync = false;
@@ -204,6 +216,22 @@ class _IcBlcState extends State<IcBlc> {
                   }
 
                   break;
+
+
+                // Received analog modulation attribute
+                case "analog_modulation":
+                  if (field.key == "value") {
+                    bool sync = false;
+                    if (_analogModulationValueEff == _analogModulationValueReq ||
+                        _analogModulationValueReq == null) {
+                      sync = true;
+                    }
+                    
+                    _analogModulationValueEff = field.value;
+                    _analogModulationValueReq = _analogModulationValueEff;
+                  }
+
+                  break;
               }
             }
           }
@@ -244,12 +272,24 @@ class _IcBlcState extends State<IcBlc> {
     super.dispose();
   }
 
+  // Turn on/off laser in function of the value of swtich enable
   void Function(bool)? enableValueSwitchOnChanged() {
     if (_enableValueReq != _enableValueEff) {
       return null;
     } else {
       return (value) {
         enableValueToggleRequest();
+      };
+    }
+  }
+
+  // Action to made 
+  void Function(bool)? analogModulationValueSwitchOnChanged() {
+    if (_analogModulationValueReq != _analogModulationValueEff) {
+      return null;
+    } else {
+      return (value) {
+        analogModulationValueToggleRequest();
       };
     }
   }
@@ -316,6 +356,7 @@ class _IcBlcState extends State<IcBlc> {
     }
   }
 
+  // Send enable laser request (turn on/off laser)
   void enableValueToggleRequest() {
     if (_enableValueEff == null) {
       return;
@@ -326,6 +367,22 @@ class _IcBlcState extends State<IcBlc> {
 
     setState(() {
       _enableValueReq = target;
+    });
+  }
+
+
+  // Send analog modulation request (turn on/off commands)
+  void analogModulationValueToggleRequest() {
+    if (_analogModulationValueEff == null) {
+      return;
+    }
+
+    bool target = _analogModulationValueEff! ? false : true;
+
+    basicSendingMqttRequest("analog_modulation", "value", target, widget._interfaceConnection);
+
+    setState(() {
+      _analogModulationValueEff = target;
     });
   }
 
@@ -433,6 +490,17 @@ class _IcBlcState extends State<IcBlc> {
         Switch(
           value: _enableValueEff!,
           onChanged: enableValueSwitchOnChanged()
+        )
+      );
+    }
+
+    // If analog modulation attribute is activated, you can 
+    // send request and laser can actually respond to it 
+    if (_analogModulationValueEff != null) {
+      firstRowContent.add(
+        Switch(
+          value: _analogModulationValueEff!, 
+          onChanged: analogModulationValueSwitchOnChanged()
         )
       );
     }
