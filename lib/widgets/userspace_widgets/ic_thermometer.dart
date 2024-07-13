@@ -115,48 +115,50 @@ class _IcThermometerState extends State<IcThermometer> {
   @override
   Widget build(BuildContext context) {
     return Card(
-        child: Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        cardHeadLine(widget._interfaceConnection),
-        Text(
-          "${double.parse(_value.toStringAsFixed(_measureDecimal))} °C",
-          style: TextStyle(
-            color: black
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          cardHeadLine(widget._interfaceConnection),
+          Text(
+            "${double.parse(_value.toStringAsFixed(_measureDecimal))} °C",
+            style: TextStyle(
+              color: black
+            ),
           ),
-        ),
-        Row(
-          children: [
-            SizedBox(
-              width: 100,
-              child: TextField(
-                textDirection: TextDirection.rtl,
-                controller: _freqController,
-                keyboardType: TextInputType.number,
-                inputFormatters: <TextInputFormatter>[
-                  FilteringTextInputFormatter.digitsOnly
-                ],
-                style: TextStyle(
-                  color: black,
-                  fontSize: 16
-                ),
-              )
-            ),
-            const SizedBox(
-              width: 10,
-            ),
-            Text(
-              "read per sec",
-              style: TextStyle(
-                color: black
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(
+                width: 40,
+                child: TextField(
+                  textDirection: TextDirection.rtl,
+                  controller: _freqController,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: <TextInputFormatter>[
+                    FilteringTextInputFormatter.digitsOnly
+                  ],
+                  style: TextStyle(
+                    color: black,
+                    fontSize: 13
+                  ),
+                )
               ),
-            ),
-          ],
-        ),
-        const SizedBox(
-          height: 10,
-        ),
-      ],
-    ));
+              const SizedBox(
+                width: 10,
+              ),
+              Text(
+                "read per sec",
+                style: TextStyle(
+                  color: black
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(
+            height: 10,
+          ),
+        ],
+      )
+    );
   }
 }

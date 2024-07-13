@@ -133,9 +133,10 @@ class _IcPowermeterState extends State<IcPowermeter> {
           ),
         ),
         Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             SizedBox(
-              width: 100,
+              width: 40,
               child: TextField(
                 textDirection: TextDirection.rtl,
                 controller: _freqController,
@@ -145,7 +146,7 @@ class _IcPowermeterState extends State<IcPowermeter> {
                 ],
                 style: TextStyle(
                   color: black,
-                  fontSize: 16
+                  fontSize: 13
                 ),
               )
             ),
