@@ -25,7 +25,7 @@ class _HuntPageState extends State<HuntPage> {
   ///
   ///
   void onMqttMessage(List<MqttReceivedMessage<MqttMessage>> c) {
-    print("============");
+    // print("============");
     // print(
     //     'HUNT RECCC ${c[0].topic} from ${widget._interfaceConnection.topic} ');
 

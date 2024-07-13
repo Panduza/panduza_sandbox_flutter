@@ -464,7 +464,7 @@ class _IcBlcState extends State<IcBlc> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) {    
 
     // Here add each part used by the widget (for example could only used 
     // enable attribute and so show only the button turn on/off)

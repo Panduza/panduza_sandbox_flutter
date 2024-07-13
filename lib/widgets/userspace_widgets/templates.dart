@@ -14,17 +14,21 @@ Widget cardHeadLine(InterfaceConnection ic) {
             style: TextStyle(
                 color: Color.fromARGB(255, 66, 66, 66), fontSize: 12)),
         Text(ic.getInterfaceName(),
-            style: const TextStyle(color: Colors.orange, fontSize: 12)),
+            style: const TextStyle(color: Colors.deepOrangeAccent, fontSize: 12)),
       ]));
 }
 
+// Template of title user widget, showing name 
+// of the device, name of the type of interface 
+// and the topic mqtt where it's stored
 Widget cardHeadLine2(InterfaceConnection ic) {
   return Padding(
     padding: const EdgeInsets.symmetric(
       vertical: 5,
       horizontal: 15
     ),
-    child:  Column(
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           ic.getDeviceName(),
@@ -42,7 +46,7 @@ Widget cardHeadLine2(InterfaceConnection ic) {
                 style: TextStyle(
                     color: Color.fromARGB(255, 66, 66, 66), fontSize: 12)),
             Text(ic.getInterfaceName(),
-                style: const TextStyle(color: Colors.orange, fontSize: 12)),
+                style: const TextStyle(color: Colors.deepOrangeAccent, fontSize: 12)),
           ]
         )
       ]
