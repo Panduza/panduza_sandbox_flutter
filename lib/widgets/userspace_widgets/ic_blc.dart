@@ -283,16 +283,6 @@ class _IcBlcState extends State<IcBlc> {
     }
   }
 
-  // Action to made 
-  void Function(bool)? analogModulationValueSwitchOnChanged() {
-    if (_analogModulationValueReq != _analogModulationValueEff) {
-      return null;
-    } else {
-      return (value) {
-        analogModulationValueToggleRequest();
-      };
-    }
-  }
 
   /// 
   /// Send request on power, current or mode to platform
@@ -481,96 +471,177 @@ class _IcBlcState extends State<IcBlc> {
     List<Widget> firstRowContent = [];
     List<Widget> partOfWidget = [];
 
-    // If enable attribute is received show a turn on/off button
-    if (_enableValueEff != null) {
-      firstRowContent.add(
-        const Spacer()
-      );
-      firstRowContent.add(
-        Switch(
-          value: _enableValueEff!,
-          onChanged: enableValueSwitchOnChanged()
-        )
-      );
-    }
-
     // If analog modulation attribute is activated, you can 
     // send request and laser can actually respond to it 
     if (_analogModulationValueEff != null) {
-      firstRowContent.add(
-        Switch(
-          value: _analogModulationValueEff!, 
-          onChanged: analogModulationValueSwitchOnChanged()
-        )
-      );
+      
+      // Show a red button to desactivated analog modulation
+      // or a green to reactivate it (if analog button off must
+      // hide every other part of the widget)
+      if (_analogModulationValueEff!) {
+        firstRowContent.add(
+          Column(
+            children: [
+              OutlinedButton(
+                onPressed: () => {
+                  analogModulationValueToggleRequest()
+                },
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(
+                    color: Colors.red
+                  ),
+                  foregroundColor:Colors.red,
+                  shape: const CircleBorder()
+                ),
+                child: const Icon(
+                  Icons.close,
+                  color: Colors.red,
+                ),
+              ),
+              Text(
+                "Analog modulation",
+                style: TextStyle(
+                  fontSize: 10,
+                  color: black
+                ),
+              )
+            ],
+          )
+        );
+      } else {
+        firstRowContent.add(
+          Column(
+            children: [
+              OutlinedButton(
+                onPressed: () => {
+                  analogModulationValueToggleRequest()
+                },
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(
+                    color: Colors.green
+                  ),
+                  foregroundColor:Colors.green,
+                  shape: const CircleBorder()
+                ),
+                child: const Icon(
+                  Icons.check,
+                  color: Colors.green,
+                ),
+              ),
+              Text(
+                "Analog modulation",
+                style: TextStyle(
+                  fontSize: 10,
+                  color: black
+                ),
+              )
+            ],
+          )
+        );
+      }
     }
+    
+    // If analog modulation is not used or it is activated by interface, command 
+    // can be actually send and be treated by laser
+    if (_analogModulationValueEff == null || _analogModulationValueEff == true) {
+       // If enable attribute is received show a turn on/off button
+      if (_enableValueEff != null) {
+        firstRowContent.add(
+          const Spacer()
+        );
+        firstRowContent.add(
+          Column(
+            children: [
+              Switch(
+                value: _enableValueEff!,
+                onChanged: enableValueSwitchOnChanged()
+              ),
+              Text(
+                "On/Off",
+                style: TextStyle(
+                  fontSize: 10,
+                  color: black
+                ),
+              )
+            ],
+          )
+        );
+      }
 
-    // If mode, current and voltage attributes are given, 
-    // show dropdown button to make it controle the laser 
-    // with power or current, but if one attribute is missing 
-    // even if mode is given don't show this choice (because 
-    // if for example mode and power are given, there is no use to show a
-    // current mode button)
-    if (_modeValueEff != null && 
-      _currentValueEff != null &&
-      _powerPercentageEff != null) {
-      partOfWidget.add(
-        DropdownButton<String> (
-          items: const [
-            DropdownMenuItem<String>(
-              value: "constant_power",
-              child: Text("power mode"),
-            ),
-            DropdownMenuItem<String>(
-              value: "constant_current",
-              child: Text("current mode"),
-            )
-          ],
-          value: _modeValueReq!,
-          onChanged: (String? value) {
-            setState(() {
-              _modeValueReq = value!;
-              sendRequestNewValues();
-            });
-          }
-        )
-      );
+      // If mode, current and voltage attributes are given, 
+      // show dropdown button to make it controle the laser 
+      // with power or current, but if one attribute is missing 
+      // even if mode is given don't show this choice (because 
+      // if for example mode and power are given, there is no use to show a
+      // current mode button)
+      if (_modeValueEff != null && 
+        _currentValueEff != null &&
+        _powerPercentageEff != null) {
+        partOfWidget.add(
+          const SizedBox(
+            height: 10,
+          )
+        );
+        partOfWidget.add(
+          DropdownButton<String> (
+            items: const [
+              DropdownMenuItem<String>(
+                value: "constant_power",
+                child: Text("power mode"),
+              ),
+              DropdownMenuItem<String>(
+                value: "constant_current",
+                child: Text("current mode"),
+              )
+            ],
+            value: _modeValueReq!,
+            onChanged: (String? value) {
+              setState(() {
+                _modeValueReq = value!;
+                sendRequestNewValues();
+              });
+            }
+          )
+        );
 
-      if (_modeValueEff == "constant_power") {
+        if (_modeValueEff == "constant_power") {
+          partOfWidget.addAll(
+            powerWidgetPart()
+          );
+        } else {
+          partOfWidget.addAll(
+            currentWidgetPart()
+          );
+        }
+
+      } else if (_powerPercentageEff != null) {
         partOfWidget.addAll(
           powerWidgetPart()
         );
-      } else {
+      } else if (_currentValueEff != null) {
         partOfWidget.addAll(
           currentWidgetPart()
         );
       }
+      
+      if (partOfWidget.isEmpty && firstRowContent.isEmpty) {
+        return Card(
+          child: Column(
+            children: [
+              cardHeadLine(widget._interfaceConnection),
+              Text(
+                "Wait for data...",
+                style: TextStyle(
+                  color: black
+                ),
+              )
+            ]
+          )
+        );
+      }
+    }
 
-    } else if (_powerPercentageEff != null) {
-      partOfWidget.addAll(
-        powerWidgetPart()
-      );
-    } else if (_currentValueEff != null) {
-      partOfWidget.addAll(
-        currentWidgetPart()
-      );
-    }
-    
-    if (partOfWidget.isEmpty && firstRowContent.isEmpty) {
-      return Card(
-        child: Column(
-          children: [
-            cardHeadLine(widget._interfaceConnection),
-            Text(
-              "Wait for data...",
-              style: TextStyle(
-                color: black
-              ),
-            )
-          ]
-        )
-      );
-    }
+   
 
     // Add title at the start of the widget
     firstRowContent.insert(0, cardHeadLine2(widget._interfaceConnection));
