@@ -34,13 +34,13 @@ class _IcBlcState extends BasicWidget<IcBlc> {
       "value": AttributeReqEff(null, null, String)
     },
     "power": {
-      "value": AttributeReqEff(null, null, double, true),
+      "value": AttributeReqEff(null, null, double, false, []),
       "min": AttributeReqEff(null, null, double),
       "max": AttributeReqEff(null, null, double),
       "decimals": AttributeReqEff(null, null, int)
     },
     "current": {
-      "value": AttributeReqEff(null, null, double),
+      "value": AttributeReqEff(null, null, double, false, []),
       "min": AttributeReqEff(null, null, double),
       "max": AttributeReqEff(null, null, double),
       "decimals": AttributeReqEff(null, null, int)

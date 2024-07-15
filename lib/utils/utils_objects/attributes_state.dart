@@ -62,7 +62,8 @@ class AttributesState {
       // Send power request to broker after 50 milliseconds to not 
       // send request while at each tick of the slider
       Timer timer = Timer(const Duration(milliseconds: 200), () {
-
+        
+        addRequest(attributeName, fieldName, valueToSend);
         basicSendingMqttRequest(attributeName, fieldName, valueToSend, interfaceConnection);
 
         // User can remake a another sending
@@ -111,16 +112,33 @@ class AttributesState {
                   
                   // If attribute field is supposed to be a double
                   case double:
-                    switch (field.value.runtimeType) {
-                      case int:
-                        attributesNames[atts.key]![field.key] = AttributeReqEff(field.value.toDouble(), field.value.toDouble(), double);
+                    if (hasNoRequest(atts.key, field.key) == true || hasNoRequest(atts.key, field.key) == null) {
+                      switch (field.value.runtimeType) {
+                        case int:
+                          attributesNames[atts.key]![field.key] = AttributeReqEff(field.value.toDouble(), field.value.toDouble(), double);
+                          break;
+                        
+                        case double:
+                          attributesNames[atts.key]![field.key] = AttributeReqEff(field.value, field.value, double);
+                          break;
+                      }
+                      break;
+                    } else {
+                      removeRequest(atts.key, field.key);
+                      if (hasNoRequest(atts.key, field.key) == true) {
+                        switch (field.value.runtimeType) {
+                          case int:
+                            attributesNames[atts.key]![field.key] = AttributeReqEff(field.value.toDouble(), field.value.toDouble(), double);
+                            break;
+                          
+                          case double:
+                            attributesNames[atts.key]![field.key] = AttributeReqEff(field.value, field.value, double);
+                            break;
+                        }
                         break;
-                      
-                      case double:
-                        attributesNames[atts.key]![field.key] = AttributeReqEff(field.value, field.value, double);
-                        break;
+                      }
                     }
-                    break;
+                    
 
                   // If attribute field is supposed to be a String
                   case String:
@@ -181,6 +199,18 @@ class AttributesState {
   void setIsRequesting(String attributeName, String fieldName, bool value) {
     attributesNames[attributeName]?[fieldName]?.isRequesting = value;
   }
+
+  void addRequest(String attributeName, String fieldName, dynamic value) {
+    attributesNames[attributeName]?[fieldName]?.curRequests?.add(value);
+  } 
+
+  bool? hasNoRequest(String attributeName, String fieldName) {
+    return attributesNames[attributeName]?[fieldName]?.curRequests?.isEmpty;
+  } 
+
+  void removeRequest(String attributeName, String fieldName) {
+    attributesNames[attributeName]?[fieldName]?.curRequests?.removeAt(0);
+  } 
 
   void cancel() {
     for (Timer timer in timersToClose) {

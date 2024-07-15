@@ -13,5 +13,8 @@ class AttributeReqEff {
   // is going to be used)
   bool isRequesting;
 
-  AttributeReqEff(this.requested, this.effective, this.type, [this.isRequesting = false]);
+  // List of request
+  List<dynamic>? curRequests = [];
+
+  AttributeReqEff(this.requested, this.effective, this.type, [this.isRequesting = false, this.curRequests]);
 }
