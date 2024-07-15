@@ -320,9 +320,7 @@ String formatValueInBaseMilliMicro(double value, String prefix, String suffix) {
   return "$prefix$newValue $newSuffix";
 }
 
-// typeAttribute example : "power"
-// attributeName example : "value"
-// attributeValue example : 1.1
+// Send new value of attribute to broker
 void basicSendingMqttRequest(String typeAttribute, String attributeName, dynamic value, InterfaceConnection interfaceConnection) {
   
   MqttClientPayloadBuilder builder = MqttClientPayloadBuilder();

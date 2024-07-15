@@ -3,11 +3,12 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:panduza_sandbox_flutter/utils/const.dart';
+import 'package:panduza_sandbox_flutter/utils/utils_objects/attribute_req_eff.dart';
+import 'package:panduza_sandbox_flutter/utils/utils_objects/attributes_state.dart';
+import 'package:panduza_sandbox_flutter/widgets/userspace_widgets/basic_widget.dart';
 import 'templates.dart';
 import 'package:panduza_sandbox_flutter/utils/utils_objects/interface_connection.dart';
 import 'package:panduza_sandbox_flutter/utils/utils_functions.dart';
-
-import 'package:mqtt_client/mqtt_client.dart';
 
 class IcBlc extends StatefulWidget {
   const IcBlc(this._interfaceConnection, {super.key});
@@ -19,363 +20,58 @@ class IcBlc extends StatefulWidget {
    
 }
 
-class _IcBlcState extends State<IcBlc> {
+class _IcBlcState extends BasicWidget<IcBlc> {
 
-  // Enable value requested, effectiv
-  bool? _enableValueReq;
-  bool? _enableValueEff;
-  
-  // power requested, effectiv
-  int _powerDecimals = 3;
-  double? _powerMin;
-  double? _powerMax;
+  // List of possible attributes mqtt
+  final Map<String, Map<String, AttributeReqEff>> attributesNames = {
+    "enable": {
+      "value": AttributeReqEff(null, null, bool),
+    },
+    "analog_modulation": {
+      "value": AttributeReqEff(null, null, bool)
+    },
+    "mode": {
+      "value": AttributeReqEff(null, null, String)
+    },
+    "power": {
+      "value": AttributeReqEff(null, null, double, true),
+      "min": AttributeReqEff(null, null, double),
+      "max": AttributeReqEff(null, null, double),
+      "decimals": AttributeReqEff(null, null, int)
+    },
+    "current": {
+      "value": AttributeReqEff(null, null, double),
+      "min": AttributeReqEff(null, null, double),
+      "max": AttributeReqEff(null, null, double),
+      "decimals": AttributeReqEff(null, null, int)
+    }
+  };
 
-  double? _powerValueReq;
-  double? _powerValueEff;
-  
-  double? _powerPercentageReq;
-  double? _powerPercentageEff;
-
-  // power requested, effectiv
-  int _currentDecimals = 3;
-  double _currentMin = 0;
-  double _currentMax = 0.1;
-  double? _currentValueReq;
-  double? _currentValueEff;
-
-  // Mode requested, effectiv
-  String? _modeValueReq;
-  String? _modeValueEff;
-
-  bool? _analogModulationValueReq;
-  bool? _analogModulationValueEff;
-
-  StreamSubscription<List<MqttReceivedMessage<MqttMessage>>>? mqttSubscription;
+  AttributesState? attributesState;
 
   // If request made on the slider apply it after a small timer
   bool isRequestingPower = false;
-  Timer? _applyPowerTimer;
   List<double> powerRequests = [];
 
   bool isRequestingCurrent = false;
-  Timer? _applyCurrentTimer;
   List<double> currentRequests = [];
 
-  ///
-  ///
-  void onMqttMessage(List<MqttReceivedMessage<MqttMessage>> c) {
-
-    //
-    if (c[0].topic.startsWith(widget._interfaceConnection.topic)) {
-      if (!c[0].topic.endsWith('/info')) {
-        final recMess = c[0].payload as MqttPublishMessage;
-
-        final pt =
-            MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
-
-        var jsonObject = json.decode(pt);
-
-        setState(() {
-          for (MapEntry<String, dynamic> atts in jsonObject.entries) {
-            for (MapEntry<String, dynamic> field in atts.value.entries) {  
-              switch (atts.key) {
-                
-                // Received mode attribute
-                case "mode":
-                  if (field.key == "value") {
-                    bool sync = false;
-                    if (_modeValueEff == _modeValueReq ||
-                        _modeValueReq == null) {
-                      sync = true;
-                    }
-
-                    _modeValueEff = field.value;
-                    if (sync) {
-                      _modeValueReq = _modeValueEff;
-                    }
-                  }
-
-                  break;
-
-                // Received enable attribute
-                case "enable":
-                  if (field.key == "value") {
-                    bool sync = false;
-                    if (_enableValueEff == _enableValueReq ||
-                        _enableValueReq == null) {
-                      sync = true;
-                    }
-
-                    _enableValueEff = field.value;
-                    if (sync) {
-                      _enableValueReq = _enableValueEff;
-                    }
-                  }
-
-                  break;
-
-                // Received power attribute
-                case "power":
-                  if (field.key == "value") {
-                    bool sync = false;
-                    if (_powerValueEff == _powerValueReq ||
-                        _powerValueReq == null) {
-                      sync = true;
-                    }
-
-                    switch (field.value.runtimeType) {
-                      case int:
-                        _powerValueEff = field.value.toDouble();
-                      case double:
-                        _powerValueEff = field.value;
-                    }
-                    if (_powerMax != null && _powerPercentageReq == null) {
-                      _powerPercentageReq = _powerValueEff! / _powerMax! * 100;
-                      _powerPercentageEff = _powerValueEff! / _powerMax! * 100;
-                    }
-
-                    // Remove the request who has been accepted
-                    if (powerRequests.isNotEmpty) {
-                      powerRequests.removeAt(0);
-                    }
-
-                    if (powerRequests.isEmpty) {
-                      _powerValueEff = field.value.toDouble();
-                      _powerPercentageReq = _powerValueEff! / _powerMax! * 100;
-                      _powerPercentageEff = _powerValueEff! / _powerMax! * 100;
-                    }
-
-                    if (sync) {
-                      _powerValueReq = _powerValueEff;
-                    }
-                  }
-
-                  if (field.key == "min") {
-                    _powerMin = valueToDouble(field.value);
-                  }
-                  if (field.key == "max") {
-                    _powerMax = valueToDouble(field.value);
-                    if (_powerValueReq != null && _powerValueEff != null) {
-                      _powerPercentageReq = _powerValueReq! / _powerMax! * 100;
-                      _powerPercentageEff = _powerValueEff! / _powerMax! * 100;
-                    }
-                  }
-                  if (field.key == "decimals") {
-                    switch (field.value.runtimeType) {
-                      case int:
-                        _powerDecimals = field.value;
-                      case double:
-                        _powerDecimals = (field.value as double).toInt();
-                    }
-                  }
-                  
-                  break;
-
-                // Received current attribute
-                case "current":
-                  if (field.key == "value") {
-                    bool sync = false;
-                    if (_currentValueEff == _currentValueReq ||
-                        _currentValueReq == null) {
-                      sync = true;
-                    }
-
-                    switch (field.value.runtimeType) {
-                      case int:
-                        _currentValueEff = field.value.toDouble();
-                      case double:
-                        _currentValueEff = field.value;
-                    }
-
-                    if (currentRequests.isNotEmpty) {
-                      currentRequests.removeAt(0);
-                    }
-
-                    if (currentRequests.isEmpty) {
-                      _currentValueEff = field.value.toDouble();
-                    }
-
-                    if (sync) {
-                      _currentValueReq = _currentValueEff;
-                    }
-                  }
-
-                  if (field.key == "min") {
-                    _currentMin = valueToDouble(field.value);
-                  }
-                  if (field.key == "max") {
-                    _currentMax = valueToDouble(field.value);
-                  }
-                  if (field.key == "decimals") {
-                    switch (field.value.runtimeType) {
-                      case int:
-                        _currentDecimals = field.value;
-                      case double:
-                        _currentDecimals = (field.value as double).toInt();
-                    }
-                  }
-
-                  break;
-
-
-                // Received analog modulation attribute
-                case "analog_modulation":
-                  if (field.key == "value") {
-                    bool sync = false;
-                    if (_analogModulationValueEff == _analogModulationValueReq ||
-                        _analogModulationValueReq == null) {
-                      sync = true;
-                    }
-                    
-                    _analogModulationValueEff = field.value;
-                    _analogModulationValueReq = _analogModulationValueEff;
-                  }
-
-                  break;
-              }
-            }
-          }
-        });
-      }
-    } else {
-      // print('not good:');
-    }
-  }
-
-  /// Initialize MQTT Subscriptions
-  ///
-  void initializeMqttSubscription() async {
-    mqttSubscription = widget._interfaceConnection.client.updates!.listen(onMqttMessage);
-
-    String attsTopic = "${widget._interfaceConnection.topic}/atts/#";
-
-    widget._interfaceConnection.client
-        .subscribe(attsTopic, MqttQos.atLeastOnce);
-
-  }
 
   /// Perform MQTT Subscriptions at the start of the component
   ///
   @override
   void initState() {
     super.initState();
-
-    // subscribe to info and atts ?
-    Future.delayed(const Duration(milliseconds: 500), initializeMqttSubscription);
+    
+    attributesState = AttributesState(widget._interfaceConnection, attributesNames, this);
+    attributesState?.init();
   }
 
   @override
   void dispose() {
-    mqttSubscription?.cancel();
-    _applyCurrentTimer?.cancel();
-    _applyPowerTimer?.cancel();
+    attributesState?.cancel();
     super.dispose();
   }
-
-  // Turn on/off laser in function of the value of swtich enable
-  void Function(bool)? enableValueSwitchOnChanged() {
-    if (_enableValueReq != _enableValueEff) {
-      return null;
-    } else {
-      return (value) {
-        enableValueToggleRequest();
-      };
-    }
-  }
-
-
-  /// 
-  /// Send request on power, current or mode to platform
-  ///
-  void sendRequestNewValues() {
-    if (_powerValueEff == _powerValueReq &&
-        _powerPercentageEff == _powerPercentageReq &&
-        _currentValueReq == _currentValueEff &&
-        _modeValueReq == _modeValueEff) {
-      // Problem 
-    } else {
-      if (_powerPercentageEff != _powerPercentageReq &&
-          isRequestingPower == false) {
-
-        // Not possible to request anymore before this sending has been made
-        // User can change send value only every 50 milliseconds
-        isRequestingPower = true;
-
-        // Send power request to broker after 50 milliseconds to not 
-        // send request while at each tick of the slider
-        _applyCurrentTimer = Timer(const Duration(milliseconds: 200), () {
-
-          // Transform percentage in value
-          double powerValue = (1/100) * _powerPercentageReq! * _powerMax!;
-          powerRequests.add(powerValue);
-
-          basicSendingMqttRequest("power", "value", powerValue, widget._interfaceConnection);
-
-          // User can remake a another sending
-          isRequestingPower = false;
-        });
-      }
-      if (_currentValueEff != _currentValueReq && 
-          isRequestingCurrent == false) {
-
-        // Not possible to request anymore before this sending has been made
-        // User can change send value only every 50 milliseconds
-        isRequestingCurrent = true;
-
-        // Send current request to broker after 50 milliseconds to not 
-        // send request while at each tick of the slider
-        _applyCurrentTimer = Timer(const Duration(milliseconds: 200), () {
-
-          // Send a current value approx to decimal attribute 
-          _currentValueReq = num.parse(_currentValueReq!.toStringAsFixed(_currentDecimals)).toDouble();
-          currentRequests.add(_currentValueReq!);
-
-          basicSendingMqttRequest("current", "value", _currentValueReq!, widget._interfaceConnection);
-
-          // User can remake a another sending
-          isRequestingCurrent = false;
-        });
-      }
-
-      if (_modeValueEff != _modeValueReq) {
-
-        basicSendingMqttRequest("mode", "value", _modeValueReq!, widget._interfaceConnection);
-
-      }
-    
-    }
-  }
-
-  // Send enable laser request (turn on/off laser)
-  void enableValueToggleRequest() {
-    if (_enableValueEff == null) {
-      return;
-    }
-    bool target = _enableValueEff! ? false : true;
-
-    basicSendingMqttRequest("enable", "value", target, widget._interfaceConnection);
-
-    setState(() {
-      _enableValueReq = target;
-    });
-  }
-
-
-  // Send analog modulation request (turn on/off commands)
-  void analogModulationValueToggleRequest() {
-    if (_analogModulationValueEff == null) {
-      return;
-    }
-
-    bool target = _analogModulationValueEff! ? false : true;
-
-    basicSendingMqttRequest("analog_modulation", "value", target, widget._interfaceConnection);
-
-    setState(() {
-      _analogModulationValueEff = target;
-    });
-  }
-
 
   // Return List<Widget> with different part of the widget to show when
   // power attribute has been received 
@@ -393,7 +89,12 @@ class _IcBlcState extends State<IcBlc> {
 
     partOfWidget.add(
       Text(
-        'Power : ${double.parse(_powerPercentageReq!.toStringAsFixed(_powerDecimals))}% (${formatValueInBaseMilliMicro(double.parse(_powerValueReq!.toStringAsFixed(_powerDecimals)), "", "W")})',
+        'Power : ${double.parse(((attributesState?.getAttributeRequested("power", "value") as double) / 
+          (attributesState?.getAttributeRequested("power", "max") as double) * 100).toStringAsFixed(
+            (attributesState?.getAttributeRequested("power", "decimals") as int)
+        ))}% (${formatValueInBaseMilliMicro(double.parse((attributesState?.getAttributeRequested("power", "value") as double).toStringAsFixed(
+          (attributesState?.getAttributeRequested("power", "decimals") as int)
+        )), "", "W")})',
         style: TextStyle(
           color: black
         ),
@@ -402,21 +103,20 @@ class _IcBlcState extends State<IcBlc> {
 
     partOfWidget.add(
       Slider(
-        value: _powerPercentageReq!,
+        value: attributesState?.getAttributeEffective("power", "value"),
         onChanged: (value) {
           setState(() {
-            _powerPercentageReq =
-                double.parse((value).toStringAsFixed(_powerDecimals));
-            
-            // Transform percentage in value
-            double powerValue = (1/100) * _powerPercentageReq! * _powerMax!;
-            _powerValueReq = 
-                double.parse((powerValue).toStringAsFixed(_powerDecimals));
-            sendRequestNewValues();
+            attributesState?.setAttributeRequested("power", "value", 
+              double.parse((value).toStringAsFixed(
+                attributesState?.getAttributeRequested("power", "decimals")
+              ))
+            );
+
+            attributesState?.sendAttributeWithTimer("power", "value", attributesState?.getAttributeRequested("power", "value"));
           });
         },
         min: 0,
-        max: 100,
+        max: attributesState?.getAttributeEffective("power", "max"),
       )
     );
 
@@ -438,7 +138,9 @@ class _IcBlcState extends State<IcBlc> {
 
     partOfWidget.add(
       Text(
-        formatValueInBaseMilliMicro(double.parse(_currentValueReq!.toStringAsFixed(_currentDecimals)), "Current : ", "A"),
+        formatValueInBaseMilliMicro(double.parse(attributesState?.getAttributeEffective("current", "value").toStringAsFixed(
+          attributesState?.getAttributeEffective("current", "decimals") 
+        )), "Current : ", "A"),
         style: TextStyle(
           color: black
         ),
@@ -447,16 +149,19 @@ class _IcBlcState extends State<IcBlc> {
     
     partOfWidget.add(
       Slider(
-        value: _currentValueReq!,
+        value: attributesState?.getAttributeRequested("current", "value"),
         onChanged: (value) {
           setState(() {
-            _currentValueReq =
-                double.parse((value).toStringAsFixed(_currentDecimals));
-            sendRequestNewValues();
+            attributesState?.setAttributeRequested("current", "value", 
+              double.parse((value).toStringAsFixed(
+                attributesState?.getAttributeEffective("current", "decimals")
+              ))
+            );
+            attributesState?.sendAttributeWithTimer("current", "value", attributesState?.getAttributeRequested("current", "value"));
           });
         },
-        min: _currentMin,
-        max: _currentMax,
+        min: attributesState?.getAttributeEffective("current", "min"),
+        max: attributesState?.getAttributeEffective("current", "max"),
       )
     );
 
@@ -473,18 +178,22 @@ class _IcBlcState extends State<IcBlc> {
 
     // If analog modulation attribute is activated, you can 
     // send request and laser can actually respond to it 
-    if (_analogModulationValueEff != null) {
+    if (attributesState?.getAttributeEffective("analog_modulation", "value") != null) {
       
       // Show a red button to desactivated analog modulation
       // or a green to reactivate it (if analog button off must
       // hide every other part of the widget)
-      if (_analogModulationValueEff!) {
+      if (attributesState?.getAttributeEffective("analog_modulation", "value")!) {
+        firstRowContent.add(
+          const Spacer()
+        );
         firstRowContent.add(
           Column(
             children: [
               OutlinedButton(
                 onPressed: () => {
-                  analogModulationValueToggleRequest()
+                  attributesState?.setAttributeRequested("analog_modulation", "value", false),
+                  attributesState?.sendAnyAttribute("analog_modulation", "value")
                 },
                 style: OutlinedButton.styleFrom(
                   side: const BorderSide(
@@ -514,7 +223,8 @@ class _IcBlcState extends State<IcBlc> {
             children: [
               OutlinedButton(
                 onPressed: () => {
-                  analogModulationValueToggleRequest()
+                  attributesState?.setAttributeRequested("analog_modulation", "value", true),
+                  attributesState?.sendAnyAttribute("analog_modulation", "value")
                 },
                 style: OutlinedButton.styleFrom(
                   side: const BorderSide(
@@ -543,18 +253,22 @@ class _IcBlcState extends State<IcBlc> {
     
     // If analog modulation is not used or it is activated by interface, command 
     // can be actually send and be treated by laser
-    if (_analogModulationValueEff == null || _analogModulationValueEff == true) {
+    if (attributesState?.getAttributeEffective("analog_modulation", "value") == null || 
+        attributesState?.getAttributeEffective("analog_modulation", "value") == true) {
        // If enable attribute is received show a turn on/off button
-      if (_enableValueEff != null) {
-        firstRowContent.add(
-          const Spacer()
-        );
-        firstRowContent.add(
+      if (attributesState?.getAttributeEffective("enable", "value") != null) {
+        firstRowContent.insert(
+          0,
           Column(
             children: [
               Switch(
-                value: _enableValueEff!,
-                onChanged: enableValueSwitchOnChanged()
+                value: attributesState?.getAttributeEffective("enable", "value"),
+                onChanged: (value) {
+                  setState(() {
+                    attributesState?.setAttributeRequested("enable", "value", value);
+                    attributesState?.sendAnyAttribute("enable", "value");
+                  });
+                } 
               ),
               Text(
                 "On/Off",
@@ -574,9 +288,9 @@ class _IcBlcState extends State<IcBlc> {
       // even if mode is given don't show this choice (because 
       // if for example mode and power are given, there is no use to show a
       // current mode button)
-      if (_modeValueEff != null && 
-        _currentValueEff != null &&
-        _powerPercentageEff != null) {
+      if (attributesState?.getAttributeEffective("mode", "value") != null && 
+        attributesState?.getAttributeEffective("current", "value") != null &&
+        attributesState?.getAttributeEffective("power", "value") != null) {
         partOfWidget.add(
           const SizedBox(
             height: 10,
@@ -594,17 +308,17 @@ class _IcBlcState extends State<IcBlc> {
                 child: Text("current mode"),
               )
             ],
-            value: _modeValueReq!,
+            value: attributesState?.getAttributeRequested("mode", "value"),
             onChanged: (String? value) {
               setState(() {
-                _modeValueReq = value!;
-                sendRequestNewValues();
+                attributesState?.setAttributeRequested("mode", "value", value);
+                attributesState?.sendAnyAttribute("mode", "value");
               });
             }
           )
         );
 
-        if (_modeValueEff == "constant_power") {
+        if (attributesState?.getAttributeRequested("mode", "value") == "constant_power") {
           partOfWidget.addAll(
             powerWidgetPart()
           );
@@ -614,11 +328,11 @@ class _IcBlcState extends State<IcBlc> {
           );
         }
 
-      } else if (_powerPercentageEff != null) {
+      } else if (attributesState?.getAttributeEffective("power", "value") != null) {
         partOfWidget.addAll(
           powerWidgetPart()
         );
-      } else if (_currentValueEff != null) {
+      } else if (attributesState?.getAttributeRequested("current", "value") != null) {
         partOfWidget.addAll(
           currentWidgetPart()
         );
