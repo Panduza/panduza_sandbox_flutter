@@ -306,7 +306,7 @@ class _IcBpcState extends State<IcBpc> {
     if (_voltageValueEff != null) {
       partOfWidget.add(
         Text(
-          formatValueInBaseMilliMicro(double.parse(_voltageValueReq!.toStringAsFixed(_voltageDecimal)), 'Voltage : ', 'V'),
+          formatValueInBaseMilliMicro(double.parse(_voltageValueReq!.toStringAsFixed(_voltageDecimal)), 'Voltage : ', 'V', _voltageDecimal),
           style: TextStyle(
             color: black
           ),
@@ -332,7 +332,7 @@ class _IcBpcState extends State<IcBpc> {
     if (_currentValueEff != null) {
       partOfWidget.add(
         Text(
-          formatValueInBaseMilliMicro(double.parse(_currentValueReq!.toStringAsFixed(_voltageDecimal)), 'Current : ', 'A'),
+          formatValueInBaseMilliMicro(double.parse(_currentValueReq!.toStringAsFixed(_voltageDecimal)), 'Current : ', 'A', _currentDecimal),
           style: TextStyle(
             color: black
           ),

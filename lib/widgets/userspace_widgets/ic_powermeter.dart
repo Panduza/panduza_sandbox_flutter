@@ -121,13 +121,14 @@ class _IcPowermeterState extends State<IcPowermeter> {
   ///
   @override
   Widget build(BuildContext context) {
+
     return Card(
         child: Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         cardHeadLine(widget._interfaceConnection),
         Text(
-          formatValueInBaseMilliMicro(double.parse(_value.toStringAsFixed(_measureDecimal)), "", "W"),
+          formatValueInBaseMilliMicro(double.parse(_value.toStringAsFixed(_measureDecimal)), "", "W", _measureDecimal),
           style: TextStyle(
             color: black
           ),

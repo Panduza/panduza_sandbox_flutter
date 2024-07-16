@@ -299,7 +299,8 @@ double valueToDouble(dynamic value) {
 
 // Show W, mW or micro W in function of value, 
 // if 0.001 W show 1 mW
-String formatValueInBaseMilliMicro(double value, String prefix, String suffix) {
+// decimalNumbers is the number after the decimal point show
+String formatValueInBaseMilliMicro(double value, String prefix, String suffix, int decimalNumbers) {
 
   String newSuffix = suffix;
   double newValue = value;
@@ -317,7 +318,10 @@ String formatValueInBaseMilliMicro(double value, String prefix, String suffix) {
   if (newValue == 0.0 ) {
     newSuffix = suffix;
   }
-  return "$prefix$newValue $newSuffix";
+
+  // Problem in precision float value ask to do again a rounding
+  String newValueString = newValue.toStringAsFixed(decimalNumbers);
+  return "$prefix$newValueString $newSuffix";
 }
 
 // typeAttribute example : "power"
