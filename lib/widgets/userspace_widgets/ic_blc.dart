@@ -393,7 +393,7 @@ class _IcBlcState extends State<IcBlc> {
 
     partOfWidget.add(
       Text(
-        'Power : ${double.parse(_powerPercentageReq!.toStringAsFixed(_powerDecimals))}% (${formatValueInBaseMilliMicro(double.parse(_powerValueReq!.toStringAsFixed(_powerDecimals)), "", "W")})',
+        'Power : ${double.parse(_powerPercentageReq!.toStringAsFixed(_powerDecimals))}% (${formatValueInBaseMilliMicro(double.parse(_powerValueReq!.toStringAsFixed(_powerDecimals)), "", "W", _powerDecimals)})',
         style: TextStyle(
           color: black
         ),
@@ -438,7 +438,7 @@ class _IcBlcState extends State<IcBlc> {
 
     partOfWidget.add(
       Text(
-        formatValueInBaseMilliMicro(double.parse(_currentValueReq!.toStringAsFixed(_currentDecimals)), "Current : ", "A"),
+        formatValueInBaseMilliMicro(double.parse(_currentValueReq!.toStringAsFixed(_currentDecimals)), "Current : ", "A", _currentDecimals),
         style: TextStyle(
           color: black
         ),
