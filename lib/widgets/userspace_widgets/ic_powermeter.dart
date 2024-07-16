@@ -1,7 +1,3 @@
-import 'dart:async';
-import 'dart:collection';
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -11,7 +7,6 @@ import 'package:panduza_sandbox_flutter/utils/utils_objects/attributes_state.dar
 import 'package:panduza_sandbox_flutter/widgets/userspace_widgets/basic_widget.dart';
 import 'templates.dart';
 import 'package:panduza_sandbox_flutter/utils/utils_objects/interface_connection.dart';
-import 'package:mqtt_client/mqtt_client.dart';
 import 'package:panduza_sandbox_flutter/utils/utils_functions.dart';
 
 
@@ -32,8 +27,8 @@ class _IcPowermeterState extends BasicWidget<IcPowermeter> {
 
   final Map<String, Map<String, AttributeReqEff>> attributesNames = {
     "measure": {
-      "value": AttributeReqEff(0, 0, double),
-      "decimals": AttributeReqEff(3, 3, int)
+      "value": AttributeReqEff(double),
+      "decimals": AttributeReqEff(int)
     }
   };
   

@@ -25,25 +25,25 @@ class _IcBlcState extends BasicWidget<IcBlc> {
   // List of possible attributes mqtt
   final Map<String, Map<String, AttributeReqEff>> attributesNames = {
     "enable": {
-      "value": AttributeReqEff(null, null, bool),
+      "value": AttributeReqEff(bool),
     },
     "analog_modulation": {
-      "value": AttributeReqEff(null, null, bool)
+      "value": AttributeReqEff(bool)
     },
     "mode": {
-      "value": AttributeReqEff(null, null, String)
+      "value": AttributeReqEff(String)
     },
     "power": {
-      "value": AttributeReqEff(null, null, double, false, []),
-      "min": AttributeReqEff(null, null, double),
-      "max": AttributeReqEff(null, null, double),
-      "decimals": AttributeReqEff(null, null, int)
+      "value": AttributeReqEff(double, isRequesting: false, curRequests: []),
+      "min": AttributeReqEff(double),
+      "max": AttributeReqEff(double),
+      "decimals": AttributeReqEff(int)
     },
     "current": {
-      "value": AttributeReqEff(null, null, double, false, []),
-      "min": AttributeReqEff(null, null, double),
-      "max": AttributeReqEff(null, null, double),
-      "decimals": AttributeReqEff(null, null, int)
+      "value": AttributeReqEff(double, isRequesting: false, curRequests: []),
+      "min": AttributeReqEff(double),
+      "max": AttributeReqEff(double),
+      "decimals": AttributeReqEff(int)
     }
   };
 
@@ -55,7 +55,6 @@ class _IcBlcState extends BasicWidget<IcBlc> {
 
   bool isRequestingCurrent = false;
   List<double> currentRequests = [];
-
 
   /// Perform MQTT Subscriptions at the start of the component
   ///
@@ -71,6 +70,28 @@ class _IcBlcState extends BasicWidget<IcBlc> {
   void dispose() {
     attributesState?.cancel();
     super.dispose();
+  }
+
+  // Getter on different attributes fields
+
+  double getPowerValueEffective() {
+    return attributesState?.getAttributeEffective("power", "value") as double;
+  }
+
+  double getPowerValueRequested() {
+    return attributesState?.getAttributeRequested("power", "value") as double;
+  }
+
+  double getPowerMaxEffective() {
+    return attributesState?.getAttributeEffective("power", "max") as double;
+  }
+
+  double getPowerMaxRequested() {
+    return attributesState?.getAttributeRequested("power", "max") as double;
+  }
+
+  int getPowerDecimalsRequested() {
+    return attributesState?.getAttributeRequested("power", "decimals") as int;
   }
 
   // Return List<Widget> with different part of the widget to show when
@@ -89,11 +110,11 @@ class _IcBlcState extends BasicWidget<IcBlc> {
 
     partOfWidget.add(
       Text(
-        'Power : ${double.parse(((attributesState?.getAttributeRequested("power", "value") as double) / 
-          (attributesState?.getAttributeRequested("power", "max") as double) * 100).toStringAsFixed(
-            (attributesState?.getAttributeRequested("power", "decimals") as int)
-        ))}% (${formatValueInBaseMilliMicro(double.parse((attributesState?.getAttributeRequested("power", "value") as double).toStringAsFixed(
-          (attributesState?.getAttributeRequested("power", "decimals") as int)
+        'Power : ${double.parse((getPowerValueRequested() / 
+          getPowerMaxRequested() * 100).toStringAsFixed(
+            getPowerDecimalsRequested()
+        ))}% (${formatValueInBaseMilliMicro(double.parse(getPowerValueRequested().toStringAsFixed(
+          getPowerDecimalsRequested()
         )), "", "W")})',
         style: TextStyle(
           color: black
@@ -103,20 +124,20 @@ class _IcBlcState extends BasicWidget<IcBlc> {
 
     partOfWidget.add(
       Slider(
-        value: attributesState?.getAttributeEffective("power", "value"),
+        value: getPowerValueEffective(),
         onChanged: (value) {
           setState(() {
             attributesState?.setAttributeRequested("power", "value", 
               double.parse((value).toStringAsFixed(
-                attributesState?.getAttributeRequested("power", "decimals")
+                getPowerDecimalsRequested()
               ))
             );
 
-            attributesState?.sendAttributeWithTimer("power", "value", attributesState?.getAttributeRequested("power", "value"));
+            attributesState?.sendAttributeWithTimer("power", "value", getPowerValueRequested());
           });
         },
         min: 0,
-        max: attributesState?.getAttributeEffective("power", "max"),
+        max: getPowerMaxEffective(),
       )
     );
 

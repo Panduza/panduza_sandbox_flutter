@@ -102,10 +102,10 @@ class AttributesState {
                   case int:
                     switch (field.value.runtimeType) {
                       case int:
-                        attributesNames[atts.key]![field.key] = AttributeReqEff(field.value, field.value, int);
+                        attributesNames[atts.key]![field.key] = AttributeReqEff(requested: field.value, effective: field.value, int);
                         break;
                       case double:
-                        attributesNames[atts.key]![field.key] = AttributeReqEff((field.value as double).toInt(), (field.value as double).toInt(), int);
+                        attributesNames[atts.key]![field.key] = AttributeReqEff(requested: (field.value as double).toInt(), effective: (field.value as double).toInt(), int);
                         break;
                     }
                     break;
@@ -115,11 +115,11 @@ class AttributesState {
                     if (hasNoRequest(atts.key, field.key) == true || hasNoRequest(atts.key, field.key) == null) {
                       switch (field.value.runtimeType) {
                         case int:
-                          attributesNames[atts.key]![field.key] = AttributeReqEff(field.value.toDouble(), field.value.toDouble(), double);
+                          attributesNames[atts.key]![field.key] = AttributeReqEff(requested: field.value.toDouble(), effective: field.value.toDouble(), double);
                           break;
                         
                         case double:
-                          attributesNames[atts.key]![field.key] = AttributeReqEff(field.value, field.value, double);
+                          attributesNames[atts.key]![field.key] = AttributeReqEff(requested: field.value, effective: field.value, double);
                           break;
                       }
                       break;
@@ -128,11 +128,11 @@ class AttributesState {
                       if (hasNoRequest(atts.key, field.key) == true) {
                         switch (field.value.runtimeType) {
                           case int:
-                            attributesNames[atts.key]![field.key] = AttributeReqEff(field.value.toDouble(), field.value.toDouble(), double);
+                            attributesNames[atts.key]![field.key] = AttributeReqEff(requested: field.value.toDouble(), effective: field.value.toDouble(), double);
                             break;
                           
                           case double:
-                            attributesNames[atts.key]![field.key] = AttributeReqEff(field.value, field.value, double);
+                            attributesNames[atts.key]![field.key] = AttributeReqEff(requested: field.value, effective: field.value, double);
                             break;
                         }
                         break;
@@ -142,13 +142,13 @@ class AttributesState {
 
                   // If attribute field is supposed to be a String
                   case String:
-                    attributesNames[atts.key]![field.key] = AttributeReqEff(field.value, field.value, String);
+                    attributesNames[atts.key]![field.key] = AttributeReqEff(requested: field.value, effective: field.value, String);
                     break;
 
                   // If attribute filed is supposed to be a bool
                   case bool:
                     // print("${atts.key} | ${field.key} => ${field.value}");
-                    attributesNames[atts.key]![field.key] = AttributeReqEff(field.value, field.value, bool);
+                    attributesNames[atts.key]![field.key] = AttributeReqEff(requested: field.value, effective: field.value, bool);
                 }
               }
             }

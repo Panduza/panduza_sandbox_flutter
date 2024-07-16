@@ -4,6 +4,9 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:panduza_sandbox_flutter/utils/const.dart';
+import 'package:panduza_sandbox_flutter/utils/utils_objects/attribute_req_eff.dart';
+import 'package:panduza_sandbox_flutter/utils/utils_objects/attributes_state.dart';
+import 'package:panduza_sandbox_flutter/widgets/userspace_widgets/basic_widget.dart';
 import 'templates.dart';
 import 'package:panduza_sandbox_flutter/utils/utils_objects/interface_connection.dart';
 import 'package:mqtt_client/mqtt_client.dart';
@@ -18,78 +21,20 @@ class IcThermometer extends StatefulWidget {
   State<IcThermometer> createState() => _IcThermometerState();
 }
 
-class _IcThermometerState extends State<IcThermometer> {
+class _IcThermometerState extends BasicWidget<IcThermometer> {
 
-  int _measureDecimal = 1;
-  double _value = 0;
-  
-  StreamSubscription<List<MqttReceivedMessage<MqttMessage>>>? mqttSubscription;
+  // I will have a map who where the key represent the attribute name, 
+  // and the value is a map who represent every fields of this attribute 
+  // Each field with have a value and a type associated
 
-  /// Init each value of the thermometer, here just the measure 
-  /// temperature
-  /// 
-  void onMqttMessage(List<MqttReceivedMessage<MqttMessage>> c) {
-
-    //
-    if (c[0].topic.startsWith(widget._interfaceConnection.topic)) {
-      if (!c[0].topic.endsWith('/info')) {
-        final recMess = c[0].payload as MqttPublishMessage;
-
-        final pt =
-            MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
-
-        var jsonObject = json.decode(pt);
-      
-        for (MapEntry<String, dynamic> atts in jsonObject.entries) {
-          for (MapEntry<String, dynamic> field in atts.value.entries) {
-
-            switch (atts.key) {
-              case "measure":
-                if (field.key == "value") {
-                  double updateVal = 0;
-                  switch (field.value.runtimeType) {
-                    case int:
-                      updateVal = field.value.toDouble();
-                    case double:
-                      updateVal = field.value;
-                  }
-                  setState(() {
-                    _value = updateVal;
-                  });
-                }
-
-                if (field.key == "decimals") {
-                  switch (field.value.runtimeType) {
-                    case int:
-                      _measureDecimal = field.value;
-                    case double:
-                      _measureDecimal = (field.value as double).toInt();
-                  }
-                }
-                break;
-            }
-          }
-        }
-        
-      }
-    } else {
-      // print('not good:');
+  final Map<String, Map<String, AttributeReqEff>> attributesNames = {
+    "measure": {
+      "value": AttributeReqEff(double),
+      "decimals": AttributeReqEff(int)
     }
-  }
+  };
 
-  /// Initialize MQTT Subscriptions
-  ///
-  void initializeMqttSubscription() async {
-
-    mqttSubscription = widget._interfaceConnection.client.updates!.listen(onMqttMessage);
-
-    String attsTopic = "${widget._interfaceConnection.topic}/atts/#";
-    // print(attsTopic);
-    widget._interfaceConnection.client
-        .subscribe(attsTopic, MqttQos.atLeastOnce);
-
-  }
-
+  AttributesState? attributeState;
   late TextEditingController _freqController;
 
   /// Perform MQTT Subscriptions at the start of the component
@@ -98,15 +43,14 @@ class _IcThermometerState extends State<IcThermometer> {
   void initState() {
     super.initState();
 
-    // subscribe to info and atts ?
-    Future.delayed(const Duration(milliseconds: 1), initializeMqttSubscription);
+    attributeState = AttributesState(widget._interfaceConnection, attributesNames, this);
 
     _freqController = TextEditingController(text: "1");
   }
 
   @override
   void dispose() {
-    mqttSubscription!.cancel();
+    attributeState?.cancel();
     super.dispose();
   }
 
@@ -120,7 +64,9 @@ class _IcThermometerState extends State<IcThermometer> {
         children: [
           cardHeadLine(widget._interfaceConnection),
           Text(
-            "${double.parse(_value.toStringAsFixed(_measureDecimal))} °C",
+            "${double.parse(attributeState?.getAttributeEffective("measure", "value").toStringAsFixed(
+              attributeState?.getAttributeEffective("measure", "decimals")
+            ))} °C",
             style: TextStyle(
               color: black
             ),
