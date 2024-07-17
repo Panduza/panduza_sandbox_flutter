@@ -304,14 +304,17 @@ String formatValueInBaseMilliMicro(double value, String prefix, String suffix, i
 
   String newSuffix = suffix;
   double newValue = value;
+  String newValueString = "";
   // If value inferior to 1 show it in milli
   if (newValue < 1.0) {
     newValue *= 1000;
     newSuffix = "m$suffix";
+    decimalNumbers -= 3;
     // If value in milli inferior to 1 show it in milli
     if (newValue < 1.0) {
       newValue *= 1000;
       newSuffix = "µ$suffix";
+      decimalNumbers -= 3;
     }
   }
 
@@ -319,8 +322,10 @@ String formatValueInBaseMilliMicro(double value, String prefix, String suffix, i
     newSuffix = suffix;
   }
 
+  if (decimalNumbers < 0) decimalNumbers = 0;
+  
+  newValueString = newValue.toStringAsFixed(decimalNumbers);
   // Problem in precision float value ask to do again a rounding
-  String newValueString = newValue.toStringAsFixed(decimalNumbers);
   return "$prefix$newValueString $newSuffix";
 }
 
