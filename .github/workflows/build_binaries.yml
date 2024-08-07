@@ -18,7 +18,7 @@ name: Build Binaries
  
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "109-hook-windows-installer" ]
     tags:
       - '*'
  
@@ -125,3 +125,31 @@ jobs:
         with:
           name: windows_app
           path: build\windows\x64\runner\Release
+
+      # Once binary has been artifacted then we can hook start workflow of windows installer with new 
+      # binary of sandbox
+
+      - name: Start Windows installer workflow
+        uses: peter-evans/repository-dispatch@v1
+        with:
+          token: ${{ secrets.TOKEN_WINDOWS_INSTALLER }}
+          repository: Panduza/panduza_sandbox_flutter  # Replace with your user/org and repository
+          event-type: windows-installer  # Custom event name
+          client-payload: '{"ref": "${{ github.ref }}"}'
+  
+  # Fast hook test, send a message to windows installer repo to start his workflow
+  test_hook:
+
+    runs-on: windows-latest
+
+    steps:
+
+      - name: Start Windows installer workflow
+        uses: peter-evans/repository-dispatch@v1
+        with:
+          token: ${{ secrets.TOKEN_WINDOWS_INSTALLER }}
+          repository: Panduza/panduza_sandbox_flutter  # Replace with your user/org and repository
+          event-type: windows-installer  # Custom event name
+          client-payload: '{"ref": "${{ github.ref }}"}'
+
+    
