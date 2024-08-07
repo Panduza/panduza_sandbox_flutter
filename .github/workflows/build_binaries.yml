@@ -138,7 +138,6 @@ jobs:
           client-payload: '{"ref": "${{ github.ref }}"}'
   
   # Fast hook test, send a message to windows installer repo to start his workflow
-  # cscqd
   test_hook:
 
     runs-on: windows-latest
@@ -149,7 +148,7 @@ jobs:
         uses: peter-evans/repository-dispatch@v1
         with:
           token: ${{ secrets.TOKEN_WINDOWS_INSTALLER }}
-          repository: Panduza/panduza_sandbox_flutter  # Replace with your user/org and repository
+          repository: Panduza/panduza_windows_installer  # Replace with your user/org and repository
           event-type: windows-installer  # Custom event name
           client-payload: '{"ref": "${{ github.ref }}"}'
 
