@@ -136,20 +136,5 @@ jobs:
           repository: Panduza/panduza_sandbox_flutter
           event-type: update-windows-installer
           client-payload: '{"ref": "${{ github.ref }}"}'
-  
-  # Fast hook test, send a message to windows installer repo to start his workflow
-  test_hook:
-
-    runs-on: windows-latest
-
-    steps:
-
-      - name: Start Windows installer workflow
-        uses: peter-evans/repository-dispatch@v1
-        with:
-          token: ${{ secrets.TOKEN_WINDOWS_INSTALLER }}
-          repository: Panduza/panduza_windows_installer 
-          event-type: update-windows-installer
-          client-payload: '{"ref": "${{ github.ref }}"}'
 
     
