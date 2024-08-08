@@ -134,7 +134,7 @@ jobs:
         with:
           token: ${{ secrets.TOKEN_WINDOWS_INSTALLER }}
           repository: Panduza/panduza_sandbox_flutter
-          event-type: windows-installer  # Event name must be the same at the place where it must be hook
+          event-type: update-windows-installer
           client-payload: '{"ref": "${{ github.ref }}"}'
   
   # Fast hook test, send a message to windows installer repo to start his workflow
@@ -149,7 +149,7 @@ jobs:
         with:
           token: ${{ secrets.TOKEN_WINDOWS_INSTALLER }}
           repository: Panduza/panduza_windows_installer 
-          event-type: windows-installer  # Event name must be the same at the place where it must be hook
+          event-type: update-windows-installer
           client-payload: '{"ref": "${{ github.ref }}"}'
 
     
