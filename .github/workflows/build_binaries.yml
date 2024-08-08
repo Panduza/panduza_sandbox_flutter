@@ -127,7 +127,7 @@ jobs:
           path: build\windows\x64\runner\Release
 
       # Once binary has been artifacted then we can hook start workflow of windows installer with new 
-      # binary of sandbox
+      # binaries of sandbox
 
       - name: Start Windows installer workflow
         uses: peter-evans/repository-dispatch@v1
